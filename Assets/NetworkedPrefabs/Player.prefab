@@ -160,6 +160,7 @@ MonoBehaviour:
   _airSpeedDivider: 11.5
   _bunnyHopFactor: 2.5
   _bunnyHopTimeout: 1.85
+  _jumpEasiness: 0.3
   _mapLayers:
     serializedVersion: 2
     m_Bits: 64

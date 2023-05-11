@@ -34,6 +34,12 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Когда игрок банихопит, его скорость постоянно плюсуется с этим значением каждый прыжок"), Min(0)] private float _bunnyHopFactor = 0.5f;
     [SerializeField, Tooltip("Если блять \nпосле прыжка проходит столько времени, то вся скорость с банихопа сбрасывается"), Min(0)] private float _bunnyHopTimeout = 0.35f;
 
+    [Space(9)]
+
+    [SerializeField, Tooltip("Легкость использования прыжка (койоти тайм и джамп баффер). Менять не советую"), Min(0)] private float _jumpEasiness = 0.3f;
+
+    private float? _lastGroundedTime;
+    private float? _lastTryToJump;
 
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
@@ -71,12 +77,12 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    public override void OnStartLocalPlayer()
+    public override void OnStartLocalPlayer() // то же самое что и старт, только для локального игрока
     {
         Initialize();
     }
 
-    private void Initialize()
+    private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
         
@@ -92,7 +98,7 @@ public class NetworkPlayer : NetworkBehaviour
         InitializeCamera();
     }
 
-    private void InitializeCamera()
+    private void InitializeCamera() // инициализируем камеру (задаем параметры по дефолту и добовляем нужные компоненты)
     {
         _playerCamera.fieldOfView = 75;
         _playerCamera.nearClipPlane = 0.01f;
@@ -113,43 +119,57 @@ public class NetworkPlayer : NetworkBehaviour
         _playerMoveCamera.Orientation = _orientation;
     }
 
-    private void SetVariables()
+    private void SetVariables() //реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
     {
         _groundChecking = (transform.position + Vector3.down * (_cc.height / 2), _cc.radius / 3);
     }
 
-    private void TryGetRequiredComponents()
+    private void TryGetRequiredComponents() // тут мы получаем нужные компоненты и записываем их
     {
-        // тут мы получаем нужные компоненты и записываем их
-
         TryGetComponent<Rigidbody>(out _rb);
         TryGetComponent<CapsuleCollider>(out _cc);
     }
 
     private void Update()
     {
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayer) return; // эта строка заставляет выйти из метода, если мы не являемся локальным игроком
 
         RecieveInputs();
         SetVariables();
 
-        if (_wantToJump && CheckIsGrounded())
+        if (CheckIsGrounded())
         {
-            Jump();
+            _lastGroundedTime = Time.time;
+        }
+
+        if (_wantToJump)
+        {
+            _lastTryToJump = Time.time;
+        }
+
+        if (Time.time - _lastGroundedTime <= _jumpEasiness)
+        {
+            if (Time.time - _lastTryToJump <= _jumpEasiness)
+            {
+                Jump();
+            }
         }
     }
 
     private void Jump()
     {
+        _lastTryToJump = null;
+        _lastGroundedTime = null;
+
         _rb.velocity = new Vector3(_rb.velocity.x, _jumpForce, _rb.velocity.z);
 
-        if (_bhopTimer > 0)
+        if (_bhopTimer > 0) // если наш банихоп не в таймауте
         {
-            _bhop += _bunnyHopFactor;
+            _bhop += _bunnyHopFactor; // то при прыжке добовляем скорости
         }
         else
         {
-            _bhop = 0;
+            _bhop = 0; // иначе сбрасываем скорсоть
         }
 
         _bhopTimer = _bunnyHopTimeout;
@@ -170,7 +190,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        if (!isLocalPlayer) return;
+        if (!isLocalPlayer) return; // эта строка заставляет выйти из метода, если мы не являемся локальным игроком
 
         RigidbodyMovement();
 
@@ -180,7 +200,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    private bool CheckIsGrounded()
+    private bool CheckIsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
     {
         bool grounded = Physics.CheckSphere(_groundChecking.center, _groundChecking.radius, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
@@ -215,7 +235,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
     
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmosSelected() // забей это не важно, это надо чтоб в эдиторе рисовались подсказки
     {
         Gizmos.color = Color.green;
 
