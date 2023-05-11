@@ -7,7 +7,7 @@ public class pavel : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Debug.Log("ГИТ ПОШЕЛ НАХУЙ");
     }
 
     // Update is called once per frame
