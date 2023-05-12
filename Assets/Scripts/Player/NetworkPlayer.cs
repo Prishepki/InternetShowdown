@@ -69,6 +69,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
+    [SerializeField, Tooltip("Не меняй")] private GameObject _body;
 
     private Camera _playerCamera;
     private CameraMovement _playerMoveCamera;
@@ -103,6 +104,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
+        _body.SetActive(false);
+        
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
 
         foreach (Camera camera in otherCameras)
