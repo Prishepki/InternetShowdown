@@ -1,5 +1,6 @@
 using UnityEngine;
 using Mirror;
+using System;
 
 [RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour
@@ -37,6 +38,11 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SerializeField, Tooltip("Легкость использования прыжка (койоти тайм и джамп баффер). Менять не советую"), Min(0)] private float _jumpEasiness = 0.3f;
 
+    [Header("Dashing Control")]
+    [SerializeField, Tooltip("Сила рывка пока игрок на земле"), Min(0)] private float _dashGroundedForce = 50f;
+    [SerializeField, Tooltip("Сила рывка пока игрок в воздухе"), Min(0)] private float _dashAirForce = 15f;
+    [SerializeField, Tooltip("На сколько секунд игрок не сможет делать рывок после совершеного рывка"), Min(0)] private float _dashTimeout = 0.25f;
+
     private float? _lastGroundedTime;
     private float? _lastTryToJump;
 
@@ -53,9 +59,13 @@ public class NetworkPlayer : NetworkBehaviour
     private float _bhop;
     private float _bhopTimer;
     private Vector2 _inputs;
+    private Vector3 _playerDiretcion;
 
     [HideInInspector] public bool IsMoving;
     private bool _wantToJump;
+
+    private bool _wantToDash;
+    private bool _readyToDash;
 
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
@@ -74,6 +84,16 @@ public class NetworkPlayer : NetworkBehaviour
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // чтоб была не лагучая коллизия
             _rb.freezeRotation = true; // чтоб игрока не вертело как ебанутого
         }
+    }
+
+    private void Start()
+    {
+        InitializeVariables();
+    }
+
+    private void InitializeVariables()
+    {
+        ResetDash();
     }
 
     public override void OnStartLocalPlayer() // то же самое что и старт, только для локального игрока
@@ -156,6 +176,11 @@ public class NetworkPlayer : NetworkBehaviour
                 Jump();
             }
         }
+
+        if (_wantToDash && _readyToDash)
+        {
+            Dash();
+        }
     }
 
     private void Jump()
@@ -183,6 +208,9 @@ public class NetworkPlayer : NetworkBehaviour
         IsMoving = _inputs.magnitude > 0;
 
         _wantToJump = Input.GetKeyDown(JumpKey);
+        _wantToDash = Input.GetKeyDown(DashKey);
+
+        _playerDiretcion = _orientation.forward * _inputs.y + _orientation.right * _inputs.x;
     }
 
     public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
@@ -223,18 +251,31 @@ public class NetworkPlayer : NetworkBehaviour
             _accel = Mathf.Clamp(_accel, 0, _maximumAcceleration);
         }
 
-        Vector3 playerDiretcion = _orientation.forward * _inputs.y + _orientation.right * _inputs.x;
-
         if (CheckIsGrounded())
         {
-            _rb.AddForce(playerDiretcion * (_startSpeed + _accel + _bhop));
+            _rb.AddForce(_playerDiretcion * (_startSpeed + _accel + _bhop));
             _rb.drag = _dragOnGround;
         }
         else
         {
-            _rb.AddForce((playerDiretcion * (_startSpeed + _accel + _bhop)) / _airSpeedDivider);
+            _rb.AddForce((_playerDiretcion * (_startSpeed + _accel + _bhop)) / _airSpeedDivider);
             _rb.drag = 0;
         }
+    }
+
+    private void Dash()
+    {
+        float targetForce = CheckIsGrounded() ? _dashGroundedForce : _dashAirForce;
+
+        _rb.AddForce(_playerDiretcion * targetForce, ForceMode.Impulse);
+
+        _readyToDash = false;
+        Invoke(nameof(ResetDash), _dashTimeout);
+    }
+
+    private void ResetDash()
+    {
+        _readyToDash = true;
     }
 
     private void OnDrawGizmosSelected() // забей это не важно, это надо чтоб в эдиторе рисовались подсказки
