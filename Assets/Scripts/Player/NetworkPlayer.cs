@@ -1,6 +1,5 @@
 using UnityEngine;
 using Mirror;
-using System;
 
 [RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour
