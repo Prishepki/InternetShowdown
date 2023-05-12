@@ -152,11 +152,11 @@ MonoBehaviour:
   syncInterval: 0
   _rb: {fileID: 3602822793115751591}
   _cc: {fileID: 3602822793115751584}
-  _startSpeed: 75
+  _startSpeed: 85
   _accelerationFactor: 2
-  _maximumAcceleration: 10
+  _maximumAcceleration: 12
   _dragOnGround: 8.25
-  _jumpForce: 13.75
+  _jumpForce: 10.75
   _airSpeedDivider: 11.5
   _bunnyHopFactor: 2.5
   _bunnyHopTimeout: 1.85
