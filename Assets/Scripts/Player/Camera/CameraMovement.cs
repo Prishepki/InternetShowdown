@@ -28,6 +28,7 @@ public class CameraMovement : MonoBehaviour
     public Transform Orientation;
     public Transform CamHolder;
     public NetworkPlayer Player;
+    private Camera _camera;
 
     private float _rotX;
     private float _rotY;
@@ -39,6 +40,11 @@ public class CameraMovement : MonoBehaviour
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void Start()
+    {
+        _camera = GetComponent<Camera>();
     }
 
     private void Update()
@@ -68,11 +74,10 @@ public class CameraMovement : MonoBehaviour
         _rotZ = Mathf.SmoothDamp(_rotZ, (Player.GetAxisInputs().x * -_tiltAmount) + ((Player.GetAxisInputs().y * (Mathf.Cos((Time.time * _bobbingSpeed)) * _bobbingAmount) * grounded)), ref _tiltDampVelocity, _tiltSmoothing);
     }
 
-    private void Focus()
+    private void Focus() // паша я переебашил эту хуйню на чтото нормальное
     {
-        if (Player.GetAxisInputs().y > 0)
-            this.transform.GetComponent<Camera>().fieldOfView = Mathf.SmoothDamp(this.transform.GetComponent<Camera>().fieldOfView, _fov + 16.5f, ref _fovDampVelocity, _fovSmoothing);
-        else
-            this.transform.GetComponent<Camera>().fieldOfView = Mathf.SmoothDamp(this.transform.GetComponent<Camera>().fieldOfView, _fov, ref _fovDampVelocity, _fovSmoothing);
+        float targetFov = Player.GetAxisInputs().y > 0 ? _fov + 16.5f : _fov;
+
+        _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFov, ref _fovDampVelocity, _fovSmoothing);
     }
 }

@@ -211,7 +211,7 @@ public class NetworkPlayer : NetworkBehaviour
     }
 
     [Command]
-    private void CmdSpawnParticle(int idx)
+    private void CmdSpawnParticle(int idx) // охуевший метод спавна партиклов спасибо миррор
     {
         GameObject particle = Instantiate(_particles[idx], transform.position, _particles[idx].transform.rotation);
 
@@ -279,7 +279,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    private void Dash()
+    private void Dash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
         float targetForce = CheckIsGrounded() ? _dashGroundedForce : _dashAirForce;
 

@@ -10,7 +10,7 @@ public class JumpPad : MonoBehaviour
 
         if (other.gameObject.TryGetComponent<Rigidbody>(out hit))
         {
-            hit.velocity = new Vector3(hit.velocity.x + (transform.up.x * _force), transform.up.y * _force, hit.velocity.z + (transform.up.z * _force));
+            hit.velocity = new Vector3(hit.velocity.x + (transform.up.x * _force), transform.up.y * _force, hit.velocity.z + (transform.up.z * _force)); // я в ахуе
         }
     }
 }
