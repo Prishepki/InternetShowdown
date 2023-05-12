@@ -121,6 +121,8 @@ MonoBehaviour:
   JumpKey: 32
   DashKey: 304
   IsMoving: 0
+  _particles:
+  - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
   _orientation: {fileID: 5613802264008730177}
   _body: {fileID: 9188342894300109131}
 --- !u!114 &6314750545462305294

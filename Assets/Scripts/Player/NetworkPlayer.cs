@@ -67,6 +67,9 @@ public class NetworkPlayer : NetworkBehaviour
     private bool _wantToDash;
     private bool _readyToDash;
 
+    [Header("Particles")]
+    [SerializeField, Tooltip("Не меняй")] private GameObject[] _particles;
+
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
@@ -203,6 +206,16 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         _bhopTimer = _bunnyHopTimeout;
+
+        CmdSpawnParticle(0);
+    }
+
+    [Command]
+    private void CmdSpawnParticle(int idx)
+    {
+        GameObject particle = Instantiate(_particles[idx], transform.position, _particles[idx].transform.rotation);
+
+        NetworkServer.Spawn(particle, gameObject);
     }
 
     private void RecieveInputs() // ТУТ мы записываем значения в переменые связаные с инпутом, кнопками на клавиатуре, мышке и прочей хуйне
