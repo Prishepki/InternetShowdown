@@ -152,9 +152,9 @@ MonoBehaviour:
   syncInterval: 0
   _rb: {fileID: 3602822793115751591}
   _cc: {fileID: 3602822793115751584}
-  _startSpeed: 85
+  _startSpeed: 105
   _accelerationFactor: 2
-  _maximumAcceleration: 12
+  _maximumAcceleration: 14
   _dragOnGround: 8.25
   _jumpForce: 10.75
   _airSpeedDivider: 11.5
@@ -166,6 +166,7 @@ MonoBehaviour:
     m_Bits: 64
   JumpKey: 32
   DashKey: 304
+  IsMoving: 0
   _orientation: {fileID: 9142290951396144836}
 --- !u!1 &9188342894300109131
 GameObject:

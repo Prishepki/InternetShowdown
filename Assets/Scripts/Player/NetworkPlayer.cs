@@ -55,7 +55,7 @@ public class NetworkPlayer : NetworkBehaviour
     private float _bhopTimer;
     private Vector2 _inputs;
 
-    private bool _isMoving;
+    [HideInInspector] public bool IsMoving;
     private bool _wantToJump;
 
     [Header("Objects")]
@@ -85,7 +85,7 @@ public class NetworkPlayer : NetworkBehaviour
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
-        
+
         foreach (Camera camera in otherCameras)
         {
             Destroy(camera.gameObject);
@@ -100,20 +100,23 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void InitializeCamera() // инициализируем камеру (задаем параметры по дефолту и добовляем нужные компоненты)
     {
-        _playerCamera.fieldOfView = 75;
+        _playerCamera.fieldOfView = 80;
         _playerCamera.nearClipPlane = 0.01f;
 
         GameObject camera = _playerCamera.gameObject;
+        GameObject cameraHolder = new GameObject("Camera Holder");
 
         _playerMoveCamera = camera.GetComponent<CameraMovement>();
         camera.AddComponent<AudioListener>();
+        camera.GetComponent<CameraMovement>().Player = this;
 
-        Transform cameraHolder = new GameObject("Camera Holder").transform;
+        Transform cameraHolderTransform = cameraHolder.transform;
+        camera.GetComponent<CameraMovement>().CamHolder = cameraHolderTransform;
 
-        cameraHolder.SetParent(gameObject.transform);
-        cameraHolder.localPosition = Vector3.zero;
+        cameraHolderTransform.SetParent(gameObject.transform);
+        cameraHolderTransform.localPosition = Vector3.zero;
 
-        camera.transform.SetParent(cameraHolder);
+        camera.transform.SetParent(cameraHolderTransform);
         camera.transform.localPosition = Vector3.up * 0.5f;
 
         _playerMoveCamera.Orientation = _orientation;
@@ -178,12 +181,12 @@ public class NetworkPlayer : NetworkBehaviour
     private void RecieveInputs() // ТУТ мы записываем значения в переменые связаные с инпутом, кнопками на клавиатуре, мышке и прочей хуйне
     {
         _inputs = GetAxisInputs();
-        _isMoving = _inputs.magnitude > 0;
+        IsMoving = _inputs.magnitude > 0;
 
         _wantToJump = Input.GetKeyDown(JumpKey);
     }
 
-    private Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
+    public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
     {
         return new Vector2(Input.GetAxisRaw(_horizontal), Input.GetAxisRaw(_vertical));
     }
@@ -200,7 +203,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    private bool CheckIsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
+    public bool CheckIsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
     {
         bool grounded = Physics.CheckSphere(_groundChecking.center, _groundChecking.radius, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
@@ -209,7 +212,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z
     {
-        if (!_isMoving)
+        if (!IsMoving)
         {
             _bhop = 0;
             _accel = 0;
@@ -234,7 +237,7 @@ public class NetworkPlayer : NetworkBehaviour
             _rb.drag = 0;
         }
     }
-    
+
     private void OnDrawGizmosSelected() // забей это не важно, это надо чтоб в эдиторе рисовались подсказки
     {
         Gizmos.color = Color.green;
