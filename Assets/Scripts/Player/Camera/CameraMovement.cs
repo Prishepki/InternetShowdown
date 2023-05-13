@@ -37,11 +37,6 @@ public class CameraMovement : MonoBehaviour
     private Vector3 _startPos;
     [HideInInspector] public bool BlockMovement;
 
-    private void Awake()
-    {
-        Cursor.lockState = CursorLockMode.Locked;
-    }
-
     private void Start()
     {
         _camera = GetComponent<Camera>();
