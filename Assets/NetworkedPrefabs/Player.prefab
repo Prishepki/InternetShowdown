@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 6314750545462305294}
   - component: {fileID: 2616357165067855253}
   - component: {fileID: 8348873482465104885}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -225,7 +225,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5613802264008730177}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Orientation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -259,7 +259,7 @@ GameObject:
   - component: {fileID: 9142290951396144836}
   - component: {fileID: 7380734141323354245}
   - component: {fileID: 3291134265114765407}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}

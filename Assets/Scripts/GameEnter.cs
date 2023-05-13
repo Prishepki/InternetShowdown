@@ -5,7 +5,7 @@ public class GameEnter : MonoBehaviour
 {
     private void Start()
     {
-        Invoke(nameof(LoadLobby), 0);
+        Invoke(nameof(LoadLobby), 0.1f);
     }
 
     private void LoadLobby()
