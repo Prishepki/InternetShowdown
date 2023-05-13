@@ -165,6 +165,16 @@ public class NetworkPlayer : NetworkBehaviour
         RecieveInputs();
         SetVariables();
 
+        // TODO удалить это нахуй
+        if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            NetworkManager.singleton.ServerChangeScene("Lobby");
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            NetworkManager.singleton.ServerChangeScene("Lobby 1");
+        }
+
         if (CheckIsGrounded())
         {
             _lastGroundedTime = Time.time;
