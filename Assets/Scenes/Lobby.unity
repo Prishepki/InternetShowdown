@@ -2475,7 +2475,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _breakLength: 60
+  _breakLength: 20
   _roundsToLagreBreak: 5
   _largeBreakLength: 180
   _prepareLength: 10
