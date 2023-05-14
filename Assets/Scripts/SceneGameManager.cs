@@ -19,4 +19,10 @@ public class SceneGameManager : NetworkBehaviour
         everywhereCanvas.Timer.text = exposedTimeCounter;
         everywhereCanvas.Timer.color = color;
     }
+
+    [ClientRpc]
+    public void RpcAllowMovement(bool allow)
+    {
+        NetworkClient.localPlayer.GetComponent<NetworkPlayer>().AllowMovement = allow;
+    }
 }

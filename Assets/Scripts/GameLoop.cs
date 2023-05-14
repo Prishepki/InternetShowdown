@@ -116,6 +116,9 @@ public class GameLoop : NetworkBehaviour
 
             OnTimeCounterUpdate(_timeCounter, Color.red);
 
+            StopMatch();
+            SetGameState(GameState.MatchEnded);
+
             yield return new WaitForSeconds(5f);
 
             _currentGamesPlayed++;
@@ -124,7 +127,7 @@ public class GameLoop : NetworkBehaviour
         }
     }
 
-    private void SetGameState(GameState state, int time)
+    private void SetGameState(GameState state, int time = 0)
     {
         _currentGameState = state;
         _timeCounter = time;
@@ -139,6 +142,12 @@ public class GameLoop : NetworkBehaviour
     private void StartMatch()
     {
         FindObjectOfType<ItemSpawner>().StartSpawnProcces();
+    }
+
+    private void StopMatch()
+    {
+        FindObjectOfType<ItemSpawner>().StopSpawnProcces();
+        FindObjectOfType<SceneGameManager>().RpcAllowMovement(false);
     }
 
     private void TimeToBreak()
@@ -157,5 +166,6 @@ public enum GameState
     Break,
     LargeBreak,
     Prepare,
-    Match
+    Match,
+    MatchEnded
 }

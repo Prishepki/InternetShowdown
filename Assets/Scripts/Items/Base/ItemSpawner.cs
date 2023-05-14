@@ -17,6 +17,12 @@ public class ItemSpawner : NetworkBehaviour // спавнер предметов
     {
         InvokeRepeating(nameof(SpawnItem), 0f, _spawnRate); // постояно вызывает SpawnItem
     }
+
+    [ServerCallback] // этот атрибут запрещает вызывать метод всем клиентам кроме сервера
+    public void StopSpawnProcces()
+    {
+        CancelInvoke(nameof(SpawnItem)); // отменяет постоянный вызов метода
+    }
     
     public void SpawnItem()
     {

@@ -77,6 +77,8 @@ public class NetworkPlayer : NetworkBehaviour
     private Camera _playerCamera;
     private CameraMovement _playerMoveCamera;
 
+    [HideInInspector] public bool AllowMovement;
+
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
         TryGetRequiredComponents();
@@ -98,6 +100,7 @@ public class NetworkPlayer : NetworkBehaviour
     private void InitializeVariables()
     {
         ResetDash();
+        AllowMovement = true;
     }
 
     public override void OnStartLocalPlayer() // то же самое что и старт, только для локального игрока
@@ -191,6 +194,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Jump()
     {
+        if (!AllowMovement) return;
+
         _lastTryToJump = null;
         _lastGroundedTime = null;
 
@@ -267,6 +272,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z
     {
+        if (!AllowMovement) return;
+
         if (!IsMoving)
         {
             _bhop = 0;
@@ -295,6 +302,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Dash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
+        if (!AllowMovement) return;
+
         float targetForce = CheckIsGrounded() ? _dashGroundedForce : _dashAirForce;
 
         _rb.AddForce(_playerDiretcion * targetForce, ForceMode.Impulse);
