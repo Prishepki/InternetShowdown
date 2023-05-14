@@ -58,12 +58,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _BUILTIN_QueueControl: 0
+    - _BUILTIN_QueueOffset: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
-    - _Glossiness: 0.5
+    - _Glossiness: 0.207
     - _GlossyReflections: 1
     - _Metallic: 0
     - _Mode: 0
@@ -75,6 +77,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
+    - _BaseColor: {r: 0.23921569, g: 0.27450982, b: 0.34117648, a: 0}
     - _Color: {r: 0.23864292, g: 0.27436766, b: 0.34238243, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
