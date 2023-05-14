@@ -16,7 +16,11 @@ public class GameLoop : NetworkBehaviour
     [Header("Match")]
     [SerializeField, Min(30), Tooltip("Долгота подготовки перед раундом в секундах")] private int _prepareLength = 10;
     [SerializeField, Min(30), Tooltip("Долгота раунда в секундах")] private int _roundLength = 340;
-    [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет красным")] private int _attentionTime = 60;
+
+    [Space(9)]
+
+    [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет желтым")] private int _attentionTimeYellow = 60;
+    [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет красным")] private int _attentionTimeRed = 10;
 
     private GameState _currentGameState;
 
@@ -45,27 +49,23 @@ public class GameLoop : NetworkBehaviour
 
     private IEnumerator Loop() // ебанутый цикл я в ахуе
     {        
+        WaitForSeconds _sceneChangeDelay = new WaitForSeconds(0.15f);
+
         while (true)
         {
+            yield return _sceneChangeDelay;
+
             // ПЕРЕРЫВ
             if (_currentGamesPlayed == _roundsToLagreBreak)
             {
-                _currentGameState = GameState.LargeBreak;
-
-                _timeCounter = _largeBreakLength;
-                OnTimeCounterUpdate(_largeBreakLength, Color.white);
-                
+                SetGameState(GameState.LargeBreak, _largeBreakLength);
                 _currentGamesPlayed = 0;
             }
             else
             {
-                _currentGameState = GameState.Break;
-
+                SetGameState(GameState.Break, _breakLength);
                 _timeCounter = _breakLength;
-                OnTimeCounterUpdate(_breakLength, Color.white);
             }
-
-            _repeatSeconds = _timeCounter;
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -76,19 +76,12 @@ public class GameLoop : NetworkBehaviour
                 yield return new WaitForSeconds(1f);
             }
 
-            OnTimeCounterUpdate(_timeCounter, Color.white);
+            LoadMatch();
 
-            StartMatch();
-
-            yield return new WaitForSeconds(1f);
+            yield return _sceneChangeDelay;
 
             // ПОДГОТОВКА
-            _currentGameState = GameState.Prepare;
-
-            _timeCounter = _prepareLength;
-            OnTimeCounterUpdate(_prepareLength, Color.gray);
-
-            _repeatSeconds = _timeCounter;
+            SetGameState(GameState.Prepare, _prepareLength);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -104,16 +97,15 @@ public class GameLoop : NetworkBehaviour
             yield return new WaitForSeconds(1f);
 
             // МАТЧ
-            _currentGameState = GameState.Match;
-
-            _timeCounter = _roundLength;
             OnTimeCounterUpdate(_roundLength, Color.white);
 
-            _repeatSeconds = _timeCounter;
+            StartMatch();
+            SetGameState(GameState.Match, _roundLength);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
-                Color targetColor = _timeCounter <= _attentionTime ? Color.red : Color.white;
+                // я мистер читабельность
+                Color targetColor = _timeCounter <= _attentionTimeRed ? Color.red : _timeCounter <= _attentionTimeYellow ? Color.yellow : Color.white;
 
                 OnTimeCounterUpdate(_timeCounter, targetColor);
 
@@ -132,9 +124,21 @@ public class GameLoop : NetworkBehaviour
         }
     }
 
-    private void StartMatch()
+    private void SetGameState(GameState state, int time)
+    {
+        _currentGameState = state;
+        _timeCounter = time;
+        _repeatSeconds = _timeCounter;
+    }
+
+    private void LoadMatch()
     {
         NetworkManager.singleton.ServerChangeScene("TestMap");
+    }
+
+    private void StartMatch()
+    {
+        FindObjectOfType<ItemSpawner>().StartSpawnProcces();
     }
 
     private void TimeToBreak()

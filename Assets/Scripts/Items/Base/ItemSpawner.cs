@@ -13,9 +13,9 @@ public class ItemSpawner : NetworkBehaviour // спавнер предметов
     [SerializeField, Min(0.1f)] private float _spawnRate = 4f;
 
     [ServerCallback] // этот атрибут запрещает вызывать метод всем клиентам кроме сервера
-    private void Start()
+    public void StartSpawnProcces()
     {
-        InvokeRepeating(nameof(SpawnItem), _spawnRate, _spawnRate); // постояно вызывает SpawnItem
+        InvokeRepeating(nameof(SpawnItem), 0f, _spawnRate); // постояно вызывает SpawnItem
     }
     
     public void SpawnItem()
