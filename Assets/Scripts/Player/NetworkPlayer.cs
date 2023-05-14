@@ -253,6 +253,18 @@ public class NetworkPlayer : NetworkBehaviour
         return grounded;
     }
 
+    public (bool sloped, float angle) CheckIsSloped() // тупле метод ахуевший просто
+    {
+        RaycastHit hit;
+
+        Physics.Raycast(_groundChecking.center, Vector3.down, out hit, 1f, _mapLayers.value, QueryTriggerInteraction.Ignore);
+
+        float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+        bool sloped = slopeAngle != 0 ? true : false;
+
+        return (sloped, slopeAngle);
+    }
+
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z
     {
         if (!IsMoving)
@@ -269,7 +281,9 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (CheckIsGrounded())
         {
-            _rb.AddForce(_playerDiretcion * (_startSpeed + _accel + _bhop));
+            float targetForce = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
+
+            _rb.AddForce(_playerDiretcion * targetForce);
             _rb.drag = _dragOnGround;
         }
         else
