@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 7182742820496388454}
   - component: {fileID: 6053366899010682563}
   - component: {fileID: 8351105645683100169}
-  - component: {fileID: 5458457550504386693}
   - component: {fileID: 7216037601546983055}
+  - component: {fileID: 7031721337329380688}
   m_Layer: 0
   m_Name: jumppad
   m_TagString: Untagged
@@ -86,20 +86,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &5458457550504386693
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7558705000723835868}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5495902117074765545, guid: 007fd4426faafc0499b4be2c315d6349, type: 3}
 --- !u!114 &7216037601546983055
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,4 +98,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 016f6402e2360074aa98adb90b103eaa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _force: 22.5
+  _force: 27.5
+--- !u!65 &7031721337329380688
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7558705000723835868}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.02, y: 0.019999996, z: 0.0039292783}
+  m_Center: {x: 0, y: 0.000000041734893, z: 0.0019646606}
