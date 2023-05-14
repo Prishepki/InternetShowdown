@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 6314750545462305294}
   - component: {fileID: 2616357165067855253}
   - component: {fileID: 8348873482465104885}
+  - component: {fileID: 2202756226007548306}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -107,6 +108,7 @@ MonoBehaviour:
   _accelerationFactor: 2
   _maximumAcceleration: 14
   _dragOnGround: 8.25
+  TargetForce: 0
   _jumpForce: 10.75
   _airSpeedDivider: 11.5
   _bunnyHopFactor: 2.5
@@ -125,6 +127,7 @@ MonoBehaviour:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
   _orientation: {fileID: 5613802264008730177}
   _body: {fileID: 9188342894300109131}
+  AllowMovement: 0
 --- !u!114 &6314750545462305294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -216,6 +219,25 @@ MonoBehaviour:
   positionPrecision: 0.01
   scalePrecision: 0.01
   timelineOffset: 0
+--- !u!114 &2202756226007548306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3602822793115751588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6085357956bec045a0609156d8d207d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _registeredItems:
+  - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}
+  - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
+  CurrentItem: {fileID: 0}
 --- !u!1 &7028365458554864497
 GameObject:
   m_ObjectHideFlags: 0

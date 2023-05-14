@@ -16,12 +16,12 @@ public class SceneGameManager : NetworkBehaviour
 
         string exposedTimeCounter = $"{minutes}:{exposedSeconds}";
 
-        everywhereCanvas.Timer.text = exposedTimeCounter;
-        everywhereCanvas.Timer.color = color;
+        everywhereCanvas.Timer.text = exposedTimeCounter; // текст таймера
+        everywhereCanvas.Timer.color = color; // цвет текста таймера
     }
 
     [ClientRpc]
-    public void RpcAllowMovement(bool allow)
+    public void RpcAllowMovement(bool allow) // запрещает или разрешает всем игрокам двигаться
     {
         NetworkClient.localPlayer.GetComponent<NetworkPlayer>().AllowMovement = allow;
     }
