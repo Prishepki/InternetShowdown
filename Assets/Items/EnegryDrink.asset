@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
   m_Name: EnegryDrink
   m_EditorClassIdentifier: 
+  ItemRarity: 5
   HoldToUse: 0
   UseTime: 1
   Mutations:

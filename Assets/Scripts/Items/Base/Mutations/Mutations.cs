@@ -9,15 +9,20 @@ public abstract class Mutation // базовый класс мутации
     public float Amount;
     public float Time;
 
-    protected NetworkPlayer _player;
+    protected abstract void OnAdd(); // вызывается когда надо сложить стату
+    protected abstract void OnMultiply(); // вызывается когда надо умножить стату
 
-    public abstract void OnAdd(); // вызывается когда надо сложить стату
-    public abstract void OnMultiply(); // вызывается когда надо умножить стату
+    protected abstract void OnDecrease(); // вызывается когда надо убавить стату
+    protected abstract void OnDivide(); // вызывается когда надо разделить стату стату
 
-    public abstract void OnDecrease(); // вызывается когда надо убавить стату
-    public abstract void OnDivide(); // вызывается когда надо разделить стату стату
+    protected float _multipliedStats; // переменая для удобности умножения и деления стат
 
-    public IEnumerator Execute()
+    protected float MultiplyTool(float s) // метод для удобности умножения и деления стат
+    {
+        return (s * Amount) - s;
+    }
+
+    public IEnumerator Execute() // вроде не очень делать такое корутинами, но блять если оно работает то оно работает отъебистесь
     {
         if (ChangeAs == ChangeType.Add)
         {
@@ -34,70 +39,64 @@ public abstract class Mutation // базовый класс мутации
         }
     }
 
-    public Mutation(ChangeType change, float amount, float time, NetworkPlayer player) // конструктор
+    public Mutation(ChangeType change, float amount, float time) // конструктор
     {
         ChangeAs = change;
         Amount = amount;
         Time = time;
-
-        _player = player;
     }
 }
 
 public class SpeedMutation : Mutation // мутация скорости
 {
-    public SpeedMutation(ChangeType change, float amount, float time, NetworkPlayer player) : base(change, amount, time, player) { }
+    public SpeedMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
 
-    private float _speedMultiply;
-
-    public override void OnAdd()
+    protected override void OnAdd()
     {
         PlayerMutationStats.AdditionalSpeed += Amount;
     }
 
-    public override void OnMultiply()
+    protected override void OnMultiply()
     {
-        _speedMultiply = (_player.TargetMoveForce * Amount) - _player.TargetMoveForce;
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.CurrentSpeed);
 
-        PlayerMutationStats.AdditionalSpeed += _speedMultiply;
+        PlayerMutationStats.AdditionalSpeed += _multipliedStats;
     }
     
-    public override void OnDecrease()
+    protected override void OnDecrease()
     {
         PlayerMutationStats.AdditionalSpeed -= Amount;
     }
     
-    public override void OnDivide()
+    protected override void OnDivide()
     {
-        PlayerMutationStats.AdditionalSpeed -= _speedMultiply;
+        PlayerMutationStats.AdditionalSpeed -= _multipliedStats;
     }
 }
 
 public class BounceMutation : Mutation // мутация прыгучести
 {
-    public BounceMutation(ChangeType change, float amount, float time, NetworkPlayer player) : base(change, amount, time, player) { }
+    public BounceMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
 
-    private float _bounceMultiply;
-
-    public override void OnAdd()
+    protected override void OnAdd()
     {
         PlayerMutationStats.AdditionalBounce += Amount;
     }
 
-    public override void OnMultiply()
+    protected override void OnMultiply()
     {
-        _bounceMultiply = (_player.TargetJumpForce * Amount) - _player.TargetJumpForce;
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.CurrentBounce);
 
-        PlayerMutationStats.AdditionalBounce += _bounceMultiply;
+        PlayerMutationStats.AdditionalBounce += _multipliedStats;
     }
     
-    public override void OnDecrease()
+    protected override void OnDecrease()
     {
         PlayerMutationStats.AdditionalBounce -= Amount;
     }
     
-    public override void OnDivide()
+    protected override void OnDivide()
     {
-        PlayerMutationStats.AdditionalBounce -= _bounceMultiply;
+        PlayerMutationStats.AdditionalBounce -= _multipliedStats;
     }
 }

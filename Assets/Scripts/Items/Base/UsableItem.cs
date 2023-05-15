@@ -7,12 +7,26 @@ using System.Collections;
 [CreateAssetMenu()]
 public class UsableItem : ScriptableObject
 {
+    [Header("Base Settings")]
+    [Tooltip("От редкости предмета зависит шанс выпадания")] public Rarity ItemRarity = Rarity.Common;
+
+    [Header("Use Settings")]
     [Tooltip("Надо ли зажимать чтоб использовать предмет")] public bool HoldToUse = false;
-    [ShowIf(nameof(HoldToUse)), AllowNesting(), Min(0), Tooltip("На сколько секунд надо зажать, чтоб предмет использовался")] public float UseTime = 1;
+    [SerializeField, ShowIf(nameof(HoldToUse)), AllowNesting(), Min(0), Tooltip("На сколько секунд надо зажать, чтоб предмет использовался")] public float UseTime = 1;
 
     [Space(9)]
 
-    [Tooltip("Игроку дадут эти мутации при использовании")] public List<InspectorMutation> Mutations = new List<InspectorMutation>();
+    [SerializeField, Tooltip("Игроку дадут эти мутации при использовании")] public List<InspectorMutation> Mutations = new List<InspectorMutation>();
+}
+
+public enum Rarity : byte
+{
+    Legendary,
+    Epic,
+    Unique,
+    Rare,
+    Quaint,
+    Common
 }
 
 [Serializable]
