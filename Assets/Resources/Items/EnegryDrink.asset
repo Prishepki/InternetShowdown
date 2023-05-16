@@ -25,3 +25,5 @@ MonoBehaviour:
     ChangeAs: 0
     Amount: 10
     Time: 20
+  Projectiles:
+  - {fileID: 6388113750411372757, guid: 96558e9063c1b6246b5879aa44347b8f, type: 3}

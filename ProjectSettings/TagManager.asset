@@ -14,11 +14,11 @@ TagManager:
   - UI
   - Map
   - PostProcces
-  - Player
+  - 
   - Item
-  - 
-  - 
-  - 
+  - Projectile
+  - Player
+  - LocalPlayer
   - 
   - 
   - 

@@ -448,11 +448,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
-  m_ScreenMatchMode: 0
+  m_ReferenceResolution: {x: 1920, y: 1080}
+  m_ScreenMatchMode: 1
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
@@ -568,8 +568,8 @@ MonoBehaviour:
   autoStartServerBuild: 1
   autoConnectClientBuild: 0
   sendRate: 60
-  offlineScene: Assets/Scenes/Lobby.unity
-  onlineScene: 
+  offlineScene: Assets/Scenes/GameEnter.unity
+  onlineScene: Assets/Scenes/Lobby.unity
   transport: {fileID: 1703730661}
   networkAddress: localhost
   maxConnections: 100
@@ -580,6 +580,7 @@ MonoBehaviour:
   spawnPrefabs:
   - {fileID: 2018272672763609595, guid: c8fcf16ca99bd3f4bb2a745f22c124ed, type: 3}
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
+  - {fileID: 1153284606968098130, guid: 96558e9063c1b6246b5879aa44347b8f, type: 3}
   snapshotSettings:
     bufferTimeMultiplier: 2
     catchupNegativeThreshold: -1
@@ -591,7 +592,6 @@ MonoBehaviour:
     dynamicAdjustmentTolerance: 1
     deliveryTimeEmaDuration: 2
   timeInterpolationGui: 0
-  _gameLoop: {fileID: 1609406485498670394, guid: 36b87feb971647b4dae4e1f626dfb6ca, type: 3}
 --- !u!114 &1703730661
 MonoBehaviour:
   m_ObjectHideFlags: 0

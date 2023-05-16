@@ -9,7 +9,8 @@ public class ItemsReader : NetworkBehaviour
     [SerializeField] private byte _luckModifier = 0;
     [SerializeField] private Transform _itemHolder;
     [SerializeField] private List<UsableItem> _registeredItems = new List<UsableItem>();
-    private UsableItem _currentItem; // паша я ещё не добавил визуал предмету, но домой со школы приду сделаю
+
+    private UsableItem _currentItem;
 
     private NetworkPlayer _player;
 
@@ -19,6 +20,7 @@ public class ItemsReader : NetworkBehaviour
     {
         _player = GetComponent<NetworkPlayer>();
 
+        if (!isLocalPlayer) return;
         _itemHolder.SetParent(_player.PlayerCamera.transform);
     }
 
@@ -80,12 +82,17 @@ public class ItemsReader : NetworkBehaviour
             StartCoroutine(mutation.Execute()); // запускаем мутацию на время
         }
 
+        for (int i = 0; i < _currentItem.Projectiles.Count; i++)
+        {
+            CmdSpawnProjectile(i, _player.PlayerCamera.transform.forward, connectionToClient);
+        }
+
         LoseItem(); // теряем предмет из рук
     }
 
     private void LoseItem()
     {
-        _currentItem = null;
+        SetCurrentItem(null);
         RemoveVisual();
     }
 
@@ -116,9 +123,7 @@ public class ItemsReader : NetworkBehaviour
 
         Debug.Log("youre choice is " + choice);
         
-        _currentItem = choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)];
-
-        MakeVisual(_currentItem.ItemVisual);
+        SetCurrentItem(choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)]);
     }
 
     private (int choice, List<UsableItem> sortedItems, Rarity closestRarity) Generate()
@@ -142,6 +147,78 @@ public class ItemsReader : NetworkBehaviour
     {
         Destroy(_currentVisual);
     }
+
+    private void OnCurrentItemChange()
+    {
+        if (isLocalPlayer)
+        {
+            if (_currentItem != null)
+            {
+                MakeVisual(_currentItem.ItemVisual);
+            }
+        }
+    }
+
+#region NETWORK
+
+    [Command]
+    private void CmdSpawnProjectile(int idx, Vector3 dir, NetworkConnectionToClient connection)
+    {
+        GameObject newProjectile = Instantiate(connection.identity.GetComponent<ItemsReader>()._currentItem.Projectiles[idx].gameObject, transform.position, Quaternion.identity);
+        NetworkServer.Spawn(newProjectile, connection);
+
+        RpcOnProjectileSpawned(newProjectile, dir);
+    }
+
+    [ClientRpc]
+    private void RpcOnProjectileSpawned(GameObject proj, Vector3 dir)
+    {
+        if (proj != null)
+        {
+            proj.GetComponent<ProjectileBase>().Initialize(dir);
+        }
+    }
+
+    private void SetCurrentItem(UsableItem target)
+    {
+        List<UsableItem> toCheck = _registeredItems;
+        toCheck.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
+
+        if (target == null)
+        {
+            CmdSetCurrentItem(null);
+        }
+        else
+        {
+            CmdSetCurrentItem(toCheck.IndexOf(target));
+        }
+    }
+
+    [Command]
+    private void CmdSetCurrentItem(int? idx)
+    {
+        RpcSetCurrentItem(idx);
+    }
+
+    [ClientRpc]
+    private void RpcSetCurrentItem(int? idx)
+    {
+        List<UsableItem> toCheck = _registeredItems;
+        toCheck.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
+
+        if (idx == null)
+        {
+            _currentItem = null;
+        }
+        else
+        {
+            _currentItem = toCheck[idx.Value];
+        }
+
+        OnCurrentItemChange();
+    }
+
+#endregion
 }
 
 public static class MutationJobs // этот класс нужен для работ с классами мутаций

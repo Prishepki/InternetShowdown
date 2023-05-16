@@ -114,6 +114,7 @@ public class NetworkPlayer : NetworkBehaviour
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
         _body.SetActive(false);
+        gameObject.layer = 12;
         
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
 

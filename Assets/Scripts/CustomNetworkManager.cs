@@ -3,8 +3,6 @@ using Mirror;
 
 public class CustomNetworkManager : NetworkManager
 {
-    [SerializeField] private GameObject _gameLoop;
-
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
@@ -16,7 +14,7 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnClientConnect();
 
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     public override void OnStartServer()
