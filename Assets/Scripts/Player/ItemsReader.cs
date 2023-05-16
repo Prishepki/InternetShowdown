@@ -6,12 +6,13 @@ using UnityEngine;
 
 public class ItemsReader : NetworkBehaviour
 {
-    // [SerializeField] private UsableItem _defaultItem; ЧАСТЬ СТАРОЙ РЕАЛИЗАЦИИ (АААААА БЛЯТЬ ПАРАШЕЙ ВОНЯЕТ)
-
+    [SerializeField] private Transform _itemHolder;
     [SerializeField] private List<UsableItem> _registeredItems = new List<UsableItem>();
     private UsableItem _currentItem; // паша я ещё не добавил визуал предмету, но домой со школы приду сделаю
 
     private NetworkPlayer _player;
+
+    private GameObject _currentVisual;
 
     private void Start()
     {
@@ -60,6 +61,7 @@ public class ItemsReader : NetworkBehaviour
     private void LoseItem()
     {
         _currentItem = null;
+        RemoveVisual();
     }
 
     public void GetItem() // аааааааа
@@ -101,6 +103,18 @@ public class ItemsReader : NetworkBehaviour
         }
         
         _currentItem = choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)];
+
+        MakeVisual(_currentItem.ItemVisual);
+    }
+
+    private void MakeVisual(GameObject visual)
+    {
+        _currentVisual = Instantiate(visual, _itemHolder);
+    }
+
+    private void RemoveVisual()
+    {
+        Destroy(_currentVisual);
     }
 }
 

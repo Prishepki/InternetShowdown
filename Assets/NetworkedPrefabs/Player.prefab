@@ -233,9 +233,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _itemHolder: {fileID: 1427039731939656237}
   _registeredItems:
   - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}
   - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
+  - {fileID: 11400000, guid: 9c5eda08c0ad4ea469df38b78565725a, type: 2}
 --- !u!1 &4215120267258587616
 GameObject:
   m_ObjectHideFlags: 0
@@ -260,7 +262,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4215120267258587616}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.75, y: 0, z: 1.75}
+  m_LocalPosition: {x: 0.722, y: 0.215, z: 0.641}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

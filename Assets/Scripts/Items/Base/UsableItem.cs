@@ -8,6 +8,7 @@ using System.Collections;
 public class UsableItem : ScriptableObject
 {
     [Header("Base Settings")]
+    [Tooltip("Моделька предмета")] public GameObject ItemVisual;
     [Tooltip("От редкости предмета зависит шанс выпадания")] public Rarity ItemRarity = Rarity.Common;
 
     [Header("Use Settings")]

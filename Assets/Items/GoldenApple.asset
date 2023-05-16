@@ -10,14 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
-  m_Name: EnegryDrink
+  m_Name: GoldenApple
   m_EditorClassIdentifier: 
-  ItemVisual: {fileID: 6979190296649776069, guid: 753c25efed15b5b4f805b2e409375e67, type: 3}
-  ItemRarity: 5
+  ItemVisual: {fileID: 7420047557959143563, guid: a069fe73aa3f775409732a0a4c24ee28, type: 3}
+  ItemRarity: 0
   HoldToUse: 0
   UseTime: 1
   Mutations:
-  - Type: 1
+  - Type: 2
     ChangeAs: 0
-    Amount: 10
+    Amount: 7
+    Time: 15
+  - Type: 1
+    ChangeAs: 1
+    Amount: 1.5
     Time: 10
