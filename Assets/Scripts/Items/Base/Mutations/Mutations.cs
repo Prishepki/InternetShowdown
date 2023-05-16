@@ -53,24 +53,24 @@ public class SpeedMutation : Mutation // мутация скорости
 
     protected override void OnAdd()
     {
-        PlayerMutationStats.AdditionalSpeed += Amount;
+        PlayerMutationStats.Singleton.Speed += Amount;
     }
 
     protected override void OnMultiply()
     {
-        _multipliedStats = MultiplyTool(PlayerCurrentStats.CurrentSpeed);
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.Singleton.Speed);
 
-        PlayerMutationStats.AdditionalSpeed += _multipliedStats;
+        PlayerMutationStats.Singleton.Speed += _multipliedStats;
     }
     
     protected override void OnDecrease()
     {
-        PlayerMutationStats.AdditionalSpeed -= Amount;
+        PlayerMutationStats.Singleton.Speed -= Amount;
     }
     
     protected override void OnDivide()
     {
-        PlayerMutationStats.AdditionalSpeed -= _multipliedStats;
+        PlayerMutationStats.Singleton.Speed -= _multipliedStats;
     }
 }
 
@@ -80,23 +80,51 @@ public class BounceMutation : Mutation // мутация прыгучести
 
     protected override void OnAdd()
     {
-        PlayerMutationStats.AdditionalBounce += Amount;
+        PlayerMutationStats.Singleton.Bounce += Amount;
     }
 
     protected override void OnMultiply()
     {
-        _multipliedStats = MultiplyTool(PlayerCurrentStats.CurrentBounce);
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.Singleton.Bounce);
 
-        PlayerMutationStats.AdditionalBounce += _multipliedStats;
+        PlayerMutationStats.Singleton.Bounce += _multipliedStats;
     }
     
     protected override void OnDecrease()
     {
-        PlayerMutationStats.AdditionalBounce -= Amount;
+        PlayerMutationStats.Singleton.Bounce -= Amount;
     }
     
     protected override void OnDivide()
     {
-        PlayerMutationStats.AdditionalBounce -= _multipliedStats;
+        PlayerMutationStats.Singleton.Bounce -= _multipliedStats;
+    }
+}
+
+public class LuckMutation : Mutation // мутация удачи
+{
+    public LuckMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
+
+    protected override void OnAdd()
+    {
+        PlayerMutationStats.Singleton.Luck += ((byte)Amount);
+        Debug.Log("youre luck is " + PlayerMutationStats.Singleton.Luck);
+    }
+
+    protected override void OnMultiply()
+    {
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.Singleton.Luck);
+
+        PlayerMutationStats.Singleton.Luck += ((byte)_multipliedStats);
+    }
+    
+    protected override void OnDecrease()
+    {
+        PlayerMutationStats.Singleton.Luck -= ((byte)Amount);
+    }
+    
+    protected override void OnDivide()
+    {
+        PlayerMutationStats.Singleton.Luck -= ((byte)_multipliedStats);
     }
 }

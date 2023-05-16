@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class ItemsReader : NetworkBehaviour
 {
+    [SerializeField] private byte _luckModifier = 0;
     [SerializeField] private Transform _itemHolder;
     [SerializeField] private List<UsableItem> _registeredItems = new List<UsableItem>();
     private UsableItem _currentItem; // паша я ещё не добавил визуал предмету, но домой со школы приду сделаю
@@ -17,6 +18,8 @@ public class ItemsReader : NetworkBehaviour
     private void Start()
     {
         _player = GetComponent<NetworkPlayer>();
+
+        _itemHolder.SetParent(_player.PlayerCamera.transform);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -38,16 +41,38 @@ public class ItemsReader : NetworkBehaviour
     {
         if (!isLocalPlayer) return; // выходим из метода если игрок не локальный
 
-        if (Input.GetMouseButtonDown(0)) // если лкм нажата
+        CheckForItem();
+    }
+
+    private void CheckForItem()
+    {
+        if (_currentItem == null) return; // если у игрока нету предмета в руках, то выходим из метода
+
+        bool holdToUse = _currentItem.HoldToUse;
+
+        if (holdToUse)
         {
-            UseItem();
+            if (Input.GetMouseButtonDown(0))
+            {
+                Invoke(nameof(UseItem), _currentItem.UseTime);
+            }
+
+            if (Input.GetMouseButtonUp(0))
+            {
+                CancelInvoke(nameof(UseItem));
+            }
+        }
+        else
+        {
+            if (Input.GetMouseButtonDown(0)) // 0 - лкм (на случай альгеймера у паши или у никиты)
+            {
+                UseItem();
+            }
         }
     }
 
     public void UseItem()
     {
-        if (_currentItem == null) return; // если у игрока нету предмета в руках, то выходим из метода
-        
         foreach (InspectorMutation insMutation in _currentItem.Mutations) // проходим по каждой инспекторной мутации
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную
@@ -64,32 +89,19 @@ public class ItemsReader : NetworkBehaviour
         RemoveVisual();
     }
 
-    public void GetItem() // аааааааа
+    public void GetItem() // меня касирша послала нахуй
     {
-        // я в полном абалдуе
-        void Generate(out int genChoice, out List<UsableItem> genSortedItems, out Rarity genClosestRarity)
-        {
-            int choice = UnityEngine.Random.Range(0, 255);
-
-            List<UsableItem> sortedItems = RarityJobs.SortAllItems(_registeredItems.ToArray()).ToList();
-
-            var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>().OrderBy((value) => Math.Abs(choice - value.Value)).First(); 
-            Rarity convertedClosestRarity = RarityJobs.KeyValueRarityToRarity(closestRarity);
-
-            genChoice = choice; genSortedItems = sortedItems; genClosestRarity = convertedClosestRarity;
-        }
-
-        // я больше не в полном абалдуе
+        PlayerCurrentStats.Singleton.Luck = _luckModifier;
 
         int choice;
         List<UsableItem> sortedItems = new List<UsableItem>();
         Rarity closestRarity;
 
-        Generate(out choice, out sortedItems, out closestRarity);
+        (choice, sortedItems, closestRarity) = Generate();
 
-        while (RarityJobs.ItemRaritySortHelper(sortedItems.ToArray(), closestRarity).Length == 0)
+        while (RarityJobs.ItemRaritySortHelper(sortedItems, closestRarity).Count == 0)
         {
-            Generate(out choice, out sortedItems, out closestRarity);
+            (choice, sortedItems, closestRarity) = Generate();
         }
 
         List<UsableItem> choosedCategory = new List<UsableItem>();
@@ -101,10 +113,24 @@ public class ItemsReader : NetworkBehaviour
                 choosedCategory.Add(item);
             }
         }
+
+        Debug.Log("youre choice is " + choice);
         
         _currentItem = choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)];
 
         MakeVisual(_currentItem.ItemVisual);
+    }
+
+    private (int choice, List<UsableItem> sortedItems, Rarity closestRarity) Generate()
+    {
+        byte choice = RarityJobs.ChoicRandomizer((byte)(PlayerCurrentStats.Singleton.Luck + PlayerMutationStats.Singleton.Luck));
+
+        List<UsableItem> sortedItems = RarityJobs.SortAllItems(_registeredItems).ToList();
+
+        var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>().OrderBy((value) => Math.Abs(choice - value.Value)).First(); 
+        Rarity convertedClosestRarity = RarityJobs.KeyValueRarityToRarity(closestRarity);
+
+        return (choice, sortedItems, convertedClosestRarity);
     }
 
     private void MakeVisual(GameObject visual)
@@ -129,6 +155,9 @@ public static class MutationJobs // этот класс нужен для раб
             
             case MutationType.Bounce:
                 return new BounceMutation(input.ChangeAs, input.Amount, input.Time);
+
+            case MutationType.Luck:
+                return new LuckMutation(input.ChangeAs, input.Amount, input.Time);
         }
 
         return null;

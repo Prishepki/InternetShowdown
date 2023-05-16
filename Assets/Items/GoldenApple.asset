@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemVisual: {fileID: 7420047557959143563, guid: a069fe73aa3f775409732a0a4c24ee28, type: 3}
   ItemRarity: 0
-  HoldToUse: 0
+  HoldToUse: 1
   UseTime: 1
   Mutations:
   - Type: 2
     ChangeAs: 0
     Amount: 7
-    Time: 15
+    Time: 25
   - Type: 1
     ChangeAs: 1
-    Amount: 1.5
-    Time: 10
+    Amount: 1.3
+    Time: 12.5

@@ -15,9 +15,13 @@ MonoBehaviour:
   ItemVisual: {fileID: 6979190296649776069, guid: 753c25efed15b5b4f805b2e409375e67, type: 3}
   ItemRarity: 5
   HoldToUse: 0
-  UseTime: 1
+  UseTime: 0.25
   Mutations:
   - Type: 1
     ChangeAs: 0
     Amount: 10
     Time: 10
+  - Type: 3
+    ChangeAs: 0
+    Amount: 10
+    Time: 20

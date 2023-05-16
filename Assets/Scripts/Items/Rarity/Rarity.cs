@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public static class RarityJobs
 {
@@ -14,7 +15,7 @@ public static class RarityJobs
         { "Common", 255 },
     };
 
-    public static int RarityToChance(Rarity input) // конвертирует энам редкости в шанс категории редкости
+    public static byte RarityToChance(Rarity input) // конвертирует энам редкости в шанс категории редкости
     {
         string key = RarityToName(input);
 
@@ -24,7 +25,7 @@ public static class RarityJobs
     public static string RarityToName(Rarity value) => Rarity.GetName(typeof(Rarity), value); // конвертирует энам редкости в имя категории редкости
     public static Rarity RarityFromName(this string value) => (Rarity)Rarity.Parse(typeof(Rarity), value, true); // конвертирует имя категории редкости в энам редкости
 
-    public static UsableItem[] ItemRaritySortHelper(UsableItem[] input, Rarity sortBy) // возвращает все UsableItem из input, у которых ItemRarity равно sortBy
+    public static List<UsableItem> ItemRaritySortHelper(List<UsableItem> input, Rarity sortBy) // возвращает все UsableItem из input, у которых ItemRarity равно sortBy
     {
         List<UsableItem> toReturn = new List<UsableItem>();
 
@@ -36,20 +37,34 @@ public static class RarityJobs
             }
         }
 
-        return toReturn.ToArray();
+        return toReturn;
     }
 
-    public static UsableItem[] SortAllItems(UsableItem[] input) // сортирует каждый UsableItem из input по уровню редкости в порядке возрастания
+    public static List<UsableItem> SortAllItems(List<UsableItem> input) // сортирует каждый UsableItem из input по уровню редкости в порядке возрастания
     {
-        List<UsableItem> toSort = input.ToList();
+        List<UsableItem> toReturn = input;
+       
+        toReturn.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
-        toSort.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
-
-        return toSort.ToArray();
+        return toReturn;
     }
 
     public static Rarity KeyValueRarityToRarity(KeyValuePair<string, byte> input) // конвертирует категорию редкости в энам редкости
     {
         return RarityFromName(input.Key);
+    }
+
+    public static byte ChoicRandomizer(byte modifier)
+    {
+        bool isPositive = modifier > 0;
+
+        if (isPositive)
+        {
+            return (byte)UnityEngine.Random.Range(0, 255 - modifier);
+        }
+        else
+        {
+            return (byte)UnityEngine.Random.Range(modifier, 255);
+        }
     }
 }

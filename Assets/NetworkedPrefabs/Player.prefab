@@ -109,7 +109,7 @@ MonoBehaviour:
   _maximumAcceleration: 14
   _dragOnGround: 8.25
   _jumpForce: 10.75
-  _airSpeedDivider: 11.5
+  _airSpeedDivider: 12.5
   _bunnyHopFactor: 2.5
   _bunnyHopTimeout: 1.85
   _jumpEasiness: 0.3
@@ -126,6 +126,8 @@ MonoBehaviour:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
   _orientation: {fileID: 5613802264008730177}
   _body: {fileID: 9188342894300109131}
+  PlayerCamera: {fileID: 0}
+  PlayerMoveCamera: {fileID: 0}
   AllowMovement: 0
 --- !u!114 &6314750545462305294
 MonoBehaviour:
@@ -233,6 +235,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _luckModifier: 0
   _itemHolder: {fileID: 1427039731939656237}
   _registeredItems:
   - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}

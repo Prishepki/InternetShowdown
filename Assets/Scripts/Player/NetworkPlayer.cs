@@ -74,8 +74,8 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
 
-    private Camera _playerCamera;
-    private CameraMovement _playerMoveCamera;
+    [HideInInspector] public Camera PlayerCamera;
+    [HideInInspector] public CameraMovement PlayerMoveCamera;
 
     [HideInInspector] public bool AllowMovement;
 
@@ -101,6 +101,9 @@ public class NetworkPlayer : NetworkBehaviour
     {
         ResetDash();
         AllowMovement = true;
+
+        PlayerCurrentStats.Singleton.ResetStats();
+        PlayerMutationStats.Singleton.ResetStats();
     }
 
     public override void OnStartLocalPlayer() // то же самое что и старт, только для локального игрока
@@ -121,20 +124,20 @@ public class NetworkPlayer : NetworkBehaviour
 
         GameObject newCamera = new GameObject("Player Camera", (typeof(CameraMovement)));
 
-        _playerCamera = newCamera.AddComponent<Camera>();
+        PlayerCamera = newCamera.AddComponent<Camera>();
 
         InitializeCamera();
     }
 
     private void InitializeCamera() // инициализируем камеру (задаем параметры по дефолту и добовляем нужные компоненты)
     {
-        _playerCamera.fieldOfView = 80;
-        _playerCamera.nearClipPlane = 0.01f;
+        PlayerCamera.fieldOfView = 80;
+        PlayerCamera.nearClipPlane = 0.01f;
 
-        GameObject camera = _playerCamera.gameObject;
+        GameObject camera = PlayerCamera.gameObject;
         GameObject cameraHolder = new GameObject("Camera Holder");
 
-        _playerMoveCamera = camera.GetComponent<CameraMovement>();
+        PlayerMoveCamera = camera.GetComponent<CameraMovement>();
         camera.AddComponent<AudioListener>();
         camera.GetComponent<CameraMovement>().Player = this;
 
@@ -147,7 +150,7 @@ public class NetworkPlayer : NetworkBehaviour
         camera.transform.SetParent(cameraHolderTransform);
         camera.transform.localPosition = Vector3.up * 0.5f;
 
-        _playerMoveCamera.Orientation = _orientation;
+        PlayerMoveCamera.Orientation = _orientation;
     }
 
     private void SetVariables() //реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
@@ -199,9 +202,9 @@ public class NetworkPlayer : NetworkBehaviour
         _lastTryToJump = null;
         _lastGroundedTime = null;
 
-        PlayerCurrentStats.CurrentBounce = _jumpForce;
+        PlayerCurrentStats.Singleton.Bounce = _jumpForce;
 
-        _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.CurrentBounce + PlayerMutationStats.AdditionalBounce, _rb.velocity.z);
+        _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.Singleton.Bounce + PlayerMutationStats.Singleton.Bounce, _rb.velocity.z);
 
         if (_bhopTimer > 0) // если наш банихоп не в таймауте
         {
@@ -238,6 +241,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
     {
+        if (!AllowMovement) return Vector2.zero;
+
         return new Vector2(Input.GetAxisRaw(_horizontal), Input.GetAxisRaw(_vertical));
     }
 
@@ -290,16 +295,16 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (CheckIsGrounded())
         {
-            PlayerCurrentStats.CurrentSpeed = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
+            PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
 
-            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.CurrentSpeed + PlayerMutationStats.AdditionalSpeed));
+            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
             _rb.drag = _dragOnGround;
         }
         else
         {
-            PlayerCurrentStats.CurrentSpeed = (_startSpeed + _accel + _bhop) / _airSpeedDivider;
+            PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop) / _airSpeedDivider;
 
-            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.CurrentSpeed + PlayerMutationStats.AdditionalSpeed));
+            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
             _rb.drag = 0;
         }
     }
@@ -329,14 +334,26 @@ public class NetworkPlayer : NetworkBehaviour
     }
 }
 
-public static class PlayerMutationStats // статы, на которые влияют мутации на самом деле (но игроки тупые обезьяны они об этом не узнают)
+public class PlayerMutationStats : PlayerStats // статы, на которые влияют мутации на самом деле (но игроки тупые обезьяны они об этом не узнают)
 {
-    public static float AdditionalSpeed;
-    public static float AdditionalBounce;
+    public static PlayerCurrentStats Singleton = new();
 }
 
-public static class PlayerCurrentStats // эти статы сделаны для защиты (чтоб никакие хакеры хуякеры не могли получить всего игрока)
+public class PlayerCurrentStats : PlayerStats // эти статы сделаны для защиты (чтоб никакие хакеры хуякеры не могли получить всего игрока)
 {
-    public static float CurrentSpeed;
-    public static float CurrentBounce;
+    public static PlayerCurrentStats Singleton = new();
+}
+
+public class PlayerStats
+{
+    public float Speed;
+    public float Bounce;
+    public byte Luck;
+
+    public void ResetStats()
+    {
+        Speed = 0;
+        Bounce = 0;
+        Luck = 0;
+    }
 }

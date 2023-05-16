@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ItemVisual: {fileID: 2987482367683141354, guid: faa7a1f8ac9d38d4dbd1aede947ed343, type: 3}
   ItemRarity: 3
-  HoldToUse: 0
-  UseTime: 1
+  HoldToUse: 1
+  UseTime: 0.5
   Mutations:
   - Type: 2
     ChangeAs: 0
     Amount: 10
-    Time: 10
+    Time: 20
