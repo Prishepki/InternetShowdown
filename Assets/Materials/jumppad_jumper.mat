@@ -84,7 +84,7 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _Color: {r: 0.3726415, g: 1, b: 0.5030981, a: 1}
-    - _EmissionColor: {r: 0.34509805, g: 2.9960785, b: 1.2705883, a: 1}
+    - _EmissionColor: {r: 0.17254902, g: 1.4980392, b: 0.63529414, a: 1}
     - _Gradient1: {r: 0, g: 1, b: 0.9190807, a: 1}
     - _Gradient2: {r: 0.486979, g: 0, b: 1, a: 1}
     - _Pulse1: {r: 2, g: 0, b: 0, a: 1}
