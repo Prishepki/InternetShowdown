@@ -85,9 +85,9 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.904
     - _GlossyReflections: 1
-    - _InnerGridSmoothness: 0.869
+    - _InnerGridSmoothness: 0.75
     - _Metallic: 0
-    - _MetallicIntensity: 0.25
+    - _MetallicIntensity: 0.1
     - _Mode: 0
     - _NormalIntensity: 0.1
     - _OcclusionStrength: 1
