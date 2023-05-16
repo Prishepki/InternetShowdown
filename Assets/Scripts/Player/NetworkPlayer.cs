@@ -25,8 +25,6 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SerializeField, Tooltip("Чем меньше значение, тем больше скольжение у игрока. Так же наоборот"), Min(0)] private float _dragOnGround = 8.25f; 
 
-    [HideInInspector] public float TargetMoveForce;
-
     [Header("Jumping Control")]
     [SerializeField, Tooltip("Сила прыжка"), Min(0)] private float _jumpForce = 11.25f;
     [SerializeField, Tooltip("Когда игрок не на земле, его скорость будет поделена на значение этого поля"), Min(1)] private float _airSpeedDivider = 6.25f;
@@ -47,8 +45,6 @@ public class NetworkPlayer : NetworkBehaviour
 
     private float? _lastGroundedTime;
     private float? _lastTryToJump;
-
-    [HideInInspector] public float TargetJumpForce;
 
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
@@ -203,9 +199,9 @@ public class NetworkPlayer : NetworkBehaviour
         _lastTryToJump = null;
         _lastGroundedTime = null;
 
-        TargetJumpForce = _jumpForce;
+        PlayerCurrentStats.CurrentBounce = _jumpForce;
 
-        _rb.velocity = new Vector3(_rb.velocity.x, TargetJumpForce + PlayerMutationStats.AdditionalBounce, _rb.velocity.z);
+        _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.CurrentBounce + PlayerMutationStats.AdditionalBounce, _rb.velocity.z);
 
         if (_bhopTimer > 0) // если наш банихоп не в таймауте
         {
@@ -294,16 +290,16 @@ public class NetworkPlayer : NetworkBehaviour
 
         if (CheckIsGrounded())
         {
-            TargetMoveForce = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
+            PlayerCurrentStats.CurrentSpeed = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
 
-            _rb.AddForce(_playerDiretcion * (TargetMoveForce + PlayerMutationStats.AdditionalSpeed));
+            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.CurrentSpeed + PlayerMutationStats.AdditionalSpeed));
             _rb.drag = _dragOnGround;
         }
         else
         {
-            TargetMoveForce = (_startSpeed + _accel + _bhop) / _airSpeedDivider;
+            PlayerCurrentStats.CurrentSpeed = (_startSpeed + _accel + _bhop) / _airSpeedDivider;
 
-            _rb.AddForce(_playerDiretcion * (TargetMoveForce + PlayerMutationStats.AdditionalSpeed));
+            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.CurrentSpeed + PlayerMutationStats.AdditionalSpeed));
             _rb.drag = 0;
         }
     }
@@ -333,9 +329,14 @@ public class NetworkPlayer : NetworkBehaviour
     }
 }
 
-[Serializable]
 public static class PlayerMutationStats // статы, на которые влияют мутации на самом деле (но игроки тупые обезьяны они об этом не узнают)
 {
     public static float AdditionalSpeed;
     public static float AdditionalBounce;
+}
+
+public static class PlayerCurrentStats // эти статы сделаны для защиты (чтоб никакие хакеры хуякеры не могли получить всего игрока)
+{
+    public static float CurrentSpeed;
+    public static float CurrentBounce;
 }
