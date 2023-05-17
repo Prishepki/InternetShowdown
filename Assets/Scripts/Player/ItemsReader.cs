@@ -49,18 +49,24 @@ public class ItemsReader : NetworkBehaviour
     {
         if (_currentItem == null) return; // если у игрока нету предмета в руках, то выходим из метода
 
+        if (!_player.AllowMovement) return;
+
         bool holdToUse = _currentItem.HoldToUse;
 
         if (holdToUse)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                Invoke(nameof(UseItem), _currentItem.UseTime);
+                float useTime = _currentItem.UseTime;
+
+                Invoke(nameof(UseItem), useTime);
+                EverywhereCanvas.Singleton().StartUseTimer(useTime);
             }
 
             if (Input.GetMouseButtonUp(0))
             {
                 CancelInvoke(nameof(UseItem));
+                EverywhereCanvas.Singleton().CancelUseTimer();
             }
         }
         else
@@ -74,8 +80,6 @@ public class ItemsReader : NetworkBehaviour
 
     public void UseItem()
     {
-        if (!_player.AllowMovement) return;
-        
         foreach (InspectorMutation insMutation in _currentItem.Mutations) // проходим по каждой инспекторной мутации
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную

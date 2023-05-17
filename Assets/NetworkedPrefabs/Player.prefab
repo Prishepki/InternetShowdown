@@ -238,12 +238,12 @@ MonoBehaviour:
   _luckModifier: 0
   _itemHolder: {fileID: 1427039731939656237}
   _registeredItems:
-  - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}
-  - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
-  - {fileID: 11400000, guid: 9c5eda08c0ad4ea469df38b78565725a, type: 2}
-  - {fileID: 11400000, guid: ff83edcd6fac117419f391154e7946de, type: 2}
-  - {fileID: 11400000, guid: 8fa83711af6777b4694baf3ac779419a, type: 2}
   - {fileID: 11400000, guid: 41d276ef7f2a1b246910d1612132a950, type: 2}
+  - {fileID: 11400000, guid: 8fa83711af6777b4694baf3ac779419a, type: 2}
+  - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
+  - {fileID: 11400000, guid: ff83edcd6fac117419f391154e7946de, type: 2}
+  - {fileID: 11400000, guid: 9c5eda08c0ad4ea469df38b78565725a, type: 2}
+  - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}
   HasItem: 0
 --- !u!1 &4215120267258587616
 GameObject:
