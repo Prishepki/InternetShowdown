@@ -7,11 +7,11 @@ public static class RarityJobs
 {
     public static readonly Dictionary<string, byte> Rarities = new()
     {
-        { "Legendary", 5 },
-        { "Epic", 20 },
-        { "Unique", 36 },
-        { "Rare", 62 },
-        { "Quaint", 93 },
+        { "Legendary", 7 },
+        { "Epic", 25 },
+        { "Unique", 65 },
+        { "Rare", 105 },
+        { "Quaint", 155 },
         { "Common", 255 },
     };
 

@@ -46,12 +46,12 @@ public class ProjectileBase : NetworkBehaviour
 
     private Vector3 _targetDirection;
 
-    public virtual void OnCollide(int layer) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
-    public virtual void OnHitPlayer() { } // вызывается когда снаряд касается игрока
-    public virtual void OnHitMap() { } // вызывается когда снаряд касается карты
+    protected virtual void OnCollide(int layer) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
+    protected virtual void OnHitPlayer() { } // вызывается когда снаряд касается игрока
+    protected virtual void OnHitMap() { } // вызывается когда снаряд касается карты
 
-    public virtual void OnInit() { } // вызывается когда снаряд инициализируется
-    public virtual void OnTime() { } // вызывается так же как и FixedUpdate
+    protected virtual void OnInit() { } // вызывается когда снаряд инициализируется
+    protected virtual void OnTime() { } // вызывается так же как и FixedUpdate
 
     private void OnValidate()
     {   

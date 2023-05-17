@@ -133,8 +133,10 @@ public class ItemsReader : NetworkBehaviour
 
         List<UsableItem> sortedItems = RarityJobs.SortAllItems(_registeredItems).ToList();
 
-        var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>().OrderBy((value) => Math.Abs(choice - value.Value)).First(); 
-        Rarity convertedClosestRarity = RarityJobs.KeyValueRarityToRarity(closestRarity);
+        var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>(); 
+        closestRarity.Sort((first, second) => second.Value > choice ? 1 : -1);
+
+        Rarity convertedClosestRarity = RarityJobs.KeyValueRarityToRarity(closestRarity.First());
 
         return (choice, sortedItems, convertedClosestRarity);
     }
