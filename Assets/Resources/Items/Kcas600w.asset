@@ -10,19 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
-  m_Name: EnegryDrink
+  m_Name: Kcas600w
   m_EditorClassIdentifier: 
-  ItemVisual: {fileID: 6979190296649776069, guid: 753c25efed15b5b4f805b2e409375e67, type: 3}
-  ItemRarity: 5
+  ItemVisual: {fileID: 1153284606968098130, guid: 8280131745d02074181118fe810ece1e, type: 3}
+  ItemRarity: 4
   HoldToUse: 0
-  UseTime: 0.25
-  Mutations:
-  - Type: 1
-    ChangeAs: 0
-    Amount: 10
-    Time: 10
-  - Type: 3
-    ChangeAs: 0
-    Amount: 10
-    Time: 20
-  Projectiles: []
+  UseTime: 1
+  Mutations: []
+  Projectiles:
+  - {fileID: 6388113750411372757, guid: 96558e9063c1b6246b5879aa44347b8f, type: 3}

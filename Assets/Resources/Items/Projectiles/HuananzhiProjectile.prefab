@@ -124,7 +124,7 @@ MonoBehaviour:
   syncInterval: 0
   _rb: {fileID: 4673078493703754133}
   _nrb: {fileID: 1267957501214696849}
-  _destroyMode: 4
+  _destroyMode: 2
   _destroyTime: 1
   _projectileSpeed: 65
   _forceApplyMode: 0

@@ -146,7 +146,11 @@ public class GameLoop : NetworkBehaviour
 
     private void StopMatch()
     {
-        FindObjectOfType<ItemSpawner>().StopSpawnProcces();
+        ItemSpawner itemSpawner = FindObjectOfType<ItemSpawner>();
+
+        itemSpawner.StopSpawnProcces();
+        itemSpawner.DestroyAll();
+        
         FindObjectOfType<SceneGameManager>().RpcAllowMovement(false);
     }
 

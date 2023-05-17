@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 2616357165067855253}
   - component: {fileID: 8348873482465104885}
   - component: {fileID: 2202756226007548306}
-  m_Layer: 12
+  m_Layer: 11
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -242,6 +242,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
   - {fileID: 11400000, guid: 9c5eda08c0ad4ea469df38b78565725a, type: 2}
   - {fileID: 11400000, guid: ff83edcd6fac117419f391154e7946de, type: 2}
+  - {fileID: 11400000, guid: 8fa83711af6777b4694baf3ac779419a, type: 2}
+  HasItem: 0
   - {fileID: 11400000, guid: 41d276ef7f2a1b246910d1612132a950, type: 2}
   HasItem: 0
 --- !u!1 &4215120267258587616
@@ -253,7 +255,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1427039731939656237}
-  m_Layer: 12
+  m_Layer: 11
   m_Name: ItemHolder
   m_TagString: Untagged
   m_Icon: {fileID: 6519382022992737161, guid: 0000000000000000d000000000000000, type: 0}
@@ -284,7 +286,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5613802264008730177}
-  m_Layer: 12
+  m_Layer: 11
   m_Name: Orientation
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -319,7 +321,7 @@ GameObject:
   - component: {fileID: 9142290951396144836}
   - component: {fileID: 7380734141323354245}
   - component: {fileID: 3291134265114765407}
-  m_Layer: 12
+  m_Layer: 11
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 1206586993520771344, guid: 0000000000000000d000000000000000, type: 0}
