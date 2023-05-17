@@ -96,7 +96,7 @@ public class ItemsReader : NetworkBehaviour
         RemoveVisual();
     }
 
-    public void GetItem() // меня касирша послала нахуй
+    public void GetItem() // меня касирша послала нахуй // да пошёл ты нахуй
     {
         PlayerCurrentStats.Singleton.Luck = _luckModifier;
 
