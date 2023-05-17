@@ -2,6 +2,7 @@ using UnityEngine;
 using Mirror;
 using Mirror.Experimental;
 using NaughtyAttributes;
+using System;
 
 /*
 КОРОЧЕ ПАВЕЛ
@@ -32,8 +33,8 @@ public class ProjectileBase : NetworkBehaviour
     [SerializeField] protected NetworkRigidbody _nrb;
 
     [Header("Behaviour Settings")]
-    [SerializeField, Tooltip("Из-за чего должен удалиться снаряд? PLAYER HIT НЕ РАБОТАЕТ! я хз почему")] protected DestoryMode _destroyMode = DestoryMode.AnyHit;
-    [SerializeField, Tooltip("После скольких секунд снаряд удалится?"), ShowIf(nameof(_destroyMode), DestoryMode.AfterTime), AllowNesting] protected float _destroyTime = 3f;
+    [SerializeField, Tooltip("Из-за чего должен удалиться снаряд? PLAYER HIT НЕ РАБОТАЕТ! я хз почему"), EnumFlags] protected HitDestroy _destroyMode;
+    [SerializeField, Tooltip("После скольких секунд снаряд удалится?"), ShowIf(nameof(_destroyMode), HitDestroy.OnTime), AllowNesting] protected float _destroyTime = 3f;
 
     [Header("Force Settings")]
     [SerializeField, Tooltip("Скорость снаряда")] protected float _projectileSpeed = 10;
@@ -78,7 +79,7 @@ public class ProjectileBase : NetworkBehaviour
 
         if (!isOwned) return;
         
-        if (_destroyMode == DestoryMode.AfterTime)
+        if (_destroyMode.HasFlag(HitDestroy.OnTime))
         {
             Invoke(nameof(CmdDestroySelf), _destroyTime); // инвок вызывает метод через время
         }
@@ -100,7 +101,7 @@ public class ProjectileBase : NetworkBehaviour
 
         OnCollide(other.gameObject.layer); // вызов калбека для кастомного повидения
 
-        if (_destroyMode == DestoryMode.AnyHit)
+        if (_destroyMode.HasFlag(HitDestroy.OnCollide))
         {
             CmdDestroySelf();
         }
@@ -109,7 +110,7 @@ public class ProjectileBase : NetworkBehaviour
         {
             OnHitPlayer(); // вызов калбека для кастомного повидения
 
-            if (_destroyMode == DestoryMode.PlayerHit || _destroyMode == DestoryMode.BothHit)
+            if (_destroyMode.HasFlag(HitDestroy.OnPlayer))
             {
                 CmdDestroySelf();
             }
@@ -119,7 +120,7 @@ public class ProjectileBase : NetworkBehaviour
         {
             OnHitMap(); // вызов калбека для кастомного повидения
 
-            if (_destroyMode == DestoryMode.MapHit || _destroyMode == DestoryMode.BothHit)
+            if (_destroyMode.HasFlag(HitDestroy.OnMap))
             {
                 CmdDestroySelf();
             }
@@ -158,12 +159,12 @@ public enum ForceApplyMode
     AddForce
 }
 
-public enum DestoryMode
+[Flags]
+public enum HitDestroy
 {
-    MapHit,
-    PlayerHit,
-    BothHit,
-    AnyHit,
-    AfterTime,
-    DontDestroy
+    Nothing = 0,
+    OnPlayer = 1,
+    OnMap = 2,
+    OnCollide = 4,
+    OnTime = 8
 }

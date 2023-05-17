@@ -74,6 +74,8 @@ public class ItemsReader : NetworkBehaviour
 
     public void UseItem()
     {
+        if (!_player.AllowMovement) return;
+        
         foreach (InspectorMutation insMutation in _currentItem.Mutations) // проходим по каждой инспекторной мутации
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную
@@ -202,7 +204,7 @@ public class ItemsReader : NetworkBehaviour
     private void CmdSetCurrentItem(int? idx, bool hasItem)
     {
         HasItem = hasItem;
-        
+
         RpcSetCurrentItem(idx);
     }
 

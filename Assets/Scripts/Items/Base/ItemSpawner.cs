@@ -24,6 +24,17 @@ public class ItemSpawner : NetworkBehaviour // спавнер предметов
         CancelInvoke(nameof(SpawnItem)); // отменяет постоянный вызов метода
     }
     
+    [ServerCallback] // этот атрибут запрещает вызывать метод всем клиентам кроме сервера
+    public void DestroyAll()
+    {
+        PickableItem[] all = FindObjectsOfType<PickableItem>(true);
+
+        foreach (var item in all)
+        {
+            NetworkServer.Destroy(item.gameObject);
+        }
+    }
+    
     public void SpawnItem()
     {
         PickableItem[] allSpawned = FindObjectsOfType<PickableItem>();
