@@ -21,9 +21,14 @@ public class PickableItem : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
+        ItemsReader reader;
+
+        if (other.TryGetComponent<ItemsReader>(out reader))
         {
-            Destroy(gameObject);
+            if (!reader.HasItem)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

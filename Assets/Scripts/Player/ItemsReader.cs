@@ -10,11 +10,10 @@ public class ItemsReader : NetworkBehaviour
     [SerializeField] private Transform _itemHolder;
     [SerializeField] private List<UsableItem> _registeredItems = new List<UsableItem>();
 
+    [HideInInspector, SyncVar] public bool HasItem;
+
     private UsableItem _currentItem;
-
     private NetworkPlayer _player;
-
-    private GameObject _currentVisual;
 
     private void Start()
     {
@@ -140,12 +139,15 @@ public class ItemsReader : NetworkBehaviour
 
     private void MakeVisual(GameObject visual)
     {
-        _currentVisual = Instantiate(visual, _itemHolder);
+        Instantiate(visual, _itemHolder);
     }
 
     private void RemoveVisual()
     {
-        Destroy(_currentVisual);
+        foreach (Transform item in _itemHolder)
+        {
+            Destroy(item.gameObject);
+        }
     }
 
     private void OnCurrentItemChange()
@@ -184,19 +186,23 @@ public class ItemsReader : NetworkBehaviour
         List<UsableItem> toCheck = _registeredItems;
         toCheck.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
+        _currentItem = target;
+
         if (target == null)
         {
-            CmdSetCurrentItem(null);
+            CmdSetCurrentItem(null, false);
         }
         else
         {
-            CmdSetCurrentItem(toCheck.IndexOf(target));
+            CmdSetCurrentItem(toCheck.IndexOf(target), true);
         }
     }
 
     [Command]
-    private void CmdSetCurrentItem(int? idx)
+    private void CmdSetCurrentItem(int? idx, bool hasItem)
     {
+        HasItem = hasItem;
+        
         RpcSetCurrentItem(idx);
     }
 
