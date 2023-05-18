@@ -70,6 +70,9 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Particles")]
     [SerializeField, Tooltip("Не меняй")] private GameObject[] _particles;
 
+    [Header("Sounds")]
+    [SerializeField, Tooltip("Звук прыжка")] private AudioClip _jumpSound;
+
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
@@ -218,6 +221,8 @@ public class NetworkPlayer : NetworkBehaviour
 
         _bhopTimer = _bunnyHopTimeout;
 
+        //эффекты
+        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_jumpSound), transform.position, 0.85f, 1f, 0.6f);
         CmdSpawnParticle(0);
     }
 

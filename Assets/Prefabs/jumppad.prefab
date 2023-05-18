@@ -99,6 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _force: 29.25
+  _sound: {fileID: 8300000, guid: 02699f66e5660df40be1fbc8c42de1b3, type: 3}
 --- !u!65 &7031721337329380688
 BoxCollider:
   m_ObjectHideFlags: 0

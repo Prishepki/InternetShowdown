@@ -7,9 +7,9 @@ public class SoundSystem : NetworkBehaviour
 {
     public List<AudioClip> NetworkRegisteredSounds = new List<AudioClip>();
 
-    public static void PlaySound(AudioClip[] sound, Vector3 position, float pitchMin = 1, float pitchMax = 1,  float volume = 1, bool enableFade = true)
+    public static void PlaySound(SoundTransporter sound, Vector3 position, float pitchMin = 1, float pitchMax = 1,  float volume = 1, bool enableFade = true)
     {
-        AudioClip targetSound = sound[UnityEngine.Random.Range(0, sound.Length)];
+        AudioClip targetSound = sound.Clips[UnityEngine.Random.Range(0, sound.Clips.Count)];
 
         GameObject sourceObject = new GameObject(targetSound.name, new Type[] { typeof(AudioSource), typeof(DestroyableSound) });
 
@@ -27,7 +27,7 @@ public class SoundSystem : NetworkBehaviour
         if (enableFade)
         {
             sourcePlayer.rolloffMode = AudioRolloffMode.Custom;
-            sourcePlayer.maxDistance = 50;
+            sourcePlayer.maxDistance = 85;
 
             sourcePlayer.spatialBlend = 1;
             sourcePlayer.dopplerLevel = 0;
@@ -67,20 +67,20 @@ public class SoundSystem : NetworkBehaviour
             targetSounds.Add(NetworkRegisteredSounds[soundsIndexes[i]]);
         }
 
-        PlaySound(targetSounds.ToArray(), position, pitchMin, pitchMax, volume, enableFade);
+        PlaySound(new SoundTransporter(targetSounds), position, pitchMin, pitchMax, volume, enableFade);
     }
 }
 
 public class SoundTransporter
 {
-    public AudioClip[] Clips;
+    public List<AudioClip> Clips;
 
     public SoundTransporter(AudioClip clip)
     {
-        Clips = new AudioClip[]{ clip };
+        Clips = new List<AudioClip>() { clip };
     }
 
-    public SoundTransporter(AudioClip[] clips)
+    public SoundTransporter(List<AudioClip> clips)
     {
         Clips = clips;
     }

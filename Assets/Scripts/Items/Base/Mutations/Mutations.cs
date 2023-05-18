@@ -108,7 +108,6 @@ public class LuckMutation : Mutation // мутация удачи
     protected override void OnAdd()
     {
         PlayerMutationStats.Singleton.Luck += ((byte)Amount);
-        Debug.Log("youre luck is " + PlayerMutationStats.Singleton.Luck);
     }
 
     protected override void OnMultiply()

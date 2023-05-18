@@ -124,6 +124,7 @@ MonoBehaviour:
   IsMoving: 0
   _particles:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
+  _jumpSound: {fileID: 8300000, guid: f785b3f95b3712c479e5b4cf5cac59c9, type: 3}
   _orientation: {fileID: 5613802264008730177}
   _body: {fileID: 9188342894300109131}
   PlayerCamera: {fileID: 0}
@@ -237,13 +238,6 @@ MonoBehaviour:
   syncInterval: 0
   _luckModifier: 0
   _itemHolder: {fileID: 1427039731939656237}
-  _registeredItems:
-  - {fileID: 11400000, guid: 41d276ef7f2a1b246910d1612132a950, type: 2}
-  - {fileID: 11400000, guid: 8fa83711af6777b4694baf3ac779419a, type: 2}
-  - {fileID: 11400000, guid: 3f24c9cedfe726248be3b8a65e2da812, type: 2}
-  - {fileID: 11400000, guid: ff83edcd6fac117419f391154e7946de, type: 2}
-  - {fileID: 11400000, guid: 9c5eda08c0ad4ea469df38b78565725a, type: 2}
-  - {fileID: 11400000, guid: 752b899dabdfe424787224cb4e5cb7f9, type: 2}
   HasItem: 0
 --- !u!1 &4215120267258587616
 GameObject:

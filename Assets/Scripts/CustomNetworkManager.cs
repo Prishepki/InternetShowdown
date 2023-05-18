@@ -1,8 +1,25 @@
 using UnityEngine;
 using Mirror;
+using System.Collections.Generic;
+using System.Linq;
 
 public class CustomNetworkManager : NetworkManager
 {
+    public override void Awake()
+    {
+        base.Awake();
+        
+        List<GameObject> projectiles = Resources.LoadAll<GameObject>("Items/Projectiles").ToList();
+        List<GameObject> netPrefs = Resources.LoadAll<GameObject>("NetworkedPrefabs").ToList();
+
+        foreach (var proj in projectiles)
+        {
+            netPrefs.Add(proj);
+        }
+
+        spawnPrefabs = netPrefs;
+    }
+
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();

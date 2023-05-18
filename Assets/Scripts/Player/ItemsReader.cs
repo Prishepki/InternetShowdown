@@ -8,12 +8,17 @@ public class ItemsReader : NetworkBehaviour
 {
     [SerializeField] private byte _luckModifier = 0;
     [SerializeField] private Transform _itemHolder;
-    [SerializeField] private List<UsableItem> _registeredItems = new List<UsableItem>();
+    private List<UsableItem> _registeredItems = new List<UsableItem>();
 
     [HideInInspector, SyncVar] public bool HasItem;
 
     private UsableItem _currentItem;
     private NetworkPlayer _player;
+
+    private void Awake()
+    {
+        _registeredItems = Resources.LoadAll<UsableItem>("Items").ToList();
+    }
 
     private void Start()
     {
@@ -23,7 +28,7 @@ public class ItemsReader : NetworkBehaviour
         _itemHolder.SetParent(_player.PlayerCamera.transform);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         if (!isLocalPlayer) return; // выходим из метода если игрок не локальный
 
@@ -125,8 +130,6 @@ public class ItemsReader : NetworkBehaviour
                 choosedCategory.Add(item);
             }
         }
-
-        Debug.Log("youre choice is " + choice);
         
         SetCurrentItem(choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)]);
     }

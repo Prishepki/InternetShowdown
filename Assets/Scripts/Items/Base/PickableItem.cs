@@ -19,7 +19,7 @@ public class PickableItem : NetworkBehaviour
         transform.Rotate(Vector3.up, Space.Self);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
         ItemsReader reader;
 
