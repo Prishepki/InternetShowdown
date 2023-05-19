@@ -210,6 +210,10 @@ PrefabInstance:
       propertyPath: sceneId
       value: 2744308569
       objectReference: {fileID: 0}
+    - target: {fileID: 8716925129439979587, guid: c07d79ab86dede643afc962575d5e823, type: 3}
+      propertyPath: _spawnRate
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 8716925129439979588, guid: c07d79ab86dede643afc962575d5e823, type: 3}
       propertyPath: m_Name
       value: ServerManager

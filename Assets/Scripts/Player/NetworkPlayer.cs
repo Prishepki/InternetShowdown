@@ -222,7 +222,7 @@ public class NetworkPlayer : NetworkBehaviour
         _bhopTimer = _bunnyHopTimeout;
 
         //эффекты
-        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_jumpSound), transform.position, 0.85f, 1f, 0.6f);
+        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         CmdSpawnParticle(0);
     }
 

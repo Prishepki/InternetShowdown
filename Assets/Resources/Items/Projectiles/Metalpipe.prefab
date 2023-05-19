@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 3772264576653037506}
   - component: {fileID: 1267957501214696849}
   - component: {fileID: 3326498496144961516}
-  - component: {fileID: 233671766491962091}
   - component: {fileID: 2785492300264049651}
+  - component: {fileID: -880383891874586957}
   m_Layer: 10
   m_Name: Metalpipe
   m_TagString: Untagged
@@ -204,29 +204,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &233671766491962091
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153284606968098130}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 726c49dcf0dbb3940984f9b263b7cdf7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  syncDirection: 0
-  syncMode: 0
-  syncInterval: 0
-  _rb: {fileID: 4673078493703754133}
-  _nrb: {fileID: 1267957501214696849}
-  _destroyMode: 9
-  _destroyTime: 7
-  _projectileSpeed: 125
-  _forceApplyMode: 0
-  _continiousForceApply: 0
-  _soundClip: {fileID: 8300000, guid: f39c462564f55794db3fa4d558628937, type: 3}
 --- !u!136 &2785492300264049651
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -241,6 +218,48 @@ CapsuleCollider:
   m_Height: 10.25
   m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-880383891874586957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153284606968098130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8edfd8ac731a48444a577771d855b944, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  _rb: {fileID: 4673078493703754133}
+  _nrb: {fileID: 1267957501214696849}
+  _destroyMode: 8
+  _destroyTime: 7
+  _projectileSpeed: 125
+  _forceApplyMode: 0
+  _continiousForceApply: 0
+  _soundEffects: 2
+  _particleEffects: 0
+  _spawnSound:
+    Sound: {fileID: 0}
+    Volume: 0
+    Pitch: {x: 0, y: 0}
+    Lock: 0
+  _collideSound:
+    Sound: {fileID: 8300000, guid: f39c462564f55794db3fa4d558628937, type: 3}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _destroySound:
+    Sound: {fileID: 0}
+    Volume: 0
+    Pitch: {x: 0, y: 0}
+    Lock: 0
+  _spawnEffect: {fileID: 0}
+  _collideEffect: {fileID: 0}
+  _destroyEffect: {fileID: 0}
 --- !u!1001 &3391267145149083402
 PrefabInstance:
   m_ObjectHideFlags: 0

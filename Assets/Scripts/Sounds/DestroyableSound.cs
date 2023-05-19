@@ -1,8 +1,24 @@
 using UnityEngine;
 
-public class DestroyableSound : MonoBehaviour
+public class ActiveSoundEffect : MonoBehaviour
 {
     public float RemoveTime;
+    public bool Locked;
+    private Transform target;
+
+    public void LockSound(Transform t)
+    {
+        target = t;
+        Locked = true;
+    }
+
+    private void Update() 
+    {
+        if (Locked && target != null)
+        {
+            transform.position = target.position;
+        }
+    }
 
     private void Start() 
     {

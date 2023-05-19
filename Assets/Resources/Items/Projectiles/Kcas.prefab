@@ -129,6 +129,26 @@ MonoBehaviour:
   _projectileSpeed: 50
   _forceApplyMode: 0
   _continiousForceApply: 0
+  _soundEffects: 5
+  _particleEffects: 4
+  _spawnSound:
+    Sound: {fileID: 8300000, guid: c10d71b696570454999331f46981fb37, type: 3}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 1
+  _collideSound:
+    Sound: {fileID: 0}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _destroySound:
+    Sound: {fileID: 8300000, guid: 62634573e52bc744aa497863afe5999d, type: 3}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _spawnEffect: {fileID: 0}
+  _collideEffect: {fileID: 0}
+  _destroyEffect: {fileID: 4237961520091606312, guid: 65d2c388c3ffe8d4b9147186c0e40033, type: 3}
 --- !u!33 &7658171114383046649
 MeshFilter:
   m_ObjectHideFlags: 0
