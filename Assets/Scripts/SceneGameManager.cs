@@ -25,4 +25,10 @@ public class SceneGameManager : NetworkBehaviour
     {
         NetworkClient.localPlayer.GetComponent<NetworkPlayer>().AllowMovement = allow;
     }
+
+    [ClientRpc]
+    public void RpcRemoveMutations() // убирает все мутации с каждого игрока
+    {
+        NetworkClient.localPlayer.GetComponent<ItemsReader>().RemoveAllMutations();
+    }
 }

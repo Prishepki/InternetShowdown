@@ -1,6 +1,7 @@
 using UnityEngine;
 using Mirror;
 using System;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour
@@ -82,6 +83,48 @@ public class NetworkPlayer : NetworkBehaviour
 
     [HideInInspector] public bool AllowMovement;
 
+    [SyncVar] private float Health;
+
+    public void TakeDamage(float amount)
+    {
+        if (!isLocalPlayer) return;
+
+        CmdSetHealth(Health - amount);
+        
+        StartCoroutine(nameof(OnHealthChanged), amount);
+    }
+
+    public void SetHealth(float amount)
+    {
+        if (!isLocalPlayer) return;
+
+        CmdSetHealth(amount);
+        
+        StartCoroutine(nameof(OnHealthChanged), amount);
+    }
+
+    private IEnumerator OnHealthChanged(float amount)
+    {
+        yield return new WaitUntil(()=> Health == amount);
+
+        EverywhereCanvas.Singleton().Health.value = amount;
+
+        if (Health <= 0)
+        {
+            OnDeath();
+        }
+    }
+
+    private void OnDeath()
+    {
+        SetHealth(100);
+        
+        transform.position = Vector3.zero;
+    }
+
+    [Command]
+    private void CmdSetHealth(float amount) { Health = amount; }
+
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
         TryGetRequiredComponents();
@@ -116,6 +159,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
+        SetHealth(100);
+
         _body.SetActive(false);
         gameObject.layer = 12;
         
@@ -171,6 +216,16 @@ public class NetworkPlayer : NetworkBehaviour
     private void Update()
     {
         if (!isLocalPlayer) return; // эта строка заставляет выйти из метода, если мы не являемся локальным игроком
+
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
 
         RecieveInputs();
         SetVariables();

@@ -150,8 +150,11 @@ public class GameLoop : NetworkBehaviour
 
         itemSpawner.StopSpawnProcces();
         itemSpawner.DestroyAll();
-        
-        FindObjectOfType<SceneGameManager>().RpcAllowMovement(false);
+
+        SceneGameManager sceneGameManager = FindObjectOfType<SceneGameManager>();
+
+        sceneGameManager.RpcAllowMovement(false);
+        sceneGameManager.RpcRemoveMutations();
     }
 
     private void TimeToBreak()

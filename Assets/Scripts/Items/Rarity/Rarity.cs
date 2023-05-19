@@ -58,13 +58,15 @@ public static class RarityJobs
     {
         bool isPositive = modifier > 0;
 
+        byte absoluteModifier = (byte)Mathf.Abs(modifier);
+
         if (isPositive)
         {
-            return (byte)UnityEngine.Random.Range(0, 255 - modifier);
+            return (byte)UnityEngine.Random.Range(0, 255 - absoluteModifier);
         }
         else
         {
-            return (byte)UnityEngine.Random.Range(modifier, 255);
+            return (byte)UnityEngine.Random.Range(absoluteModifier, 255);
         }
     }
 }

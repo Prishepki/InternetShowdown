@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 [Serializable]
@@ -8,6 +10,8 @@ public abstract class Mutation // базовый класс мутации
     public ChangeType ChangeAs;
     public float Amount;
     public float Time;
+
+    public readonly CancellationTokenSource Source;
 
     protected abstract void OnAdd(); // вызывается когда надо сложить стату
     protected abstract void OnMultiply(); // вызывается когда надо умножить стату
@@ -22,20 +26,22 @@ public abstract class Mutation // базовый класс мутации
         return (s * Amount) - s;
     }
 
-    public IEnumerator Execute() // вроде не очень делать такое корутинами, но блять если оно работает то оно работает отъебистесь
+    public void Execute() // корутины идут нахуй
     {
+        int mili = (int)TimeSpan.FromSeconds(Time).TotalMilliseconds;
+
         if (ChangeAs == ChangeType.Add)
         {
             OnAdd();
-            yield return new WaitForSeconds(Time);
-            OnDecrease();
+            
+            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
         }
         
         else if (ChangeAs == ChangeType.Multiply)
         {
             OnMultiply();
-            yield return new WaitForSeconds(Time);
-            OnDivide();
+            
+            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
         }
     }
 
@@ -44,9 +50,12 @@ public abstract class Mutation // базовый класс мутации
         ChangeAs = change;
         Amount = amount;
         Time = time;
+
+        Source = new CancellationTokenSource();
     }
 }
 
+[Serializable]
 public class SpeedMutation : Mutation // мутация скорости
 {
     public SpeedMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
@@ -74,6 +83,7 @@ public class SpeedMutation : Mutation // мутация скорости
     }
 }
 
+[Serializable]
 public class BounceMutation : Mutation // мутация прыгучести
 {
     public BounceMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
@@ -101,6 +111,7 @@ public class BounceMutation : Mutation // мутация прыгучести
     }
 }
 
+[Serializable]
 public class LuckMutation : Mutation // мутация удачи
 {
     public LuckMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }

@@ -120,7 +120,7 @@ MonoBehaviour:
   _particleEffects: 4
   _spawnSound:
     Sound: {fileID: 8300000, guid: c10d71b696570454999331f46981fb37, type: 3}
-    Volume: 1
+    Volume: 0.75
     Pitch: {x: 1, y: 1}
     Lock: 1
   _collideSound:

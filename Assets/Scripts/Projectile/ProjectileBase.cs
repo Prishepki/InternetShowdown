@@ -38,6 +38,7 @@ public class ProjectileBase : NetworkBehaviour
 
     [Header("Force Settings")]
     [SerializeField, Tooltip("Скорость снаряда")] protected float _projectileSpeed = 10;
+    [SerializeField, Tooltip("Урон снаряда")] protected float _projectileDamage = 10;
 
     [Space(9)]
 
@@ -124,7 +125,7 @@ public class ProjectileBase : NetworkBehaviour
         
         if (_destroyMode.HasFlag(HitDestroy.OnTime))
         {
-            Invoke(nameof(CmdDestroySelf), _destroyTime); // инвок вызывает метод через время
+            Invoke(nameof(DestroySelf), _destroyTime); // инвок вызывает метод через время
         }
 
         if (_soundEffects.HasFlag(EffectModes.OnSpawn))
@@ -148,6 +149,26 @@ public class ProjectileBase : NetworkBehaviour
         }
     }
 
+    [Command]
+    private void CmdHitPlayer(GameObject player, float damage)
+    {
+        NetworkPlayer mine;
+
+        if (!player.TryGetComponent<NetworkPlayer>(out mine))
+        {
+            Debug.Log("The object you trying to hit isn't a player");
+            return;
+        }
+
+        TRpcHitPlayer(player.GetComponent<NetworkIdentity>().connectionToClient, damage);
+    }
+
+    [TargetRpc]
+    private void TRpcHitPlayer(NetworkConnectionToClient target, float damage)
+    {
+        target.identity.GetComponent<NetworkPlayer>().TakeDamage(damage);
+    }
+
     private void OnCollisionEnter(Collision other)
     {
         if (!isOwned) return;
@@ -167,16 +188,18 @@ public class ProjectileBase : NetworkBehaviour
         //Проверки и уничтожение
         if (_destroyMode.HasFlag(HitDestroy.OnCollide))
         {
-            CmdDestroySelf();
+            DestroySelf();
         }
 
         if (other.gameObject.layer == 11)
         {
             OnHitPlayer(); // вызов калбека для кастомного повидения
+            
+            CmdHitPlayer(other.gameObject, _projectileDamage);
 
             if (_destroyMode.HasFlag(HitDestroy.OnPlayer))
             {
-                CmdDestroySelf();
+                DestroySelf();
             }
         }
 
@@ -186,7 +209,7 @@ public class ProjectileBase : NetworkBehaviour
 
             if (_destroyMode.HasFlag(HitDestroy.OnMap))
             {
-                CmdDestroySelf();
+                DestroySelf();
             }
         }
     }
@@ -210,8 +233,7 @@ public class ProjectileBase : NetworkBehaviour
         }
     }
 
-    [Command]
-    private void CmdDestroySelf()
+    private void DestroySelf()
     {
         if (_soundEffects.HasFlag(EffectModes.OnDestroy))
         {
@@ -223,6 +245,12 @@ public class ProjectileBase : NetworkBehaviour
             SpawnProjectileEffect(_destroyEffect);
         }
 
+        CmdDestroySelf();
+    }
+
+    [Command]
+    private void CmdDestroySelf()
+    {
         NetworkServer.Destroy(gameObject);
     }
     

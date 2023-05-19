@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Mirror;
@@ -14,6 +15,8 @@ public class ItemsReader : NetworkBehaviour
 
     private UsableItem _currentItem;
     private NetworkPlayer _player;
+
+    public List<Mutation> ActiveMutations = new List<Mutation>();
 
     private void Awake()
     {
@@ -89,7 +92,11 @@ public class ItemsReader : NetworkBehaviour
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную
             
-            StartCoroutine(mutation.Execute()); // запускаем мутацию на время
+            mutation.Execute(); // запускаем мутацию на время
+
+            ActiveMutations.Add(mutation);
+
+            StartCoroutine(nameof(CancelMutationFromList), mutation);
         }
 
         for (int i = 0; i < _currentItem.Projectiles.Count; i++)
@@ -97,11 +104,28 @@ public class ItemsReader : NetworkBehaviour
             CmdSpawnProjectile(i, _player.PlayerCamera.transform.forward, connectionToClient);
         }
 
-        LoseItem(); // теряем предмет из рук
+        StartCoroutine(nameof(LoseItem)); // теряем предмет из рук
     }
 
-    private void LoseItem()
+    private IEnumerator CancelMutationFromList(Mutation mutation)
     {
+        yield return new WaitForSeconds(mutation.Time);
+
+        ActiveMutations.Remove(mutation);
+    }
+
+    public void RemoveAllMutations()
+    {
+        foreach (var mutation in ActiveMutations)
+        {
+            mutation.Source.Cancel();
+        }
+    }
+
+    private IEnumerator LoseItem()
+    {
+        yield return new WaitUntil(() => _itemHolder.childCount > 0);
+
         SetCurrentItem(null);
         RemoveVisual();
     }
@@ -150,6 +174,7 @@ public class ItemsReader : NetworkBehaviour
 
     private void MakeVisual(GameObject visual)
     {
+        RemoveVisual();
         Instantiate(visual, _itemHolder);
     }
 
@@ -235,7 +260,7 @@ public class ItemsReader : NetworkBehaviour
         OnCurrentItemChange();
     }
 
-#endregion
+    #endregion
 }
 
 public static class MutationJobs // этот класс нужен для работ с классами мутаций
