@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7693119121882412524}
   - component: {fileID: 4673078493703754133}
-  - component: {fileID: 8723551940018105630}
   - component: {fileID: 3772264576653037506}
   - component: {fileID: 1267957501214696849}
   - component: {fileID: 6388113750411372757}
   - component: {fileID: 7658171114383046649}
   - component: {fileID: 2643356899976551192}
+  - component: {fileID: 1893914040231118963}
   m_Layer: 10
   m_Name: Kcas
   m_TagString: Untagged
@@ -54,19 +54,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!135 &8723551940018105630
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153284606968098130}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.75
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3772264576653037506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199,3 +186,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1893914040231118963
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153284606968098130}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1.0000002, z: 1.0000002}
+  m_Center: {x: 0, y: 0, z: 0}

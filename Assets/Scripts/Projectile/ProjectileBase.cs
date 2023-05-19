@@ -25,7 +25,7 @@ public class MyProjectile : ProjectileBase
 Если ты сделал кастомный скрипт для прожектайла, то удали ProjectileBase скрипт с инспектора и добавь свой скрипт (где у тебя кастомное повидение)
 
 */
-[RequireComponent(typeof(Rigidbody), typeof(SphereCollider), typeof(NetworkRigidbody))]
+[RequireComponent(typeof(Rigidbody), typeof(Collider), typeof(NetworkRigidbody))]
 public class ProjectileBase : NetworkBehaviour
 {
     [Header("Components")]

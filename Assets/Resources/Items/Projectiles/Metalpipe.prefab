@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 7693119121882412524}
   - component: {fileID: 4673078493703754133}
-  - component: {fileID: 8723551940018105630}
   - component: {fileID: 3772264576653037506}
   - component: {fileID: 1267957501214696849}
   - component: {fileID: 3326498496144961516}
-  - component: {fileID: 2785492300264049651}
+  - component: {fileID: 2750252195625334930}
   - component: {fileID: -880383891874586957}
+  - component: {fileID: 4418764127947995487}
   m_Layer: 10
   m_Name: Metalpipe
   m_TagString: Untagged
@@ -31,7 +31,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153284606968098130}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.734625, y: 18.167124, z: -51.94139}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -55,19 +55,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!135 &8723551940018105630
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153284606968098130}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.29
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3772264576653037506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,20 +191,20 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!136 &2785492300264049651
-CapsuleCollider:
+--- !u!64 &2750252195625334930
+MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153284606968098130}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 10.25
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 2534964839176971238, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
 --- !u!114 &-880383891874586957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,6 +247,20 @@ MonoBehaviour:
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
   _destroyEffect: {fileID: 0}
+--- !u!136 &4418764127947995487
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153284606968098130}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 10
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3391267145149083402
 PrefabInstance:
   m_ObjectHideFlags: 0
