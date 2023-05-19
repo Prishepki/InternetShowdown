@@ -65,7 +65,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.8
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3772264576653037506
 MonoBehaviour:
@@ -129,6 +129,26 @@ MonoBehaviour:
   _projectileSpeed: 65
   _forceApplyMode: 0
   _continiousForceApply: 0
+  _soundEffects: 0
+  _particleEffects: 0
+  _spawnSound:
+    Sound: {fileID: 0}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _collideSound:
+    Sound: {fileID: 0}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _destroySound:
+    Sound: {fileID: 0}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
+    Lock: 0
+  _spawnEffect: {fileID: 0}
+  _collideEffect: {fileID: 0}
+  _destroyEffect: {fileID: 0}
 --- !u!33 &7658171114383046649
 MeshFilter:
   m_ObjectHideFlags: 0

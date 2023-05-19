@@ -134,11 +134,11 @@ public class SoundPositioner
 [Serializable]
 public class SoundEffect
 {
-    public AudioClip Sound;
-    public float Volume = 1;
+    [Tooltip("Звук который будет проигран")] public AudioClip Sound;
+    [Tooltip("Громкость звука")] public float Volume = 1;
 
     [MinMaxSlider(-3, 3)]
-    public Vector2 Pitch = Vector2.one;
+    [Tooltip("Рандомайзер питча в диапозоне")] public Vector2 Pitch = Vector2.one;
 
-    public bool Lock;
+    [Tooltip("Должна ли позиция звука быть залочена под позицию источника, или задавать позицию только на старте?")] public bool Lock;
 }
