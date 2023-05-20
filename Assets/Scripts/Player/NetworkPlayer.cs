@@ -14,7 +14,10 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private CapsuleCollider _cc;
 
-    [Header("Movement")]
+    [Header("Player")]
+    [SerializeField, Tooltip("Максимальное хп игрока, выше этого значения выйти невозможно")] private float _maxHealth = 100;
+
+    [Header("Movement Control")]
     [SerializeField, Tooltip("Стартовая скорость игрока без акселерации")] private float _startSpeed = 50f;
 
     [Space(9)]
@@ -73,6 +76,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Sounds")]
     [SerializeField, Tooltip("Звук прыжка")] private AudioClip _jumpSound;
+    [SerializeField, Tooltip("Звук уведомления о том что игрок ударил кого то")] private AudioClip _hitLogSound;
+    [SerializeField, Tooltip("Звук получения урона")] private AudioClip _damageSound;
 
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
@@ -83,20 +88,36 @@ public class NetworkPlayer : NetworkBehaviour
 
     [HideInInspector] public bool AllowMovement;
 
+#region HealthSystem
+
     [SyncVar] private float Health;
+
+    public void Heal(float amount)
+    {
+        if (!isLocalPlayer) return;
+
+        SetHealth(Health + amount);
+    }
 
     public void TakeDamage(float amount)
     {
         if (!isLocalPlayer) return;
 
-        CmdSetHealth(Health - amount);
-        
-        StartCoroutine(nameof(OnHealthChanged), amount);
+        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
+
+        SetHealth(Health - amount);
     }
 
     public void SetHealth(float amount)
     {
         if (!isLocalPlayer) return;
+
+        if (amount > _maxHealth || amount < 0)
+        {
+            Debug.LogWarning($"{gameObject.name} attempted to set health out of bounds (target: {amount}, maximum: {_maxHealth}, minimum: 0)");
+
+            return;
+        }
 
         CmdSetHealth(amount);
         
@@ -105,9 +126,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     private IEnumerator OnHealthChanged(float amount)
     {
-        yield return new WaitUntil(()=> Health == amount);
+        yield return new WaitUntil(()=> Health == amount); // на случай задержки синхронизации поля Health
 
-        EverywhereCanvas.Singleton().Health.value = amount;
+        EverywhereCanvas.Singleton().SetDisplayHealth(amount);
 
         if (Health <= 0)
         {
@@ -124,6 +145,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Command]
     private void CmdSetHealth(float amount) { Health = amount; }
+
+#endregion
 
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
@@ -159,7 +182,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
-        SetHealth(100);
+        EverywhereCanvas.Singleton().SetMaxHealth(_maxHealth);
+        SetHealth(_maxHealth);
 
         _body.SetActive(false);
         gameObject.layer = 12;
@@ -217,15 +241,9 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!isLocalPlayer) return; // эта строка заставляет выйти из метода, если мы не являемся локальным игроком
 
-        if (Input.GetKeyDown(KeyCode.Alpha7))
-        {
-            Cursor.lockState = CursorLockMode.None;
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha8))
-        {
-            Cursor.lockState = CursorLockMode.Locked;
-        }
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        DebugKeys();
+#endif
 
         RecieveInputs();
         SetVariables();
@@ -251,6 +269,29 @@ public class NetworkPlayer : NetworkBehaviour
         if (_wantToDash && _readyToDash)
         {
             Dash();
+        }
+    }
+
+    private void DebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Minus))
+        {
+            TakeDamage(5);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Equals))
+        {
+            Heal(5);
         }
     }
 
@@ -380,6 +421,17 @@ public class NetworkPlayer : NetworkBehaviour
 
         _readyToDash = false;
         Invoke(nameof(ResetDash), _dashTimeout);
+    }
+
+    public void LogHit()
+    {
+        SoundSystem.PlaySound(new SoundTransporter(_hitLogSound), new SoundPositioner(transform.position));
+        PlayerMoveCamera.Shake(strength: 0.1f);
+    }
+
+    public void LogKill() // TODO доделать это говно
+    {
+        
     }
 
     private void ResetDash()

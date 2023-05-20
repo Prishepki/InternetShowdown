@@ -48,18 +48,22 @@ public class ProjectileBase : NetworkBehaviour
     [Header("Effect Settings")]
     [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _soundEffects;
     [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _particleEffects;
+    [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _shakeEffects;
     
-    [Space(9)]
-
+    [Header("Sound Effects")]
     [SerializeField, Tooltip("Звук спавна"), ShowIf(nameof(_soundEffects), EffectModes.OnSpawn), AllowNesting] protected SoundEffect _spawnSound;
     [SerializeField, Tooltip("Звук столкновения"), ShowIf(nameof(_soundEffects), EffectModes.OnCollide), AllowNesting] protected SoundEffect _collideSound;
     [SerializeField, Tooltip("Звук деспавна"), ShowIf(nameof(_soundEffects), EffectModes.OnDestroy), AllowNesting] protected SoundEffect _destroySound;
 
-    [Space(9)]
-
+    [Header("Particle Effects")]
     [SerializeField, Tooltip("Партикл спавна"), ShowIf(nameof(_particleEffects), EffectModes.OnSpawn), AllowNesting] protected GameObject _spawnEffect;
     [SerializeField, Tooltip("Партикл столкновения"), ShowIf(nameof(_particleEffects), EffectModes.OnCollide), AllowNesting] protected GameObject _collideEffect;
     [SerializeField, Tooltip("Партикл деспавна"), ShowIf(nameof(_particleEffects), EffectModes.OnDestroy), AllowNesting] protected GameObject _destroyEffect;
+
+    [Header("Shake Effects")]
+    [SerializeField, Tooltip("Тряска экрана при спавне"), ShowIf(nameof(_shakeEffects), EffectModes.OnSpawn), AllowNesting] protected ShakeEffect _spawnShake;
+    [SerializeField, Tooltip("Тряска экрана при столкновении"), ShowIf(nameof(_shakeEffects), EffectModes.OnCollide), AllowNesting] protected ShakeEffect _collideShake;
+    [SerializeField, Tooltip("Тряска экрана при деспавне"), ShowIf(nameof(_shakeEffects), EffectModes.OnDestroy), AllowNesting] protected ShakeEffect _destroyShake;
 
     private Vector3 _targetDirection;
 
@@ -84,30 +88,21 @@ public class ProjectileBase : NetworkBehaviour
             _nrb.clientAuthority = true;
         }
 
-        if (_spawnEffect != null)
-        {
-            if (_spawnEffect.GetComponent<NetworkIdentity>() == null)
-            {
-                Debug.LogWarning("Spawn Particle has no NetworkIdentity attached");
-                _spawnEffect = null;
-            }
-        }
+        CheckEffectForNetworkIdentity(ref _spawnEffect);
 
-        if (_collideEffect != null)
-        {
-            if (_collideEffect.GetComponent<NetworkIdentity>() == null)
-            {
-                Debug.LogWarning("Collide Particle has no NetworkIdentity attached");
-                _collideEffect = null;
-            }
-        }
+        CheckEffectForNetworkIdentity(ref _collideEffect);
 
-        if (_destroyEffect != null)
+        CheckEffectForNetworkIdentity(ref _destroyEffect);
+    }
+
+    private void CheckEffectForNetworkIdentity(ref GameObject target)
+    {
+        if (target != null)
         {
-            if (_destroyEffect.GetComponent<NetworkIdentity>() == null)
+            if (target.GetComponent<NetworkIdentity>() == null)
             {
-                Debug.LogWarning("Despawn Particle has no NetworkIdentity attached");
-                _destroyEffect = null;
+                Debug.LogWarning($"{target.name} has no NetworkIdentity attached");
+                target = null;
             }
         }
     }
@@ -137,6 +132,11 @@ public class ProjectileBase : NetworkBehaviour
         {
             SpawnProjectileEffect(_spawnEffect);
         }
+
+        if (_shakeEffects.HasFlag(EffectModes.OnSpawn))
+        {
+            ShakeScreen(_spawnShake);
+        }
     }
 
     private void FixedUpdate()
@@ -147,26 +147,6 @@ public class ProjectileBase : NetworkBehaviour
         {
             ApplyForce();
         }
-    }
-
-    [Command]
-    private void CmdHitPlayer(GameObject player, float damage)
-    {
-        NetworkPlayer mine;
-
-        if (!player.TryGetComponent<NetworkPlayer>(out mine))
-        {
-            Debug.Log("The object you trying to hit isn't a player");
-            return;
-        }
-
-        TRpcHitPlayer(player.GetComponent<NetworkIdentity>().connectionToClient, damage);
-    }
-
-    [TargetRpc]
-    private void TRpcHitPlayer(NetworkConnectionToClient target, float damage)
-    {
-        target.identity.GetComponent<NetworkPlayer>().TakeDamage(damage);
     }
 
     private void OnCollisionEnter(Collision other)
@@ -185,6 +165,11 @@ public class ProjectileBase : NetworkBehaviour
             SpawnProjectileEffect(_collideEffect);
         }
 
+        if (_shakeEffects.HasFlag(EffectModes.OnCollide))
+        {
+            ShakeScreen(_collideShake);
+        }
+
         //Проверки и уничтожение
         if (_destroyMode.HasFlag(HitDestroy.OnCollide))
         {
@@ -195,12 +180,7 @@ public class ProjectileBase : NetworkBehaviour
         {
             OnHitPlayer(); // вызов калбека для кастомного повидения
             
-            CmdHitPlayer(other.gameObject, _projectileDamage);
-
-            if (_destroyMode.HasFlag(HitDestroy.OnPlayer))
-            {
-                DestroySelf();
-            }
+            HitPlayer(other.gameObject);
         }
 
         if (other.gameObject.layer == 6)
@@ -245,15 +225,19 @@ public class ProjectileBase : NetworkBehaviour
             SpawnProjectileEffect(_destroyEffect);
         }
 
+        if (_shakeEffects.HasFlag(EffectModes.OnDestroy))
+        {
+            ShakeScreen(_destroyShake);
+        }
+
         CmdDestroySelf();
     }
 
-    [Command]
-    private void CmdDestroySelf()
+    private void HitPlayer(GameObject player)
     {
-        NetworkServer.Destroy(gameObject);
+        CmdHitPlayer(player, _projectileDamage, _destroyMode.HasFlag(HitDestroy.OnPlayer), netIdentity);
     }
-    
+
     private void PlayProjectileSound(SoundEffect sound)
     {
         SoundPositioner positioner = new SoundPositioner(sound.Lock, transform);
@@ -265,12 +249,74 @@ public class ProjectileBase : NetworkBehaviour
         CmdSpawnEffect(NetworkManager.singleton.spawnPrefabs.IndexOf(effect), transform.position);
     }
 
+    private void ShakeScreen(ShakeEffect effect)
+    {
+        CmdShakeScreen(effect.Duration, effect.Strength);
+    }
+
+    #region Network
+
+    [Command]
+    private void CmdHitPlayer(GameObject player, float damage, bool destroyAfter, NetworkIdentity owner)
+    {
+        NetworkPlayer mine;
+
+        if (!player.TryGetComponent<NetworkPlayer>(out mine))
+        {
+            Debug.Log("The object you trying to hit isn't a player");
+            return;
+        }
+
+        TRpcLogHit(connectionToClient);
+
+        NetworkConnectionToClient playerConnection = player.GetComponent<NetworkIdentity>().connectionToClient;
+
+        TRpcHitPlayer(playerConnection, owner, damage);
+
+        if (destroyAfter)
+        {
+            TRpcDestroySelf(owner.connectionToClient);
+        }
+    }
+
+    [TargetRpc]
+    private void TRpcHitPlayer(NetworkConnectionToClient target, NetworkIdentity owner, float damage)
+    {
+        target.identity.GetComponent<NetworkPlayer>().TakeDamage(damage);
+    }
+
+    [TargetRpc]
+    private void TRpcLogHit(NetworkConnectionToClient target)
+    {
+        target.identity.GetComponent<NetworkPlayer>().LogHit();
+    }
+
+    [Command]
+    private void CmdDestroySelf()
+    {
+        NetworkServer.Destroy(gameObject);
+    }
+
+    [TargetRpc]
+    private void TRpcDestroySelf(NetworkConnectionToClient target)
+    {
+        DestroySelf();
+    }
+
     [Command]
     private void CmdSpawnEffect(int regIdx, Vector3 pos)
     {
         GameObject newEffect = Instantiate(NetworkManager.singleton.spawnPrefabs[regIdx], pos, Quaternion.identity);
         NetworkServer.Spawn(newEffect);
     }
+
+    [Command]
+    private void CmdShakeScreen(float duration, float strength)
+    {
+        SceneGameManager.Singleton().RpcShakeAll(duration, strength);
+    }
+
+#endregion
 }
 
 public enum ForceApplyMode
@@ -296,4 +342,17 @@ public enum EffectModes
     OnSpawn = 1,
     OnCollide = 2,
     OnDestroy = 4
+}
+
+[Serializable]
+public class ShakeEffect
+{
+    public float Duration = 0.2f;
+    public float Strength = 0.1f;
+
+    public ShakeEffect(float duration, float strength)
+    {
+        Duration = duration;
+        Strength = strength;
+    }
 }

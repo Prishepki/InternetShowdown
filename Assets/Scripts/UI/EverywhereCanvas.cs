@@ -11,50 +11,39 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public Slider UseTimer;
     public Image UseTimerFill;
 
+    public GameObject _playerDebugPanel;
+    public TMP_Text[] _playerDebugStats;
+
+    private float _targetHealth;
+
+    [Header("Health Slider")]
     public Slider Health;
     public Image HealthFill;
+    
+    [Space(9)]
 
-    public TMP_Text[] _asasa;
+    [SerializeField] private float _healthBarAniamtionSpeed = 5;
+
+    [SerializeField] private Color _healthMaxColor;
+    [SerializeField] private Color _healthMinColor;
+
 
     private void Update()
     {
-        for (int i = 0; i < _asasa.Length; i++)
-        {
-            switch (i)
-            {
-                case 0:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerMutationStats.Singleton.Speed}";
-                    break;
+        _playerDebugPanel.SetActive(false);
 
-                case 1:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerMutationStats.Singleton.Bounce}";
-                    break;
-                
-                case 2:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerMutationStats.Singleton.Luck}";
-                    break;
-                
-                case 3:
-                    _asasa[i].text = $"{_asasa[i].name} notImplement";
-                    break;
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        _playerDebugPanel.SetActive(true);
+        DebugStats();
+#endif
 
-                case 4:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerCurrentStats.Singleton.Speed}";
-                    break;
-                
-                case 5:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerCurrentStats.Singleton.Bounce}";
-                    break;
-                
-                case 6:
-                    _asasa[i].text = $"{_asasa[i].name} {PlayerCurrentStats.Singleton.Luck}";
-                    break;
-                
-                case 7:
-                    _asasa[i].text = $"{_asasa[i].name} notImplement";
-                    break;
-            }
-        }
+        UpdateHealthDisplay();
+    }
+
+    private void UpdateHealthDisplay()
+    {
+        Health.value = Mathf.Lerp(Health.value, _targetHealth, Time.deltaTime * _healthBarAniamtionSpeed);
+        HealthFill.color = Color.Lerp(_healthMinColor, _healthMaxColor, Health.value / Health.maxValue);
     }
 
     private void Start()
@@ -79,6 +68,16 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     private void EnableUseTimer(bool enable)
     {
         UseTimer.gameObject.SetActive(enable);
+    }
+
+    public void SetMaxHealth(float value)
+    {
+        Health.maxValue = value;
+    }
+
+    public void SetDisplayHealth(float value)
+    {
+        _targetHealth = value;
     }
 
     private IEnumerator LerpUseTimer(float duration)
@@ -107,5 +106,46 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public static EverywhereCanvas Singleton()
     {
         return FindObjectOfType<EverywhereCanvas>();
+    }
+
+    private void DebugStats()
+    {
+        for (int i = 0; i < _playerDebugStats.Length; i++)
+        {
+            switch (i)
+            {
+                case 0:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerMutationStats.Singleton.Speed}";
+                    break;
+
+                case 1:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerMutationStats.Singleton.Bounce}";
+                    break;
+
+                case 2:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerMutationStats.Singleton.Luck}";
+                    break;
+
+                case 3:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} notImplement";
+                    break;
+
+                case 4:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerCurrentStats.Singleton.Speed}";
+                    break;
+
+                case 5:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerCurrentStats.Singleton.Bounce}";
+                    break;
+
+                case 6:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerCurrentStats.Singleton.Luck}";
+                    break;
+
+                case 7:
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} notImplement";
+                    break;
+            }
+        }
     }
 }

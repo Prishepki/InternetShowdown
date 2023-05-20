@@ -151,7 +151,7 @@ public class GameLoop : NetworkBehaviour
         itemSpawner.StopSpawnProcces();
         itemSpawner.DestroyAll();
 
-        SceneGameManager sceneGameManager = FindObjectOfType<SceneGameManager>();
+        SceneGameManager sceneGameManager =  SceneGameManager.Singleton();
 
         sceneGameManager.RpcAllowMovement(false);
         sceneGameManager.RpcRemoveMutations();
@@ -164,7 +164,7 @@ public class GameLoop : NetworkBehaviour
 
     public void OnTimeCounterUpdate(int counter, Color color)
     {
-        FindObjectOfType<SceneGameManager>().RpcOnTimeCounterUpdate(counter, color);
+        SceneGameManager.Singleton().RpcOnTimeCounterUpdate(counter, color);
     }
 }
 

@@ -99,9 +99,9 @@ public class ItemsReader : NetworkBehaviour
             StartCoroutine(nameof(CancelMutationFromList), mutation);
         }
 
-        for (int i = 0; i < _currentItem.Projectiles.Count; i++)
+        foreach (var proj in _currentItem.Projectiles)
         {
-            CmdSpawnProjectile(i, _player.PlayerCamera.transform.forward, connectionToClient);
+            SpawnProjectile(proj);
         }
 
         StartCoroutine(nameof(LoseItem)); // теряем предмет из рук
@@ -197,12 +197,26 @@ public class ItemsReader : NetworkBehaviour
         }
     }
 
+    private void SpawnProjectile(ProjectileBase proj)
+    {
+        CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position, _player.PlayerCamera.transform.forward, connectionToClient);
+    }
+
 #region NETWORK
 
     [Command]
-    private void CmdSpawnProjectile(int idx, Vector3 dir, NetworkConnectionToClient connection)
+    private void CmdSpawnProjectile(int idx, Vector3 pos, Vector3 dir, NetworkConnectionToClient connection)
     {
-        GameObject newProjectile = Instantiate(connection.identity.GetComponent<ItemsReader>()._currentItem.Projectiles[idx].gameObject, transform.position, Quaternion.identity);
+        ItemsReader client = connection.identity.GetComponent<ItemsReader>();
+
+        if (client._currentItem == null)
+        {
+            Debug.LogWarning("Cannot spawn projectile from NULL item");
+
+            return;
+        }
+
+        GameObject newProjectile = Instantiate(client._currentItem.Projectiles[idx].gameObject, pos, Quaternion.identity);
         NetworkServer.Spawn(newProjectile, connection);
 
         RpcOnProjectileSpawned(newProjectile, dir);

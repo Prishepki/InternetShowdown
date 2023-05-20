@@ -225,10 +225,12 @@ MonoBehaviour:
   _destroyMode: 8
   _destroyTime: 7
   _projectileSpeed: 125
+  _projectileDamage: 10
   _forceApplyMode: 0
   _continiousForceApply: 0
   _soundEffects: 2
   _particleEffects: 0
+  _shakeEffects: 2
   _spawnSound:
     Sound: {fileID: 0}
     Volume: 0
@@ -247,6 +249,15 @@ MonoBehaviour:
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
   _destroyEffect: {fileID: 0}
+  _spawnShake:
+    Duration: 0
+    Strength: 0
+  _collideShake:
+    Duration: 0.15
+    Strength: 0.06
+  _destroyShake:
+    Duration: 0
+    Strength: 0
 --- !u!136 &4418764127947995487
 CapsuleCollider:
   m_ObjectHideFlags: 0

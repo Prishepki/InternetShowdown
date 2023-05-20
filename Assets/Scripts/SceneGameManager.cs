@@ -31,4 +31,15 @@ public class SceneGameManager : NetworkBehaviour
     {
         NetworkClient.localPlayer.GetComponent<ItemsReader>().RemoveAllMutations();
     }
+
+    [ClientRpc]
+    public void RpcShakeAll(float duration, float time) // трясет экраны у всех игроков
+    {
+        NetworkClient.localPlayer.GetComponent<NetworkPlayer>().PlayerMoveCamera.Shake(duration, time);
+    }
+
+    public static SceneGameManager Singleton()
+    {
+        return FindObjectOfType<SceneGameManager>();
+    }
 }

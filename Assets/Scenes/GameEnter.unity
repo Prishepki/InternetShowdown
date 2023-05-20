@@ -268,10 +268,10 @@ GameObject:
   m_Component:
   - component: {fileID: 74714938}
   - component: {fileID: 74714941}
-  - component: {fileID: 74714940}
   - component: {fileID: 74714939}
+  - component: {fileID: 74714942}
   m_Layer: 5
-  m_Name: Bg
+  m_Name: UTSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -338,7 +338,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 0
-  m_TargetGraphic: {fileID: 74714940}
+  m_TargetGraphic: {fileID: 74714942}
   m_FillRect: {fileID: 1252664622}
   m_HandleRect: {fileID: 0}
   m_Direction: 0
@@ -349,36 +349,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &74714940
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 74714937}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.28235295}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 755fbbfd1b5374a48a5f88dbaf8650d1, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5
 --- !u!222 &74714941
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -387,6 +357,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 74714937}
   m_CullTransparentMesh: 1
+--- !u!114 &74714942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 74714937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc3f2433a49a6ad42adab4994440db10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  _outlineWidth: 10
+  _cornerRadius: 10
+  _cornerSegments: 10
+  _mappingBias: 0.5
+  _fillCenter: 1
 --- !u!1 &215489540
 GameObject:
   m_ObjectHideFlags: 0
@@ -1479,7 +1475,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 80}
+  m_AnchoredPosition: {x: 0, y: 66.8}
   m_SizeDelta: {x: 375, y: 25}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &913790267
@@ -1875,10 +1871,10 @@ GameObject:
   m_Component:
   - component: {fileID: 1250468089}
   - component: {fileID: 1250468092}
-  - component: {fileID: 1250468091}
   - component: {fileID: 1250468090}
+  - component: {fileID: 1250468093}
   m_Layer: 5
-  m_Name: Bg
+  m_Name: HealthSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1945,47 +1941,17 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 0
-  m_TargetGraphic: {fileID: 1250468091}
+  m_TargetGraphic: {fileID: 1250468093}
   m_FillRect: {fileID: 1065265469}
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
   m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 1
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &1250468091
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1250468088}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.28235295}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 755fbbfd1b5374a48a5f88dbaf8650d1, type: 3}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 5
 --- !u!222 &1250468092
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1994,6 +1960,32 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1250468088}
   m_CullTransparentMesh: 1
+--- !u!114 &1250468093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250468088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc3f2433a49a6ad42adab4994440db10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  _outlineWidth: 10
+  _cornerRadius: 11
+  _cornerSegments: 10
+  _mappingBias: 0.5
+  _fillCenter: 1
 --- !u!1 &1252664621
 GameObject:
   m_ObjectHideFlags: 0
@@ -2189,9 +2181,8 @@ MonoBehaviour:
   Timer: {fileID: 215489541}
   UseTimer: {fileID: 74714939}
   UseTimerFill: {fileID: 1252664623}
-  Health: {fileID: 1250468090}
-  HealthFill: {fileID: 1065265470}
-  _asasa:
+  _playerDebugPanel: {fileID: 454338573}
+  _playerDebugStats:
   - {fileID: 390527318}
   - {fileID: 412363233}
   - {fileID: 54880379}
@@ -2200,6 +2191,11 @@ MonoBehaviour:
   - {fileID: 516989768}
   - {fileID: 547534004}
   - {fileID: 363596008}
+  Health: {fileID: 1250468090}
+  HealthFill: {fileID: 1065265470}
+  _healthBarAniamtionSpeed: 10
+  _healthMaxColor: {r: 1, g: 0.25943398, b: 0.3054192, a: 1}
+  _healthMinColor: {r: 0.2627451, g: 0.07058822, b: 0.21177492, a: 1}
 --- !u!114 &1574141759
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
@@ -75,4 +76,34 @@ public class CameraMovement : MonoBehaviour
 
         _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFov, ref _fovDampVelocity, _fovSmoothing);
     }
+
+    public void Shake(float duration = 0.2f, float strength = 0.25f)
+    {
+        StartCoroutine(ShakeCoroutine(duration, strength));
+    }
+
+    public void Shake(ShakeEffect effect)
+    {
+        StartCoroutine(ShakeCoroutine(effect.Duration, effect.Strength));
+    }
+
+    private IEnumerator ShakeCoroutine(float d, float s)
+    {
+        Vector3 init = transform.localPosition;
+        float elapsed = 0f;
+
+        while (elapsed < d)
+        {
+            Vector3 pos = Random.insideUnitSphere * s;
+
+            transform.localPosition = init + pos;
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        transform.localPosition = init;
+    }
 }
+
