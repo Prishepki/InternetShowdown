@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 1153284606968098130}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8467582438758457997}
@@ -130,9 +130,9 @@ MonoBehaviour:
     Pitch: {x: 0.8, y: 1}
     Lock: 0
   _destroySound:
-    Sound: {fileID: 8300000, guid: e0d77011221b09848a88546cc21fb435, type: 3}
-    Volume: 0.5
-    Pitch: {x: 0, y: 0}
+    Sound: {fileID: 8300000, guid: 6871c019eab9c814e8718b211abb77b5, type: 3}
+    Volume: 1
+    Pitch: {x: 1, y: 1}
     Lock: 0
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
-  m_Name: MochevoiPuzir
+  m_Name: Baddler
   m_EditorClassIdentifier: 
   ItemVisual: {fileID: 6984867395393728517, guid: 030a4159c567b0340b04482b47ede8d6, type: 3}
   ItemRarity: 1
