@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,8 +17,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public CanvasGroup _killLog;
 
-    private float _targetHealth;
-
     [Header("Health Slider")]
     public Slider Health;
     public Image HealthFill;
@@ -29,6 +28,13 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [SerializeField] private Color _healthMaxColor;
     [SerializeField] private Color _healthMinColor;
 
+    private float _targetHealth;
+
+    [Header("Death Screen")]
+    [SerializeField] private GameObject _deathScreen;
+    [SerializeField] private TMP_Text _respawnCountdown;
+    [SerializeField] private TMP_Text _deathPhrase;
+    [SerializeField] private List<string> _deathPhrases = new List<string>();
 
     private void Update()
     {
@@ -53,6 +59,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         EnableUseTimer(false);
 
         _killLog.alpha = 0;
+
+        _deathScreen.SetActive(false);
     }
 
     public void CancelUseTimer()
@@ -87,6 +95,30 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public void LogKill()
     {
         StartCoroutine(LogCoroutine(2, 0.65f, _killLog));
+    }
+
+    public void StartDeathScreen(ref Action onRespawn)
+    {
+        StartCoroutine(RespawnScreenCoroutine(onRespawn));
+    }
+
+    private IEnumerator RespawnScreenCoroutine(Action onRespawn)
+    {
+        _deathScreen.SetActive(true);
+        _deathPhrase.text = _deathPhrases[UnityEngine.Random.Range(0, _deathPhrases.Count)];
+
+        for (int i = 5; i > 0; i--)
+        {
+            _respawnCountdown.text = $"Respawning in {i}";
+            yield return new WaitForSeconds(1f);
+        }
+
+        if (onRespawn != null)
+        {
+            onRespawn.Invoke();
+        }
+
+        _deathScreen.SetActive(false);
     }
 
     private IEnumerator LogCoroutine(float wait, float fadeDuration, CanvasGroup target)

@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731704, g: 0.13414727, b: 0.121078536, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2160,7 +2160,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1251224550
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2395,6 +2395,17 @@ MonoBehaviour:
   _healthBarAniamtionSpeed: 10
   _healthMaxColor: {r: 1, g: 0.25943398, b: 0.3054192, a: 1}
   _healthMinColor: {r: 0.2627451, g: 0.07058822, b: 0.21177492, a: 1}
+  _deathScreen: {fileID: 1251224549}
+  _respawnCountdown: {fileID: 1755722923}
+  _deathPhrase: {fileID: 1596034441}
+  _deathPhrases:
+  - RIP BOZO
+  - L
+  - RATIO
+  - SKILL ISSUE
+  - COPE
+  - CRINGE
+  - NIGGER
 --- !u!114 &1574141759
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2541,12 +2552,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'YOU ARE
-
-    DEAD'
+  m_text: COPE
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: cd50b417e82a5314db8a54db6d866b32, type: 2}
-  m_sharedMaterial: {fileID: 3921829410154340444, guid: cd50b417e82a5314db8a54db6d866b32, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: f78c4704d233339499c15a728d3e14f3, type: 2}
+  m_sharedMaterial: {fileID: -2675915650819041586, guid: f78c4704d233339499c15a728d3e14f3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2570,15 +2579,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 400
-  m_fontSizeBase: 400
+  m_fontSize: 350
+  m_fontSizeBase: 350
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 389.7
-  m_fontStyle: 0
+  m_fontStyle: 3
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 4096
   m_textAlignment: 65535
   m_characterSpacing: 2.5
   m_wordSpacing: 0
@@ -2769,7 +2778,7 @@ GameObject:
   - component: {fileID: 1755722924}
   - component: {fileID: 1755722923}
   m_Layer: 5
-  m_Name: RespawnMessage
+  m_Name: RespawnCountdown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

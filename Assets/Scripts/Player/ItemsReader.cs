@@ -104,7 +104,7 @@ public class ItemsReader : NetworkBehaviour
             SpawnProjectile(proj);
         }
 
-        StartCoroutine(nameof(LoseItem)); // теряем предмет из рук
+        LoseItem(); // теряем предмет из рук
     }
 
     private IEnumerator CancelMutationFromList(Mutation mutation)
@@ -122,7 +122,12 @@ public class ItemsReader : NetworkBehaviour
         }
     }
 
-    private IEnumerator LoseItem()
+    public void LoseItem()
+    {
+        StartCoroutine(nameof(LoseItemCoroutine));
+    }
+
+    private IEnumerator LoseItemCoroutine()
     {
         yield return new WaitUntil(() => _itemHolder.childCount > 0);
 

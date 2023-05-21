@@ -13,6 +13,7 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Components")]
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private CapsuleCollider _cc;
+    [SerializeField] private ItemsReader _ir;
 
     [Header("Player")]
     [SerializeField, Tooltip("Максимальное хп игрока, выше этого значения выйти невозможно")] private float _maxHealth = 100;
@@ -139,13 +140,33 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void OnDeath()
     {
+        Action respawn = OnRespawn;
+        
+        _ir.LoseItem();
+        AllowMovement = false;
+        CmdSwitchBodyRender(false);
+
+        EverywhereCanvas.Singleton().StartDeathScreen(ref respawn);
+    }
+
+    private void OnRespawn()
+    {
         SetHealth(100);
+
+        AllowMovement = true;
+        CmdSwitchBodyRender(true);
         
         transform.position = Vector3.zero;
     }
 
     [Command]
     private void CmdSetHealth(float amount) { Health = amount; }
+
+    [Command]
+    private void CmdSwitchBodyRender(bool enable) { RpcSwitchBodyRender(enable); }
+
+    [ClientRpc]
+    private void RpcSwitchBodyRender(bool enable) { _body.GetComponent<MeshRenderer>().enabled = enable; }
 
 #endregion
 
@@ -236,6 +257,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         TryGetComponent<Rigidbody>(out _rb);
         TryGetComponent<CapsuleCollider>(out _cc);
+        TryGetComponent<ItemsReader>(out _ir);
     }
 
     private void Update()
