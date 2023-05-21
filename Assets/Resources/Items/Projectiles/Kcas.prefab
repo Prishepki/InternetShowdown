@@ -137,7 +137,7 @@ MonoBehaviour:
     Lock: 0
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
-  _destroyEffect: {fileID: 4237961520091606312, guid: 65d2c388c3ffe8d4b9147186c0e40033, type: 3}
+  _destroyEffect: {fileID: 4237961520091606312, guid: d45c81814ad1f654394025c812679574, type: 3}
   _spawnShake:
     Duration: 0.2
     Strength: 0.1

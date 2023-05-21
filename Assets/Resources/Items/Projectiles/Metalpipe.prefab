@@ -225,7 +225,7 @@ MonoBehaviour:
   _destroyMode: 8
   _destroyTime: 7
   _projectileSpeed: 125
-  _projectileDamage: 10
+  _projectileDamage: 25
   _forceApplyMode: 0
   _continiousForceApply: 0
   _soundEffects: 2
