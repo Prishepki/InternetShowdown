@@ -38,9 +38,12 @@ public class CameraMovement : MonoBehaviour
     private Vector3 _startPos;
     [HideInInspector] public bool BlockMovement;
 
+    private Vector3 _initPosition;
+
     private void Start()
     {
         _camera = GetComponent<Camera>();
+        _initPosition = transform.position;
     }
 
     private void Update()
@@ -89,21 +92,20 @@ public class CameraMovement : MonoBehaviour
 
     private IEnumerator ShakeCoroutine(float d, float s)
     {
-        Vector3 init = transform.localPosition;
         float elapsed = 0f;
 
         while (elapsed < d)
         {
             Vector3 pos = Random.insideUnitSphere * s;
 
-            transform.localPosition = init + pos;
+            transform.localPosition = _initPosition + pos;
 
             elapsed += Time.deltaTime;
 
             yield return null;
         }
 
-        transform.localPosition = init;
+        transform.localPosition = _initPosition;
     }
 }
 
