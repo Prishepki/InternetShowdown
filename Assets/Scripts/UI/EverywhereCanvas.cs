@@ -14,6 +14,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public GameObject _playerDebugPanel;
     public TMP_Text[] _playerDebugStats;
 
+    public CanvasGroup _killLog;
+
     private float _targetHealth;
 
     [Header("Health Slider")]
@@ -49,6 +51,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     private void Start()
     {
         EnableUseTimer(false);
+
+        _killLog.alpha = 0;
     }
 
     public void CancelUseTimer()
@@ -78,6 +82,30 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public void SetDisplayHealth(float value)
     {
         _targetHealth = value;
+    }
+
+    public void LogKill()
+    {
+        StartCoroutine(LogCoroutine(2, 0.65f, _killLog));
+    }
+
+    private IEnumerator LogCoroutine(float wait, float fadeDuration, CanvasGroup target)
+    {
+        float elapsed = 0.0f;
+
+        target.alpha = 1;
+
+        yield return new WaitForSeconds(wait);
+
+        while (elapsed < fadeDuration)
+        {
+            target.alpha = Mathf.Lerp(1, 0, elapsed / fadeDuration);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        target.alpha = 0;
     }
 
     private IEnumerator LerpUseTimer(float duration)

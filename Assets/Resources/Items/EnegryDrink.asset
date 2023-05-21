@@ -21,8 +21,4 @@ MonoBehaviour:
     ChangeAs: 0
     Amount: 10
     Time: 10
-  - Type: 3
-    ChangeAs: 0
-    Amount: 10
-    Time: 20
   Projectiles: []

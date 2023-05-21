@@ -76,8 +76,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Sounds")]
     [SerializeField, Tooltip("Звук прыжка")] private AudioClip _jumpSound;
-    [SerializeField, Tooltip("Звук уведомления о том что игрок ударил кого то")] private AudioClip _hitLogSound;
     [SerializeField, Tooltip("Звук получения урона")] private AudioClip _damageSound;
+    [SerializeField, Tooltip("Звук уведомления о том что игрок ударил кого то")] private AudioClip _hitLogSound;
+    [SerializeField, Tooltip("Звук уведомления о том что игрок убил кого то")] private AudioClip _killLogSound;
 
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
@@ -90,7 +91,7 @@ public class NetworkPlayer : NetworkBehaviour
 
 #region HealthSystem
 
-    [SyncVar] private float Health;
+    [SyncVar] public float Health;
 
     public void Heal(float amount)
     {
@@ -115,13 +116,13 @@ public class NetworkPlayer : NetworkBehaviour
         if (amount > _maxHealth || amount < 0)
         {
             Debug.LogWarning($"{gameObject.name} attempted to set health out of bounds (target: {amount}, maximum: {_maxHealth}, minimum: 0)");
-
-            return;
         }
 
-        CmdSetHealth(amount);
+        float clampedAmount = Mathf.Clamp(amount, 0, _maxHealth);
+
+        CmdSetHealth(clampedAmount);
         
-        StartCoroutine(nameof(OnHealthChanged), amount);
+        StartCoroutine(nameof(OnHealthChanged), clampedAmount);
     }
 
     private IEnumerator OnHealthChanged(float amount)
@@ -431,7 +432,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     public void LogKill() // TODO доделать это говно
     {
-        
+        SoundSystem.PlaySound(new SoundTransporter(_killLogSound), new SoundPositioner(transform.position), volume: 3);
+        PlayerMoveCamera.Shake(strength: 0.25f);
+        EverywhereCanvas.Singleton().LogKill();
     }
 
     private void ResetDash()

@@ -259,19 +259,19 @@ public class ProjectileBase : NetworkBehaviour
     [Command]
     private void CmdHitPlayer(GameObject player, float damage, bool destroyAfter, NetworkIdentity owner)
     {
-        NetworkPlayer mine;
+        NetworkPlayer toHit;
 
-        if (!player.TryGetComponent<NetworkPlayer>(out mine))
+        if (!player.TryGetComponent<NetworkPlayer>(out toHit))
         {
             Debug.Log("The object you trying to hit isn't a player");
             return;
         }
 
-        TRpcLogHit(connectionToClient);
-
         NetworkConnectionToClient playerConnection = player.GetComponent<NetworkIdentity>().connectionToClient;
 
-        TRpcHitPlayer(playerConnection, owner, damage);
+        TRpcHitPlayer(playerConnection, damage);
+
+        TRpcLogHit(connectionToClient, toHit.Health - damage <= 0);
 
         if (destroyAfter)
         {
@@ -280,15 +280,22 @@ public class ProjectileBase : NetworkBehaviour
     }
 
     [TargetRpc]
-    private void TRpcHitPlayer(NetworkConnectionToClient target, NetworkIdentity owner, float damage)
+    private void TRpcHitPlayer(NetworkConnectionToClient target, float damage)
     {
         target.identity.GetComponent<NetworkPlayer>().TakeDamage(damage);
     }
 
     [TargetRpc]
-    private void TRpcLogHit(NetworkConnectionToClient target)
+    private void TRpcLogHit(NetworkConnectionToClient target, bool gonnaDie)
     {
-        target.identity.GetComponent<NetworkPlayer>().LogHit();
+        NetworkPlayer networkPlayer = target.identity.GetComponent<NetworkPlayer>();
+
+        networkPlayer.LogHit();
+
+        if (gonnaDie)
+        {
+            networkPlayer.LogKill();
+        }
     }
 
     [Command]
