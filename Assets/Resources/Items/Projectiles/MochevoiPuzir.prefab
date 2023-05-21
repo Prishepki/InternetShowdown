@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 3772264576653037506}
   - component: {fileID: 1267957501214696849}
   - component: {fileID: -880383891874586957}
-  - component: {fileID: 4418764127947995487}
+  - component: {fileID: 9114654583700203588}
   m_Layer: 10
   m_Name: MochevoiPuzir
   m_TagString: Untagged
@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 1153284606968098130}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8467582438758457997}
@@ -132,7 +132,7 @@ MonoBehaviour:
   _destroySound:
     Sound: {fileID: 8300000, guid: 6871c019eab9c814e8718b211abb77b5, type: 3}
     Volume: 1
-    Pitch: {x: 1, y: 1}
+    Pitch: {x: 0.85, y: 1.15}
     Lock: 0
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
@@ -146,8 +146,8 @@ MonoBehaviour:
   _destroyShake:
     Duration: 1
     Strength: 0.18
---- !u!136 &4418764127947995487
-CapsuleCollider:
+--- !u!135 &9114654583700203588
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -156,10 +156,9 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 1.5
-  m_Height: 1.5
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
+  serializedVersion: 2
+  m_Radius: 1
+  m_Center: {x: 0, y: 1.87, z: 0}
 --- !u!1001 &8216918813018801510
 PrefabInstance:
   m_ObjectHideFlags: 0

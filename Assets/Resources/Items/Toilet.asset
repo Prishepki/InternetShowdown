@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
+  m_Name: Toilet
+  m_EditorClassIdentifier: 
+  ItemVisual: {fileID: 357477387312563052, guid: 196e2ac6a3a03d24299aeb90e5128c54, type: 3}
+  ItemRarity: 0
+  HoldToUse: 0
+  UseTime: 1
+  Mutations:
+  - Type: 1
+    ChangeAs: 0
+    Amount: 25
+    Time: 30
+  Projectiles:
+  - {fileID: 2647737111156447500, guid: d26c4d688ca35af41a03baa004689ec8, type: 3}
