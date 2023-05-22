@@ -143,7 +143,11 @@ public class NetworkPlayer : NetworkBehaviour
         Action respawn = OnRespawn;
         
         _ir.LoseItem();
+        _ir.RemoveAllMutations();
+
         AllowMovement = false;
+        PlayerMoveCamera.BlockMovement = true;
+
         CmdSwitchBodyRender(false);
 
         EverywhereCanvas.Singleton().StartDeathScreen(ref respawn);
@@ -154,6 +158,8 @@ public class NetworkPlayer : NetworkBehaviour
         SetHealth(100);
 
         AllowMovement = true;
+        PlayerMoveCamera.BlockMovement = false;
+        
         CmdSwitchBodyRender(true);
         
         transform.position = Vector3.zero;
@@ -167,6 +173,44 @@ public class NetworkPlayer : NetworkBehaviour
 
     [ClientRpc]
     private void RpcSwitchBodyRender(bool enable) { _body.GetComponent<MeshRenderer>().enabled = enable; }
+
+    [Command(requiresAuthority = false)]
+    public void CmdHitPlayer(NetworkIdentity owner, float damage)
+    {
+        if (Health <= 0)
+        {
+            Debug.LogWarning("Can't hit a dead player");
+            return;
+        }
+
+        TRpcHitPlayer(connectionToClient, damage);
+        TRpcLogHit(owner.connectionToClient, Health - damage <= 0);
+    }
+
+    [TargetRpc]
+    private void TRpcHitPlayer(NetworkConnectionToClient target, float damage)
+    {
+        TakeDamage(damage);
+    }
+
+    [TargetRpc]
+    private void TRpcLogHit(NetworkConnectionToClient target, bool gonnaDie)
+    {
+        NetworkPlayer networkPlayer = target.identity.GetComponent<NetworkPlayer>();
+
+        if (networkPlayer == this)
+        {
+            Debug.LogWarning("Can't log hit for self-damage");
+            return;
+        }
+
+        networkPlayer.LogHit();
+
+        if (gonnaDie)
+        {
+            networkPlayer.LogKill();
+        }
+    }
 
 #endregion
 

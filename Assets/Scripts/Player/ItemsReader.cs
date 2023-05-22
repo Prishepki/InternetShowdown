@@ -119,11 +119,18 @@ public class ItemsReader : NetworkBehaviour
         foreach (var mutation in ActiveMutations)
         {
             mutation.Source.Cancel();
+            PlayerMutationStats.Singleton.ResetStats();
         }
     }
 
     public void LoseItem()
     {
+        if (_currentItem == null)
+        {
+            Debug.LogWarning("Can not lose NULL item");
+            return;
+        }
+
         StartCoroutine(nameof(LoseItemCoroutine));
     }
 
@@ -217,7 +224,6 @@ public class ItemsReader : NetworkBehaviour
         if (client._currentItem == null)
         {
             Debug.LogWarning("Cannot spawn projectile from NULL item");
-
             return;
         }
 

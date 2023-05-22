@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
   m_Name: JumpPotion
   m_EditorClassIdentifier: 
-  ItemVisual: {fileID: 2987482367683141354, guid: faa7a1f8ac9d38d4dbd1aede947ed343, type: 3}
+  ItemVisual: {fileID: 8851653389952087840, guid: e45194533c2c542499188116d7040cfb, type: 3}
   ItemRarity: 3
   HoldToUse: 1
   UseTime: 0.5
@@ -21,3 +21,4 @@ MonoBehaviour:
     ChangeAs: 0
     Amount: 10
     Time: 20
+  Projectiles: []

@@ -235,7 +235,20 @@ public class ProjectileBase : NetworkBehaviour
 
     private void HitPlayer(GameObject player)
     {
-        CmdHitPlayer(player, _projectileDamage, _destroyMode.HasFlag(HitDestroy.OnPlayer), netIdentity);
+        NetworkPlayer toHit;
+
+        if (!player.TryGetComponent<NetworkPlayer>(out toHit))
+        {
+            Debug.Log("The object you trying to hit isn't a player");
+            return;
+        }
+
+        toHit.CmdHitPlayer(NetworkClient.localPlayer, _projectileDamage);
+
+        if (_destroyMode.HasFlag(HitDestroy.OnPlayer))
+        {
+            DestroySelf();
+        }
     }
 
     private void PlayProjectileSound(SoundEffect sound)
@@ -257,64 +270,16 @@ public class ProjectileBase : NetworkBehaviour
     #region Network
 
     [Command]
-    private void CmdHitPlayer(GameObject player, float damage, bool destroyAfter, NetworkIdentity owner)
-    {
-        NetworkPlayer toHit;
-
-        if (!player.TryGetComponent<NetworkPlayer>(out toHit))
-        {
-            Debug.Log("The object you trying to hit isn't a player");
-            return;
-        }
-
-        NetworkConnectionToClient playerConnection = player.GetComponent<NetworkIdentity>().connectionToClient;
-
-        TRpcHitPlayer(playerConnection, damage);
-
-        TRpcLogHit(connectionToClient, toHit.Health - damage <= 0);
-
-        if (destroyAfter)
-        {
-            TRpcDestroySelf(owner.connectionToClient);
-        }
-    }
-
-    [TargetRpc]
-    private void TRpcHitPlayer(NetworkConnectionToClient target, float damage)
-    {
-        target.identity.GetComponent<NetworkPlayer>().TakeDamage(damage);
-    }
-
-    [TargetRpc]
-    private void TRpcLogHit(NetworkConnectionToClient target, bool gonnaDie)
-    {
-        NetworkPlayer networkPlayer = target.identity.GetComponent<NetworkPlayer>();
-
-        networkPlayer.LogHit();
-
-        if (gonnaDie)
-        {
-            networkPlayer.LogKill();
-        }
-    }
-
-    [Command]
     private void CmdDestroySelf()
     {
         NetworkServer.Destroy(gameObject);
-    }
-
-    [TargetRpc]
-    private void TRpcDestroySelf(NetworkConnectionToClient target)
-    {
-        DestroySelf();
     }
 
     [Command]
     private void CmdSpawnEffect(int regIdx, Vector3 pos)
     {
         GameObject newEffect = Instantiate(NetworkManager.singleton.spawnPrefabs[regIdx], pos, Quaternion.identity);
-        NetworkServer.Spawn(newEffect);
+        NetworkServer.Spawn(newEffect, connectionToClient);
     }
 
     [Command]
