@@ -124,7 +124,7 @@ MonoBehaviour:
     Sound: {fileID: 8300000, guid: 9228db89ff1f4a041babf4a5b7eba8aa, type: 3}
     Volume: 0.6
     Pitch: {x: 1, y: 1}
-    Lock: 0
+    Lock: 1
   _collideSound:
     Sound: {fileID: 0}
     Volume: 1

@@ -1,12 +1,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Mirror;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class EverywhereCanvas : MonoBehaviour // юи которое будет видно ВЕЗДЕ
 {
+    [Header("Main")]
+    [SerializeField] private GameObject _canvas;
+
+    [Space(9)]
+
+    [SerializeField] private GameObject _inLobby;
+    [SerializeField] private GameObject _inGame;
+
+    [Header("Other")]
     public TMP_Text Timer;
 
     public Slider UseTimer;
@@ -36,6 +47,14 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [SerializeField] private TMP_Text _deathPhrase;
     [SerializeField] private List<string> _deathPhrases = new List<string>();
 
+    [Header("Leaderboard")]
+    [SerializeField] private Place _placePrefab;
+    [SerializeField] private Transform _placeContainer;
+
+    private List<(string nickname, int score)> _leaderboard = new List<(string nickname, int score)>();
+
+    private NetworkPlayer _player;
+
     private void Update()
     {
         _playerDebugPanel.SetActive(false);
@@ -46,6 +65,89 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 #endif
 
         UpdateHealthDisplay();
+    }
+
+    public void Initialize(NetworkPlayer player)
+    {
+        _player = player;
+        StartCoroutine(nameof(LeaderboardTickLoop));
+    }
+
+    private IEnumerator LeaderboardTickLoop()
+    {
+        while (NetworkClient.isConnected)
+        {
+            UpdateLeaderboard();
+
+            yield return new WaitForSeconds(1f);
+        }
+
+        ClearLeaderboardUI();
+    }
+
+    public void EnableCanvasElements(bool enable)
+    {
+        _canvas.SetActive(enable);
+    }
+
+    public void SwitchUIGameState(CanvasGameStates state)
+    {
+        switch (state)
+        {
+            case CanvasGameStates.Lobby:
+
+                _inLobby.SetActive(true);
+                _inGame.SetActive(false);
+
+                break;
+
+            case CanvasGameStates.Game:
+
+                _inLobby.SetActive(false);
+                _inGame.SetActive(true);
+
+                break;
+        }
+    }
+
+    public void UpdateLeaderboard()
+    {
+        List<(string nickname, int score)> newLeaderboardValue = new List<(string nickname, int score)>();
+
+        List<NetworkPlayer> allPlayers = FindObjectsOfType<NetworkPlayer>().ToList();
+
+        foreach (NetworkPlayer connPlayer in allPlayers)
+        {
+            newLeaderboardValue.Add((connPlayer.Nickname, connPlayer.Score));
+        }
+
+        _leaderboard = newLeaderboardValue;
+
+        _leaderboard.Sort((first, second) => first.score < second.score ? -1 : 1);
+
+        UpdateLeaderboardUI();
+    }
+
+    private void UpdateLeaderboardUI()
+    {
+        ClearLeaderboardUI();
+        
+        for (int place = _leaderboard.Count - 1; place >= 0; place--)
+        {
+            Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
+
+            placeComp.Number.text = $"{place + 1})";
+            placeComp.Nickname.text = _leaderboard[place].nickname;
+            placeComp.Score.text = _leaderboard[place].score.ToString();
+        }
+    }
+
+    private void ClearLeaderboardUI()
+    {
+        foreach (Transform place in _placeContainer)
+        {
+            Destroy(place.gameObject);
+        }
     }
 
     private void UpdateHealthDisplay()
@@ -160,12 +262,17 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private void Awake()
     {
+        if (FindObjectsOfType<EverywhereCanvas>(true).Length > 1)
+        {
+            Destroy(gameObject);
+        }
+
         DontDestroyOnLoad(transform);
     }
     
     public static EverywhereCanvas Singleton()
     {
-        return FindObjectOfType<EverywhereCanvas>();
+        return FindObjectOfType<EverywhereCanvas>(true);
     }
 
     private void DebugStats()
@@ -208,4 +315,10 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
             }
         }
     }
+}
+
+public enum CanvasGameStates
+{
+    Lobby,
+    Game
 }

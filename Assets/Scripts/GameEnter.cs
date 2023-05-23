@@ -10,6 +10,6 @@ public class GameEnter : MonoBehaviour
 
     private void LoadLobby()
     {
-        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        SceneManager.LoadScene("Menu", LoadSceneMode.Single);
     }
 }

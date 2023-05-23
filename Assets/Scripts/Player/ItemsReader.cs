@@ -88,6 +88,14 @@ public class ItemsReader : NetworkBehaviour
 
     public void UseItem()
     {
+        if (_currentItem == null)
+        {
+            Debug.LogWarning("Can't use item because it's NULL");
+            return;
+        }
+
+        if (!_player.AllowMovement) return;
+
         foreach (InspectorMutation insMutation in _currentItem.Mutations) // проходим по каждой инспекторной мутации
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную

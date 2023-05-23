@@ -23,6 +23,7 @@ public class GameLoop : NetworkBehaviour
     [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет красным")] private int _attentionTimeRed = 10;
 
     private GameState _currentGameState;
+    public CanvasGameStates CurrentUIState { get; private set; }
 
     private int _currentGamesPlayed;
 
@@ -31,7 +32,7 @@ public class GameLoop : NetworkBehaviour
 
     private void Awake()
     {
-        if (FindObjectsOfType<GameLoop>().Length > 1) // в случае если на сцене уже есть геймлуп он удалит себя нахуй чтоб не было приколов
+        if (FindObjectsOfType<GameLoop>(true).Length > 1) // в случае если на сцене уже есть геймлуп он удалит себя нахуй чтоб не было приколов
         {
             Destroy(gameObject);
         }
@@ -51,19 +52,19 @@ public class GameLoop : NetworkBehaviour
     {        
         WaitForSeconds _sceneChangeDelay = new WaitForSeconds(0.15f);
 
-        while (true)
+        while (NetworkServer.active)
         {
             yield return _sceneChangeDelay;
 
             // ПЕРЕРЫВ
             if (_currentGamesPlayed == _roundsToLagreBreak)
             {
-                SetGameState(GameState.LargeBreak, _largeBreakLength);
+                SetGameState(GameState.LargeBreak, CanvasGameStates.Lobby, _largeBreakLength);
                 _currentGamesPlayed = 0;
             }
             else
             {
-                SetGameState(GameState.Break, _breakLength);
+                SetGameState(GameState.Break, CanvasGameStates.Lobby, _breakLength);
                 _timeCounter = _breakLength;
             }
 
@@ -81,7 +82,7 @@ public class GameLoop : NetworkBehaviour
             yield return _sceneChangeDelay;
 
             // ПОДГОТОВКА
-            SetGameState(GameState.Prepare, _prepareLength);
+            SetGameState(GameState.Prepare, CanvasGameStates.Lobby, _prepareLength);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -100,7 +101,7 @@ public class GameLoop : NetworkBehaviour
             OnTimeCounterUpdate(_roundLength, Color.white);
 
             StartMatch();
-            SetGameState(GameState.Match, _roundLength);
+            SetGameState(GameState.Match, CanvasGameStates.Game, _roundLength);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -117,7 +118,7 @@ public class GameLoop : NetworkBehaviour
             OnTimeCounterUpdate(_timeCounter, Color.red);
 
             StopMatch();
-            SetGameState(GameState.MatchEnded);
+            SetGameState(GameState.MatchEnded, CanvasGameStates.Game);
 
             yield return new WaitForSeconds(5f);
 
@@ -127,11 +128,15 @@ public class GameLoop : NetworkBehaviour
         }
     }
 
-    private void SetGameState(GameState state, int time = 0)
+    private void SetGameState(GameState state, CanvasGameStates uiState, int time = 0)
     {
         _currentGameState = state;
+        CurrentUIState = uiState;
+        
         _timeCounter = time;
         _repeatSeconds = _timeCounter;
+
+        SceneGameManager.Singleton().RpcSwitchUI(uiState);
     }
 
     private void LoadMatch()
@@ -151,7 +156,7 @@ public class GameLoop : NetworkBehaviour
         itemSpawner.StopSpawnProcces();
         itemSpawner.DestroyAll();
 
-        SceneGameManager sceneGameManager =  SceneGameManager.Singleton();
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
 
         sceneGameManager.RpcAllowMovement(false);
         sceneGameManager.RpcRemoveMutations();

@@ -38,6 +38,18 @@ public class SceneGameManager : NetworkBehaviour
         NetworkClient.localPlayer.GetComponent<NetworkPlayer>().PlayerMoveCamera.Shake(duration, time);
     }
 
+    [ClientRpc]
+    public void RpcSwitchUI(CanvasGameStates state) // трясет экраны у всех игроков
+    {
+        EverywhereCanvas.Singleton().SwitchUIGameState(state);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void RecieveUIGameState()
+    {
+        RpcSwitchUI(FindObjectOfType<GameLoop>().CurrentUIState);
+    }
+
     public static SceneGameManager Singleton()
     {
         return FindObjectOfType<SceneGameManager>();

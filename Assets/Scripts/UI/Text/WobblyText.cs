@@ -6,6 +6,8 @@ using TMPro;
 public class WobblyText : MonoBehaviour
 {
     [SerializeField] private TMP_Text _textMesh;
+    [SerializeField] private float _speed = 1.5f;
+    [SerializeField] private float _amplitude = 15.75f;
 
     private void OnValidate() 
     {
@@ -33,7 +35,7 @@ public class WobblyText : MonoBehaviour
             for (int v = 0; v < 4; v++)
             {
                 var orig = verts[charInfo.vertexIndex + v];
-                verts[charInfo.vertexIndex + v] = orig + Vector3.up * Mathf.Sin(Time.time * 1.5f + verts[charInfo.vertexIndex].x * 0.01f) * 15.75f;
+                verts[charInfo.vertexIndex + v] = orig + Vector3.up * Mathf.Sin(Time.time * _speed + verts[charInfo.vertexIndex].x * 0.01f) * _amplitude;
             }
         }
 

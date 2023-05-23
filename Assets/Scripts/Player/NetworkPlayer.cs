@@ -90,6 +90,15 @@ public class NetworkPlayer : NetworkBehaviour
 
     [HideInInspector] public bool AllowMovement;
 
+    [SyncVar] public string Nickname;
+    [SyncVar] public int Score;
+    
+    [Command]
+    private void CmdInitialize(string nickname)
+    {
+        Nickname = nickname;
+    }
+
 #region HealthSystem
 
     [SyncVar] public float Health;
@@ -248,7 +257,13 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
-        EverywhereCanvas.Singleton().SetMaxHealth(_maxHealth);
+        CmdInitialize(PlayerPrefs.GetString("PlayerNicknameValue", "Player"));
+
+        EverywhereCanvas everywhereCanvas = EverywhereCanvas.Singleton();
+
+        everywhereCanvas.Initialize(this);
+        everywhereCanvas.SetMaxHealth(_maxHealth);
+
         SetHealth(_maxHealth);
 
         _body.SetActive(false);
@@ -494,6 +509,8 @@ public class NetworkPlayer : NetworkBehaviour
     {
         SoundSystem.PlaySound(new SoundTransporter(_hitLogSound), new SoundPositioner(transform.position));
         PlayerMoveCamera.Shake(strength: 0.1f);
+
+        AddScore(1);
     }
 
     public void LogKill() // TODO доделать это говно
@@ -501,6 +518,8 @@ public class NetworkPlayer : NetworkBehaviour
         SoundSystem.PlaySound(new SoundTransporter(_killLogSound), new SoundPositioner(transform.position), volume: 3);
         PlayerMoveCamera.Shake(strength: 0.25f);
         EverywhereCanvas.Singleton().LogKill();
+
+        AddScore(3);
     }
 
     private void ResetDash()
@@ -513,6 +532,17 @@ public class NetworkPlayer : NetworkBehaviour
         Gizmos.color = Color.green;
 
         Gizmos.DrawWireSphere(_groundChecking.center, _groundChecking.radius);
+    }
+
+    private void AddScore(int amount)
+    {
+        CmdChangeScore(amount);
+    }
+
+    [Command]
+    private void CmdChangeScore(int amount)
+    {
+        Score += amount;
     }
 }
 

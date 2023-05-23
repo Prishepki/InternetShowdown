@@ -2,6 +2,7 @@ using UnityEngine;
 using Mirror;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections;
 
 public class CustomNetworkManager : NetworkManager
 {
@@ -18,6 +19,8 @@ public class CustomNetworkManager : NetworkManager
         }
 
         spawnPrefabs = netPrefs;
+
+        EverywhereCanvas.Singleton().EnableCanvasElements(false);
     }
 
     public override void OnClientDisconnect()
@@ -25,6 +28,8 @@ public class CustomNetworkManager : NetworkManager
         base.OnClientDisconnect();
 
         Cursor.lockState = CursorLockMode.None;
+
+        EverywhereCanvas.Singleton().EnableCanvasElements(false);
     }
 
     public override void OnClientConnect()
@@ -32,6 +37,16 @@ public class CustomNetworkManager : NetworkManager
         base.OnClientConnect();
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        EverywhereCanvas.Singleton().EnableCanvasElements(true);
+        StartCoroutine(WaitForSceneGameManagerSingleton());
+    }
+
+    private IEnumerator WaitForSceneGameManagerSingleton()
+    {
+        yield return new WaitUntil(() => SceneGameManager.Singleton() != null);
+
+        SceneGameManager.Singleton().RecieveUIGameState();
     }
 
     public override void OnStartServer()
