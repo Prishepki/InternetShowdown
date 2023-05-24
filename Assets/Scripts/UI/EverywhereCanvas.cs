@@ -123,7 +123,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         _leaderboard = newLeaderboardValue;
 
-        _leaderboard.Sort((first, second) => first.score < second.score ? -1 : 1);
+        _leaderboard.Sort((first, second) => first.score < second.score ? 1 : -1);
 
         UpdateLeaderboardUI();
     }
@@ -132,7 +132,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     {
         ClearLeaderboardUI();
         
-        for (int place = _leaderboard.Count - 1; place >= 0; place--)
+        for (int place = 0; place < _leaderboard.Count; place++)
         {
             Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
 
