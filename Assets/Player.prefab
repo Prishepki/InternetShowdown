@@ -128,6 +128,7 @@ MonoBehaviour:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
   _jumpSound: {fileID: 8300000, guid: f785b3f95b3712c479e5b4cf5cac59c9, type: 3}
   _damageSound: {fileID: 8300000, guid: 1b0a8d0d394c6d3489907ef5854abba1, type: 3}
+  _localDamageSound: {fileID: 8300000, guid: 23d00c411cfe6f545a09e791570c1f87, type: 3}
   _hitLogSound: {fileID: 8300000, guid: c4426c3389b8cf14fab0610dbb79f591, type: 3}
   _killLogSound: {fileID: 8300000, guid: 7534e8f706616374ab5df6fbfdb4b728, type: 3}
   _orientation: {fileID: 5613802264008730177}
@@ -135,6 +136,8 @@ MonoBehaviour:
   PlayerCamera: {fileID: 0}
   PlayerMoveCamera: {fileID: 0}
   AllowMovement: 0
+  Nickname: 
+  Score: 0
   Health: 0
 --- !u!114 &6314750545462305294
 MonoBehaviour:

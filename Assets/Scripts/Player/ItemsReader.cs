@@ -112,6 +112,15 @@ public class ItemsReader : NetworkBehaviour
             SpawnProjectile(proj);
         }
 
+        if (_currentItem.HealAmount > 0)
+        {
+            _player.Heal(_currentItem.HealAmount);
+        }
+        else if (_currentItem.HealAmount < 0)
+        {
+            _player.TakeDamage(Mathf.Abs(_currentItem.HealAmount));
+        }
+
         LoseItem(); // теряем предмет из рук
     }
 
@@ -126,9 +135,10 @@ public class ItemsReader : NetworkBehaviour
     {
         foreach (var mutation in ActiveMutations)
         {
-            mutation.Source.Cancel();
-            PlayerMutationStats.Singleton.ResetStats();
+            mutation.CancelMutation();
         }
+
+        PlayerMutationStats.Singleton.ResetStats();
     }
 
     public void LoseItem()
@@ -310,6 +320,9 @@ public static class MutationJobs // этот класс нужен для раб
 
             case MutationType.Luck:
                 return new LuckMutation(input.ChangeAs, input.Amount, input.Time);
+
+            case MutationType.Damage:
+                return new DamageMutation(input.ChangeAs, input.Amount, input.Time);
         }
 
         return null;

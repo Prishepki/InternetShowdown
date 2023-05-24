@@ -11,13 +11,15 @@ public abstract class Mutation // базовый класс мутации
     public float Amount;
     public float Time;
 
-    public readonly CancellationTokenSource Source;
+    public CancellationTokenSource Source { get; protected set; }
 
     protected abstract void OnAdd(); // вызывается когда надо сложить стату
     protected abstract void OnMultiply(); // вызывается когда надо умножить стату
 
     protected abstract void OnDecrease(); // вызывается когда надо убавить стату
     protected abstract void OnDivide(); // вызывается когда надо разделить стату стату
+
+    protected bool _isCanceled;
 
     protected float _multipliedStats; // переменая для удобности умножения и деления стат
 
@@ -34,15 +36,45 @@ public abstract class Mutation // базовый класс мутации
         {
             OnAdd();
             
-            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
+            try
+            {
+                Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
+            }
+            catch (OperationCanceledException) when (Source.IsCancellationRequested)
+            {
+                Debug.Log("Mutation Canceled");
+                return;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
         
         else if (ChangeAs == ChangeType.Multiply)
         {
             OnMultiply();
             
-            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
+            try
+            {
+                Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
+            }
+            catch (OperationCanceledException) when (Source.IsCancellationRequested)
+            {
+                Debug.Log("Mutation Canceled");
+                return;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
+    }
+
+    public void CancelMutation()
+    {
+        _isCanceled = true;
+        Source.Cancel();
     }
 
     public Mutation(ChangeType change, float amount, float time) // конструктор
@@ -74,11 +106,15 @@ public class SpeedMutation : Mutation // мутация скорости
     
     protected override void OnDecrease()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Speed -= Amount;
     }
     
     protected override void OnDivide()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Speed -= _multipliedStats;
     }
 }
@@ -102,11 +138,15 @@ public class BounceMutation : Mutation // мутация прыгучести
     
     protected override void OnDecrease()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Bounce -= Amount;
     }
     
     protected override void OnDivide()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Bounce -= _multipliedStats;
     }
 }
@@ -130,11 +170,47 @@ public class LuckMutation : Mutation // мутация удачи
     
     protected override void OnDecrease()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Luck -= ((byte)Amount);
     }
     
     protected override void OnDivide()
     {
+        if (_isCanceled) return;
+
         PlayerMutationStats.Singleton.Luck -= ((byte)_multipliedStats);
+    }
+}
+
+[Serializable]
+public class DamageMutation : Mutation // мутация удачи
+{
+    public DamageMutation(ChangeType change, float amount, float time) : base(change, amount, time) { }
+
+    protected override void OnAdd()
+    {
+        PlayerMutationStats.Singleton.Damage += ((byte)Amount);
+    }
+
+    protected override void OnMultiply()
+    {
+        _multipliedStats = MultiplyTool(PlayerCurrentStats.Singleton.Damage);
+
+        PlayerMutationStats.Singleton.Damage += ((byte)_multipliedStats);
+    }
+    
+    protected override void OnDecrease()
+    {
+        if (_isCanceled) return;
+
+        PlayerMutationStats.Singleton.Damage -= ((byte)Amount);
+    }
+    
+    protected override void OnDivide()
+    {
+        if (_isCanceled) return;
+        
+        PlayerMutationStats.Singleton.Damage -= ((byte)_multipliedStats);
     }
 }

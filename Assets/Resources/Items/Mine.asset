@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
+  m_Name: Mine
+  m_EditorClassIdentifier: 
+  ItemVisual: {fileID: 8603150124466432397, guid: 1a32615a3cb6fb14b8c5a1d673394c51, type: 3}
+  ItemRarity: 2
+  HoldToUse: 0
+  UseTime: 1
+  Mutations: []
+  Projectiles:
+  - {fileID: 1625833055714647400, guid: fc17c19c50bcd8d4bbd07b51b4552353, type: 3}

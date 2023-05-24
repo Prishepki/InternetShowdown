@@ -160,10 +160,17 @@ public class GameLoop : NetworkBehaviour
         itemSpawner.StopSpawnProcces();
         itemSpawner.DestroyAll();
 
+        ProjectileBase[] allProjectiles = FindObjectsOfType<ProjectileBase>();
+        foreach (var projectile in allProjectiles)
+        {
+            NetworkServer.Destroy(projectile.gameObject);
+        }
+
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
 
-        sceneGameManager.RpcAllowMovement(false);
+        sceneGameManager.RpcHideDeathScreen();
         sceneGameManager.RpcRemoveMutations();
+        sceneGameManager.RpcAllowMovement(false);
     }
 
     private void TimeToBreak()

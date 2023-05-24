@@ -1342,6 +1342,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f640bce67a781e459068fb3d01ee90c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _nickname: {fileID: 1225622752}
+  _address: {fileID: 1355576825}
 --- !u!114 &771607051
 MonoBehaviour:
   m_ObjectHideFlags: 0

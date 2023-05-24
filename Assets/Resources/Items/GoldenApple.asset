@@ -29,4 +29,9 @@ MonoBehaviour:
     ChangeAs: 0
     Amount: 20
     Time: 15
+  - Type: 0
+    ChangeAs: 0
+    Amount: 5
+    Time: 30
   Projectiles: []
+  HealAmount: 20

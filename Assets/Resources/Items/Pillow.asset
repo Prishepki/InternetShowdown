@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
+  m_Name: Pillow
+  m_EditorClassIdentifier: 
+  ItemVisual: {fileID: 512851733049233557, guid: fa3d7e39de3266947b32920cb20cbded, type: 3}
+  ItemRarity: 4
+  HoldToUse: 0
+  UseTime: 1
+  Mutations: []
+  Projectiles:
+  - {fileID: 3267879625607670134, guid: a36854903e5938a4cbd67ca075cc5e3c, type: 3}
+  HealAmount: 0

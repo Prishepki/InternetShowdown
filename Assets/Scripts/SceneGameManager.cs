@@ -33,21 +33,27 @@ public class SceneGameManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcShakeAll(float duration, float time) // трясет экраны у всех игроков
+    public void RpcShakeAll(float duration, float time) // трясет экраны у игроков
     {
         NetworkClient.localPlayer.GetComponent<NetworkPlayer>().PlayerMoveCamera.Shake(duration, time);
     }
 
     [ClientRpc]
-    public void RpcSwitchUI(CanvasGameStates state) // трясет экраны у всех игроков
+    public void RpcSwitchUI(CanvasGameStates state) // меняет интерфейс у игроков
     {
         EverywhereCanvas.Singleton().SwitchUIGameState(state);
     }
 
     [ClientRpc]
-    public void RpcFadeUI(CanvasGameStates state) // трясет экраны у всех игроков
+    public void RpcFadeUI(CanvasGameStates state) // меняет интерфейс у игроков с плавной анимацией
     {
         EverywhereCanvas.Singleton().FadeUIGameState(state);
+    }
+
+    [ClientRpc]
+    public void RpcHideDeathScreen() // на всякий случай, прячет экраны смерти у игроков
+    {
+        EverywhereCanvas.Singleton().HideDeathScreen();
     }
 
     [Command(requiresAuthority = false)]

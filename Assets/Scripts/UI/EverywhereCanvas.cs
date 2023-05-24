@@ -20,6 +20,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [Header("Other")]
     public TMP_Text Timer;
 
+    public TMP_Text OthersNickname;
+
     public Slider UseTimer;
     public Image UseTimerFill;
 
@@ -71,6 +73,12 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 #endif
 
         UpdateHealthDisplay();
+    }
+
+    public void SwitchNicknameVisibility(bool show, string target = "")
+    {
+        OthersNickname.text = target;
+        OthersNickname.gameObject.SetActive(show);
     }
 
     public void Initialize(NetworkPlayer player)
@@ -224,7 +232,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         _killLog.alpha = 0;
 
-        _deathScreen.SetActive(false);
+        HideDeathScreen();
     }
 
     public void CancelUseTimer()
@@ -263,7 +271,14 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public void StartDeathScreen(ref Action onRespawn)
     {
-        StartCoroutine(RespawnScreenCoroutine(onRespawn));
+        StopCoroutine(nameof(RespawnScreenCoroutine));
+        StartCoroutine(nameof(RespawnScreenCoroutine), onRespawn);
+    }
+
+    public void HideDeathScreen()
+    {
+        StopCoroutine(nameof(RespawnScreenCoroutine));
+        _deathScreen.SetActive(false);
     }
 
     private IEnumerator RespawnScreenCoroutine(Action onRespawn)
@@ -356,7 +371,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
                     break;
 
                 case 3:
-                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} notImplement";
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerMutationStats.Singleton.Damage}";
                     break;
 
                 case 4:
@@ -372,7 +387,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
                     break;
 
                 case 7:
-                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} notImplement";
+                    _playerDebugStats[i].text = $"{_playerDebugStats[i].name} {PlayerCurrentStats.Singleton.Damage}";
                     break;
             }
         }

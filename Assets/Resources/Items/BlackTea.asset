@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
+  m_Name: BlackTea
+  m_EditorClassIdentifier: 
+  ItemVisual: {fileID: 4813797436881519920, guid: adf21b6a801375d4eaf94dc7018471a6, type: 3}
+  ItemRarity: 2
+  HoldToUse: 1
+  UseTime: 1
+  Mutations:
+  - Type: 1
+    ChangeAs: 0
+    Amount: -5
+    Time: 5
+  Projectiles: []
+  HealAmount: 50

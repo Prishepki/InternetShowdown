@@ -78,12 +78,15 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Sounds")]
     [SerializeField, Tooltip("Звук прыжка")] private AudioClip _jumpSound;
     [SerializeField, Tooltip("Звук получения урона")] private AudioClip _damageSound;
+    [SerializeField, Tooltip("Локальный звук получения урона")] private AudioClip _localDamageSound;
     [SerializeField, Tooltip("Звук уведомления о том что игрок ударил кого то")] private AudioClip _hitLogSound;
     [SerializeField, Tooltip("Звук уведомления о том что игрок убил кого то")] private AudioClip _killLogSound;
 
     [Header("Objects")]
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
+
+    private EverywhereCanvas _everywhereCanvas;
 
     [HideInInspector] public Camera PlayerCamera;
     [HideInInspector] public CameraMovement PlayerMoveCamera;
@@ -115,6 +118,7 @@ public class NetworkPlayer : NetworkBehaviour
         if (!isLocalPlayer) return;
 
         FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
+        SoundSystem.PlaySound(new SoundTransporter(_localDamageSound), new SoundPositioner(transform));
 
         SetHealth(Health - amount);
     }
@@ -139,7 +143,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         yield return new WaitUntil(()=> Health == amount); // на случай задержки синхронизации поля Health
 
-        EverywhereCanvas.Singleton().SetDisplayHealth(amount);
+        _everywhereCanvas.SetDisplayHealth(amount);
 
         if (Health <= 0)
         {
@@ -157,9 +161,9 @@ public class NetworkPlayer : NetworkBehaviour
         AllowMovement = false;
         PlayerMoveCamera.BlockMovement = true;
 
-        CmdSwitchBodyRender(false);
+        CmdDisablePlayer(false);
 
-        EverywhereCanvas.Singleton().StartDeathScreen(ref respawn);
+        _everywhereCanvas.StartDeathScreen(ref respawn);
     }
 
     private void OnRespawn()
@@ -169,7 +173,7 @@ public class NetworkPlayer : NetworkBehaviour
         AllowMovement = true;
         PlayerMoveCamera.BlockMovement = false;
         
-        CmdSwitchBodyRender(true);
+        CmdDisablePlayer(true);
         
         transform.position = Vector3.zero;
     }
@@ -178,10 +182,15 @@ public class NetworkPlayer : NetworkBehaviour
     private void CmdSetHealth(float amount) { Health = amount; }
 
     [Command]
-    private void CmdSwitchBodyRender(bool enable) { RpcSwitchBodyRender(enable); }
+    private void CmdDisablePlayer(bool enable) { RpcDisablePlayer(enable); }
 
     [ClientRpc]
-    private void RpcSwitchBodyRender(bool enable) { _body.GetComponent<MeshRenderer>().enabled = enable; }
+    private void RpcDisablePlayer(bool enable)
+    { 
+        _body.GetComponent<MeshRenderer>().enabled = enable;
+        _cc.enabled = enable;
+        _rb.useGravity = enable;
+    }
 
     [Command(requiresAuthority = false)]
     public void CmdHitPlayer(NetworkIdentity owner, float damage)
@@ -259,10 +268,10 @@ public class NetworkPlayer : NetworkBehaviour
     {
         CmdInitialize(PlayerPrefs.GetString("PlayerNicknameValue", "Player"));
 
-        EverywhereCanvas everywhereCanvas = EverywhereCanvas.Singleton();
+        _everywhereCanvas = EverywhereCanvas.Singleton();
 
-        everywhereCanvas.Initialize(this);
-        everywhereCanvas.SetMaxHealth(_maxHealth);
+        _everywhereCanvas.Initialize(this);
+        _everywhereCanvas.SetMaxHealth(_maxHealth);
 
         SetHealth(_maxHealth);
 
@@ -351,6 +360,24 @@ public class NetworkPlayer : NetworkBehaviour
         if (_wantToDash && _readyToDash)
         {
             Dash();
+        }
+        
+        RaycastHit hit;
+
+        Transform cameraTransform = PlayerCamera.transform;
+
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, 1500f, LayerMask.GetMask("Player")))
+        {
+            NetworkPlayer player;
+
+            if (hit.transform.TryGetComponent<NetworkPlayer>(out player))
+            {
+                _everywhereCanvas.SwitchNicknameVisibility(true, player.Nickname);
+            }
+        }
+        else
+        {
+            _everywhereCanvas.SwitchNicknameVisibility(false);
         }
     }
 
@@ -517,7 +544,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         SoundSystem.PlaySound(new SoundTransporter(_killLogSound), new SoundPositioner(transform.position), volume: 3);
         PlayerMoveCamera.Shake(strength: 0.25f);
-        EverywhereCanvas.Singleton().LogKill();
+        _everywhereCanvas.LogKill();
 
         AddScore(3);
     }
@@ -561,11 +588,13 @@ public class PlayerStats
     public float Speed;
     public float Bounce;
     public byte Luck;
+    public float Damage;
 
     public void ResetStats()
     {
         Speed = 0;
         Bounce = 0;
         Luck = 0;
+        Damage = 0;
     }
 }

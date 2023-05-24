@@ -2,7 +2,6 @@ using UnityEngine;
 using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
-using System.Collections;
 
 [CreateAssetMenu()]
 public class UsableItem : ScriptableObject
@@ -13,11 +12,12 @@ public class UsableItem : ScriptableObject
 
     [Header("Use Settings")]
     [Tooltip("Надо ли зажимать чтоб использовать предмет")] public bool HoldToUse = false;
-    [SerializeField, ShowIf(nameof(HoldToUse)), AllowNesting(), Min(0), Tooltip("На сколько секунд надо зажать, чтоб предмет использовался")] public float UseTime = 1;
+    [ShowIf(nameof(HoldToUse)), AllowNesting(), Min(0), Tooltip("На сколько секунд надо зажать, чтоб предмет использовался")] public float UseTime = 1;
 
     [Header("On Use")]
-    [SerializeField, Tooltip("Игроку дадут эти мутации при использовании")] public List<InspectorMutation> Mutations = new List<InspectorMutation>();
-    [SerializeField, Tooltip("Игроку дадут эти мутации при использовании")] public List<ProjectileBase> Projectiles = new List<ProjectileBase>();
+    [Tooltip("Игроку дадут эти мутации при использовании")] public List<InspectorMutation> Mutations = new List<InspectorMutation>();
+    [Tooltip("Игроку дадут эти мутации при использовании")] public List<ProjectileBase> Projectiles = new List<ProjectileBase>();
+    [Tooltip("На сколько игрок отхилится при использовании")] public float HealAmount;
 }
 
 public enum Rarity : byte

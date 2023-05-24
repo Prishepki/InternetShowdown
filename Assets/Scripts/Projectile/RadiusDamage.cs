@@ -25,7 +25,8 @@ public class RadiusDamage : NetworkBehaviour
             {
                 yield return new WaitUntil(() => outPlayer != null);
 
-                outPlayer.CmdHitPlayer(NetworkClient.localPlayer, _damage);
+                PlayerCurrentStats.Singleton.Damage = _damage;
+                outPlayer.CmdHitPlayer(NetworkClient.localPlayer, _damage + PlayerMutationStats.Singleton.Damage);
             }
         }
     }

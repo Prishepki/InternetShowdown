@@ -113,7 +113,7 @@ MonoBehaviour:
   _destroyMode: 3
   _destroyTime: 3
   _projectileSpeed: 125
-  _projectileDamage: 35
+  _projectileDamage: 40
   _forceApplyMode: 0
   _continiousForceApply: 0
   _soundEffects: 4
@@ -157,7 +157,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 0.85
   m_Center: {x: 0, y: 1.87, z: 0}
 --- !u!1001 &8216918813018801510
 PrefabInstance:
