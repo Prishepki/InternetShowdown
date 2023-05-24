@@ -68,6 +68,8 @@ public class GameLoop : NetworkBehaviour
                 _timeCounter = _breakLength;
             }
 
+            SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
+
             for (int i = 0; i < _repeatSeconds; i++)
             {
                 OnTimeCounterUpdate(_timeCounter, Color.white);
@@ -80,6 +82,8 @@ public class GameLoop : NetworkBehaviour
             LoadMatch();
 
             yield return _sceneChangeDelay;
+
+            SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
 
             // ПОДГОТОВКА
             SetGameState(GameState.Prepare, CanvasGameStates.Lobby, _prepareLength);
@@ -102,6 +106,8 @@ public class GameLoop : NetworkBehaviour
 
             StartMatch();
             SetGameState(GameState.Match, CanvasGameStates.Game, _roundLength);
+
+            SceneGameManager.Singleton().RpcFadeUI(CurrentUIState);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -135,8 +141,6 @@ public class GameLoop : NetworkBehaviour
         
         _timeCounter = time;
         _repeatSeconds = _timeCounter;
-
-        SceneGameManager.Singleton().RpcSwitchUI(uiState);
     }
 
     private void LoadMatch()

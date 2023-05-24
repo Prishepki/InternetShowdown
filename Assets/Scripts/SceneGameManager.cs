@@ -44,6 +44,12 @@ public class SceneGameManager : NetworkBehaviour
         EverywhereCanvas.Singleton().SwitchUIGameState(state);
     }
 
+    [ClientRpc]
+    public void RpcFadeUI(CanvasGameStates state) // трясет экраны у всех игроков
+    {
+        EverywhereCanvas.Singleton().FadeUIGameState(state);
+    }
+
     [Command(requiresAuthority = false)]
     public void RecieveUIGameState()
     {

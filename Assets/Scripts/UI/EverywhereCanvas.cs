@@ -14,8 +14,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     [Space(9)]
 
-    [SerializeField] private GameObject _inLobby;
-    [SerializeField] private GameObject _inGame;
+    [SerializeField] private CanvasGroup _inLobby;
+    [SerializeField] private CanvasGroup _inGame;
 
     [Header("Other")]
     public TMP_Text Timer;
@@ -50,6 +50,12 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [Header("Leaderboard")]
     [SerializeField] private Place _placePrefab;
     [SerializeField] private Transform _placeContainer;
+
+    [Space(9)]
+
+    [SerializeField] private Color _firstPlaceColor;
+    [SerializeField] private Color _secondPlaceColor;
+    [SerializeField] private Color _thirdPlaceColor;
 
     private List<(string nickname, int score)> _leaderboard = new List<(string nickname, int score)>();
 
@@ -90,23 +96,57 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _canvas.SetActive(enable);
     }
 
+    public void FadeUIGameState(CanvasGameStates state)
+    {
+        StopCoroutine(nameof(FadeUIGameStateCoroutine));
+        StartCoroutine(nameof(FadeUIGameStateCoroutine), state);
+    }
+
     public void SwitchUIGameState(CanvasGameStates state)
     {
-        switch (state)
+        if (state == CanvasGameStates.Lobby)
         {
-            case CanvasGameStates.Lobby:
+            _inLobby.alpha = 1;
+            _inGame.alpha = 0;
+        }
+        else if (state == CanvasGameStates.Game)
+        {
+            _inLobby.alpha = 0;
+            _inGame.alpha = 1;
+        }
+    }
 
-                _inLobby.SetActive(true);
-                _inGame.SetActive(false);
+    private IEnumerator FadeUIGameStateCoroutine(CanvasGameStates state)
+    {
+        float elapsed = 0.0f;
 
-                break;
+        if (state == CanvasGameStates.Lobby)
+        {
+            while (elapsed < 1)
+            {
+                _inGame.alpha = Mathf.Lerp(1, 0, elapsed);
+                _inLobby.alpha = Mathf.Lerp(0, 1, elapsed);
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
 
-            case CanvasGameStates.Game:
+            _inLobby.alpha = 1;
+            _inGame.alpha = 0;
+        }
+        else if (state == CanvasGameStates.Game)
+        {
+            while (elapsed < 1)
+            {
+                _inLobby.alpha = Mathf.Lerp(1, 0, elapsed);
+                _inGame.alpha = Mathf.Lerp(0, 1, elapsed);
+                
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
 
-                _inLobby.SetActive(false);
-                _inGame.SetActive(true);
-
-                break;
+            _inLobby.alpha = 0;
+            _inGame.alpha = 1;
         }
     }
 
@@ -131,12 +171,34 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     private void UpdateLeaderboardUI()
     {
         ClearLeaderboardUI();
+
+        int clampedLeaderboardSize = Mathf.Clamp(_leaderboard.Count, 0, 6);
         
-        for (int place = 0; place < _leaderboard.Count; place++)
+        for (int place = 0; place < clampedLeaderboardSize; place++)
         {
             Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
 
             placeComp.Number.text = $"{place + 1})";
+
+            switch (place + 1)
+            {
+                default:
+                    placeComp.Number.color = Color.white;
+                    break;
+
+                case 1:
+                    placeComp.Number.color = _firstPlaceColor;
+                    break;
+                
+                case 2:
+                    placeComp.Number.color = _secondPlaceColor;
+                    break;
+                
+                case 3:
+                    placeComp.Number.color = _thirdPlaceColor;
+                    break;
+            }
+
             placeComp.Nickname.text = _leaderboard[place].nickname;
             placeComp.Score.text = _leaderboard[place].score.ToString();
         }
