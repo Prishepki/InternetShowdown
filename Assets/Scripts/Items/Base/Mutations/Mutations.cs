@@ -85,6 +85,11 @@ public abstract class Mutation // базовый класс мутации
 
         Source = new CancellationTokenSource();
     }
+
+    ~Mutation()
+    {
+        Debug.Log("GC: Mutation has been disposed!");
+    }
 }
 
 [Serializable]
