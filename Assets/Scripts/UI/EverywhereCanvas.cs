@@ -5,6 +5,7 @@ using System.Linq;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class EverywhereCanvas : MonoBehaviour // юи которое будет видно ВЕЗДЕ
@@ -18,6 +19,9 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [SerializeField] private CanvasGroup _inGame;
 
     [Header("Other")]
+    [SerializeField] private CanvasGroup _pauseMenu;
+    [SerializeField] private Button[] _pauseMenuButtons;
+
     public TMP_Text Timer;
 
     public TMP_Text OthersNickname;
@@ -63,6 +67,37 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private NetworkPlayer _player;
 
+    [HideInInspector] public bool PauseMenuOpened;
+
+    private bool _isExitingServer;
+
+    public void QuitAction()
+    {
+        Application.Quit();
+    }
+
+    public void MenuAction()
+    {
+        Pause(false);
+
+        if (_isExitingServer || !NetworkClient.isConnected)
+        {
+            return;
+        }
+
+        StartCoroutine(nameof(OnDisconnectPressed));
+
+        NetworkManager.singleton.StopHost();
+        _isExitingServer = true;
+    }
+
+    private IEnumerator OnDisconnectPressed()
+    {
+        yield return new WaitUntil(() => !NetworkManager.singleton.isNetworkActive);
+
+        _isExitingServer = false;
+    }
+
     private void Update()
     {
         _playerDebugPanel.SetActive(false);
@@ -73,6 +108,16 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 #endif
 
         UpdateHealthDisplay();
+
+        HandlePauseMenu();
+    }
+
+    private void HandlePauseMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Pause(!PauseMenuOpened);
+        }
     }
 
     public void SwitchNicknameVisibility(bool show, string target = "")
@@ -231,6 +276,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         EnableUseTimer(false);
 
         _killLog.alpha = 0;
+        _pauseMenu.alpha = 0;
 
         HideDeathScreen();
     }
@@ -319,6 +365,51 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         target.alpha = 0;
     }
 
+    public void Pause(bool enable)
+    {
+        PauseMenuOpened = enable;
+        StopCoroutine(nameof(FadeCanvasGroup));
+        StartCoroutine(nameof(FadeCanvasGroup), new FadeGroupParams(enable, 0.1f, _pauseMenu));
+
+        if (enable)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+    }
+
+    private class FadeGroupParams
+    {
+        public bool FadeIn;
+        public float FadeDuration;
+        public CanvasGroup Target;
+
+        public FadeGroupParams(bool fadeIn, float fadeDuration, CanvasGroup target)
+        {
+            FadeIn = fadeIn;
+            FadeDuration = fadeDuration;
+            Target = target;
+        }
+    }
+
+    private IEnumerator FadeCanvasGroup(FadeGroupParams fadeParams)
+    {
+        float elapsed = 0.0f;
+
+        while (elapsed < fadeParams.FadeDuration)
+        {
+            fadeParams.Target.alpha = Mathf.Lerp(fadeParams.FadeIn ? 0 : 1, fadeParams.FadeIn ? 1 : 0, elapsed / fadeParams.FadeDuration);
+            
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        fadeParams.Target.alpha = fadeParams.FadeIn ? 1 : 0;
+    }
+
     private IEnumerator LerpUseTimer(float duration)
     {
         float elapsed = 0.0f;
@@ -345,6 +436,16 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         }
 
         DontDestroyOnLoad(transform);
+
+        foreach (var button in _pauseMenuButtons)
+        {
+            button.onClick.AddListener(ClearSelections);
+        }
+    }
+
+    private void ClearSelections()
+    {
+        EventSystem.current.SetSelectedGameObject(null);
     }
     
     public static EverywhereCanvas Singleton()

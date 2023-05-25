@@ -146,7 +146,7 @@ MonoBehaviour:
     Strength: 0
   _destroyShake:
     Duration: 1.01
-    Strength: 0.8
+    Strength: 0.45
 --- !u!33 &7658171114383046649
 MeshFilter:
   m_ObjectHideFlags: 0

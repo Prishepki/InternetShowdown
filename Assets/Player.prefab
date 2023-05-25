@@ -118,11 +118,13 @@ MonoBehaviour:
   _dashGroundedForce: 50
   _dashAirForce: 15
   _dashTimeout: 0.25
+  _groundDashForce: 17.5
   _mapLayers:
     serializedVersion: 2
     m_Bits: 64
   JumpKey: 32
   DashKey: 304
+  GroundDashKey: 306
   IsMoving: 0
   _particles:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}

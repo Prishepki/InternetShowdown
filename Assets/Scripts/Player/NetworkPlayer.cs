@@ -48,6 +48,9 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Сила рывка пока игрок в воздухе"), Min(0)] private float _dashAirForce = 15f;
     [SerializeField, Tooltip("На сколько секунд игрок не сможет делать рывок после совершеного рывка"), Min(0)] private float _dashTimeout = 0.25f;
 
+    [Header("Ground Dashing Control")]
+    [SerializeField, Tooltip("Сила рывка вниз"), Min(0)] private float _groundDashForce = 5f;
+
     private float? _lastGroundedTime;
     private float? _lastTryToJump;
 
@@ -57,6 +60,7 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Inputs")]
     public KeyCode JumpKey = KeyCode.Space;
     public KeyCode DashKey = KeyCode.LeftShift;
+    public KeyCode GroundDashKey = KeyCode.LeftControl;
 
     private (Vector3 center, float radius) _groundChecking;
 
@@ -64,13 +68,17 @@ public class NetworkPlayer : NetworkBehaviour
     private float _bhop;
     private float _bhopTimer;
     private Vector2 _inputs;
-    private Vector3 _playerDiretcion;
+    private Vector3 _playerDirection;
 
     [HideInInspector] public bool IsMoving;
     private bool _wantToJump;
 
     private bool _wantToDash;
+    private bool _wantToGroundDash;
     private bool _readyToDash;
+
+    private Vector3 _playerSlopeDirection;
+
 
     [Header("Particles")]
     [SerializeField, Tooltip("Не меняй")] private GameObject[] _particles;
@@ -134,6 +142,14 @@ public class NetworkPlayer : NetworkBehaviour
 
         float clampedAmount = Mathf.Clamp(amount, 0, _maxHealth);
 
+        float difference = Health - clampedAmount;
+
+        if (difference == 0)
+        {
+            Debug.LogWarning("It's useless to change health");
+            return;
+        }
+
         CmdSetHealth(clampedAmount);
         
         StartCoroutine(nameof(OnHealthChanged), clampedAmount);
@@ -162,6 +178,8 @@ public class NetworkPlayer : NetworkBehaviour
         PlayerMoveCamera.BlockMovement = true;
 
         CmdDisablePlayer(false);
+
+        _rb.velocity = Vector3.zero;
 
         _everywhereCanvas.StartDeathScreen(ref respawn);
     }
@@ -339,6 +357,8 @@ public class NetworkPlayer : NetworkBehaviour
         RecieveInputs();
         SetVariables();
 
+        IdleHandle();
+
         if (CheckIsGrounded())
         {
             _lastGroundedTime = Time.time;
@@ -360,6 +380,11 @@ public class NetworkPlayer : NetworkBehaviour
         if (_wantToDash && _readyToDash)
         {
             Dash();
+        }
+
+        if (_wantToGroundDash)
+        {
+            GroundDash();
         }
         
         RaycastHit hit;
@@ -383,6 +408,8 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void DebugKeys()
     {
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
             Cursor.lockState = CursorLockMode.None;
@@ -402,11 +429,13 @@ public class NetworkPlayer : NetworkBehaviour
         {
             Heal(5);
         }
+#endif
+
     }
 
     private void Jump()
     {
-        if (!AllowMovement) return;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
         _lastTryToJump = null;
         _lastGroundedTime = null;
@@ -446,13 +475,14 @@ public class NetworkPlayer : NetworkBehaviour
 
         _wantToJump = Input.GetKeyDown(JumpKey);
         _wantToDash = Input.GetKeyDown(DashKey);
+        _wantToGroundDash = Input.GetKeyDown(GroundDashKey);
 
-        _playerDiretcion = _orientation.forward * _inputs.y + _orientation.right * _inputs.x;
+        _playerDirection = _orientation.forward * _inputs.y + _orientation.right * _inputs.x;
     }
 
     public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
     {
-        if (!AllowMovement) return Vector2.zero;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return Vector2.zero;
 
         return new Vector2(Input.GetAxisRaw(_horizontal), Input.GetAxisRaw(_vertical));
     }
@@ -476,19 +506,49 @@ public class NetworkPlayer : NetworkBehaviour
         return grounded;
     }
 
-    public (bool sloped, float angle) CheckIsSloped() // тупле метод ахуевший просто
+    public (bool sloped, Vector3 normal, float angle) CheckIsSloped() // тупле метод ахуевший просто
     {
         RaycastHit hit;
 
         Physics.Raycast(_groundChecking.center, Vector3.down, out hit, 1f, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
-        float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
-        bool sloped = slopeAngle != 0 ? true : false;
-
-        return (sloped, slopeAngle);
+        return (hit.normal != Vector3.up, hit.normal, Vector3.Angle(Vector3.up, hit.normal));
     }
 
-    private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z
+    private void IdleHandle()
+    {
+        if (IsMoving)
+        {
+            SetNoFrictionMaterial();
+
+            return;
+        }
+
+        if (CheckIsSloped().sloped)
+        {
+            const float slopeFriction = 1;
+
+            if (_cc.material.staticFriction != slopeFriction)
+            {
+                _cc.material.frictionCombine = PhysicMaterialCombine.Maximum;
+                _cc.material.staticFriction = slopeFriction;
+            }
+        }
+        else
+        {
+            SetNoFrictionMaterial();
+        }
+    }
+
+    private void SetNoFrictionMaterial()
+    {
+        if (_cc.material.staticFriction == 0) return;
+
+        _cc.material.frictionCombine = PhysicMaterialCombine.Multiply;
+        _cc.material.staticFriction = 0f;
+    }
+
+    private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z (а так же делаем слоуп хандлинг по оси Y)
     {
         if (!AllowMovement) return;
 
@@ -504,32 +564,59 @@ public class NetworkPlayer : NetworkBehaviour
             _accel = Mathf.Clamp(_accel, 0, _maximumAcceleration);
         }
 
+        (bool sloped, Vector3 normal, float angle) = CheckIsSloped();
+
+        _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, normal);
+
+        float angleBoost = angle * 1.5f;
+        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
+
         if (CheckIsGrounded())
         {
-            PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop) + Mathf.Abs(CheckIsSloped().angle); // ебать я слоуп хандлинг
-
-            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
             _rb.drag = _dragOnGround;
         }
         else
         {
-            PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop) / _airSpeedDivider;
-
-            _rb.AddForce(_playerDiretcion * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
             _rb.drag = 0;
+            PlayerCurrentStats.Singleton.Speed /= _airSpeedDivider;
+        }
+
+        if (sloped)
+        {
+            _rb.AddForce(_playerSlopeDirection * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
+        }
+        else
+        {
+            _rb.AddForce(_playerDirection * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
         }
     }
 
     private void Dash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
-        if (!AllowMovement) return;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
         float targetForce = CheckIsGrounded() ? _dashGroundedForce : _dashAirForce;
 
-        _rb.AddForce(_playerDiretcion * targetForce, ForceMode.Impulse);
+        _rb.AddForce(_playerDirection * targetForce, ForceMode.Impulse);
 
         _readyToDash = false;
         Invoke(nameof(ResetDash), _dashTimeout);
+    }
+
+    private void GroundDash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
+    {
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || CheckIsGrounded()) return;
+
+        _rb.AddForce(Vector3.down * _groundDashForce, ForceMode.Impulse);
+
+        StartCoroutine(nameof(ShakeWhenLanded));
+    }
+
+    private IEnumerator ShakeWhenLanded()
+    {
+        yield return new WaitUntil(() => CheckIsGrounded());
+
+        PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
 
     public void LogHit()

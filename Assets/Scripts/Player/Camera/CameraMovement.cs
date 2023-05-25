@@ -40,15 +40,19 @@ public class CameraMovement : MonoBehaviour
 
     private Vector3 _initPosition;
 
+    private EverywhereCanvas _everywhereCanvas;
+
     private void Start()
     {
         _camera = GetComponent<Camera>();
         _initPosition = transform.position;
+
+        _everywhereCanvas = EverywhereCanvas.Singleton();
     }
 
     private void Update()
     {
-        if (!BlockMovement)
+        if (!BlockMovement && !_everywhereCanvas.PauseMenuOpened)
         {
             float mouseX = Input.GetAxisRaw("Mouse X") * _sensitivityX;
             float mouseY = Input.GetAxisRaw("Mouse Y") * _sensitivityY;
