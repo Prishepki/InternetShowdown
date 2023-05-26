@@ -41,7 +41,18 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Space(9)]
 
-    [SerializeField, Tooltip("Легкость использования прыжка (койоти тайм и джамп баффер). Менять не советую"), Min(0)] private float _jumpEasiness = 0.3f;
+    [SerializeField, Tooltip("Сколько прыжков доступно игроку в воздухе?"), Min(0)] private int _availableAirJumps = 1;
+
+    private int _jumpedTimesInAir;
+    private float _airJumpTimeout;
+
+    [Space(9)]
+
+    [SerializeField, Tooltip("Койоти тайм"), Min(0)] private float _coyoteTime = 0.2f;
+    [SerializeField, Tooltip("Джамп Баффер"), Min(0)] private float _jumpBuffer = 0.2f;
+
+    private float _coyoteTimeCounter;
+    private float _jumpBufferCounter;
 
     [Header("Dashing Control")]
     [SerializeField, Tooltip("Сила рывка пока игрок на земле"), Min(0)] private float _dashGroundedForce = 50f;
@@ -50,9 +61,6 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Ground Dashing Control")]
     [SerializeField, Tooltip("Сила рывка вниз"), Min(0)] private float _groundDashForce = 5f;
-
-    private float? _lastGroundedTime;
-    private float? _lastTryToJump;
 
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
@@ -72,6 +80,8 @@ public class NetworkPlayer : NetworkBehaviour
     private Vector3 _playerDirection;
 
     [HideInInspector] public bool IsMoving;
+    [HideInInspector] public bool IsGrounded;
+
     private bool _wantToJump;
 
     private bool _wantToDash;
@@ -80,6 +90,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private Vector3 _playerSlopeDirection;
 
+    private bool _isColliding;
 
     [Header("Particles")]
     [SerializeField, Tooltip("Не меняй")] private GameObject[] _particles;
@@ -208,7 +219,6 @@ public class NetworkPlayer : NetworkBehaviour
     {
         _body.GetComponent<MeshRenderer>().enabled = enable;
         _cc.enabled = enable;
-        _rb.useGravity = enable;
     }
 
     [Command(requiresAuthority = false)]
@@ -358,23 +368,7 @@ public class NetworkPlayer : NetworkBehaviour
         RecieveInputs();
         SetVariables();
 
-        if (IsGrounded())
-        {
-            _lastGroundedTime = Time.time;
-        }
-
-        if (_wantToJump)
-        {
-            _lastTryToJump = Time.time;
-        }
-
-        if (Time.time - _lastGroundedTime <= _jumpEasiness)
-        {
-            if (Time.time - _lastTryToJump <= _jumpEasiness)
-            {
-                Jump();
-            }
-        }
+        JumpHandle();
 
         if (_wantToDash && _readyToDash)
         {
@@ -403,6 +397,68 @@ public class NetworkPlayer : NetworkBehaviour
         {
             _everywhereCanvas.SwitchNicknameVisibility(false);
         }
+    }
+
+    private void JumpHandle()
+    {
+        if (IsGrounded)
+        {
+            _coyoteTimeCounter = _coyoteTime;
+
+            _airJumpTimeout = 0.5f;
+        }
+        else
+        {
+            _coyoteTimeCounter -= Time.deltaTime;
+
+            if (_airJumpTimeout > 0)
+            {
+                _airJumpTimeout -= Time.deltaTime;
+            }
+        }
+
+        if (_wantToJump)
+        {
+            _jumpBufferCounter = _jumpBuffer;
+        }
+        else
+        {
+            _jumpBufferCounter -= Time.deltaTime;
+        }
+
+        bool jumpRequested = _coyoteTimeCounter > 0f;
+        bool jumpIsPossible = _jumpBufferCounter > 0f;
+
+        if (jumpRequested && jumpIsPossible)
+        {
+            Jump();
+
+            _jumpBufferCounter = 0f;
+        }
+
+        if (_wantToJump && !IsGrounded && !jumpRequested && _jumpedTimesInAir < _availableAirJumps && _airJumpTimeout > 0)
+        {
+            Jump();
+
+            _jumpedTimesInAir++;
+
+            if (_jumpedTimesInAir == _availableAirJumps)
+            {
+                StartCoroutine(nameof(WaitForLand));
+            }
+        }
+
+        if (Input.GetKeyUp(JumpKey))
+        {
+            _coyoteTimeCounter = 0;
+        }
+    }
+
+    private IEnumerator WaitForLand()
+    {
+        yield return new WaitUntil(() => IsGrounded);
+
+        _jumpedTimesInAir = 0;
     }
 
     private void DebugKeys()
@@ -436,9 +492,6 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
-        _lastTryToJump = null;
-        _lastGroundedTime = null;
-
         PlayerCurrentStats.Singleton.Bounce = _jumpForce;
 
         _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.Singleton.Bounce + PlayerMutationStats.Singleton.Bounce, _rb.velocity.z);
@@ -454,7 +507,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         _bhopTimer = _bunnyHopTimeout;
 
-        //эффекты
+        // эффекты
         FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         CmdSpawnParticle(0);
     }
@@ -471,6 +524,8 @@ public class NetworkPlayer : NetworkBehaviour
     {
         _inputs = GetAxisInputs();
         IsMoving = _inputs.magnitude > 0;
+
+        IsGrounded = _isColliding && CheckForGrounded();
 
         _wantToJump = Input.GetKeyDown(JumpKey);
         _wantToDash = Input.GetKeyDown(DashKey);
@@ -499,7 +554,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    public bool IsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
+    private bool CheckForGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
     {
         bool grounded = Physics.CheckSphere(_groundChecking.center, _groundChecking.radius, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
@@ -508,7 +563,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     public bool IsSloped() // не тупле метод не ахуевший сука
     {
-        if (!IsGrounded()) return false;
+        if (!IsGrounded) return false;
 
         RaycastHit hit;
         Physics.Raycast(_groundChecking.center, Vector3.down, out hit, 1f, _mapLayers.value, QueryTriggerInteraction.Ignore);
@@ -524,7 +579,12 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z (а так же делаем слоуп хандлинг по оси Y)
     {
-        if (!AllowMovement) return;
+        if (!AllowMovement)
+        {
+            _rb.velocity = Vector3.zero;
+
+            return;
+        }
 
         if (!IsMoving)
         {
@@ -542,9 +602,11 @@ public class NetworkPlayer : NetworkBehaviour
 
         _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, _slopeNormal);
 
-        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop);
+        float angleBoost = Mathf.Abs(Vector3.Angle(Vector3.up, _slopeNormal) * 1.75f);
 
-        if (IsGrounded())
+        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
+
+        if (IsGrounded)
         {
             _rb.drag = _dragOnGround;
         }
@@ -568,7 +630,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
-        float targetForce = IsGrounded() ? _dashGroundedForce : _dashAirForce;
+        float targetForce = IsGrounded ? _dashGroundedForce : _dashAirForce;
 
         _rb.AddForce(_playerDirection * targetForce, ForceMode.Impulse);
 
@@ -578,7 +640,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void GroundDash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded()) return;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded) return;
 
         _rb.AddForce(Vector3.down * _groundDashForce, ForceMode.Impulse);
 
@@ -587,7 +649,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private IEnumerator ShakeWhenLanded()
     {
-        yield return new WaitUntil(() => IsGrounded());
+        yield return new WaitUntil(() => IsGrounded);
 
         PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
@@ -630,6 +692,16 @@ public class NetworkPlayer : NetworkBehaviour
     private void CmdChangeScore(int amount)
     {
         Score += amount;
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        _isColliding = true;
+    }
+
+    private void OnCollisionExit(Collision other)
+    {
+        _isColliding = false;
     }
 }
 

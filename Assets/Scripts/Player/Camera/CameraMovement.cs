@@ -73,7 +73,7 @@ public class CameraMovement : MonoBehaviour
 
     private void Tilt()
     {
-        float grounded = Player.IsGrounded() ? 1.0f : 0.3f;
+        float grounded = Player.IsGrounded ? 1.0f : 0.3f;
         _rotZ = Mathf.SmoothDamp(_rotZ, (Player.GetAxisInputs().x * -_tiltAmount) + ((Player.GetAxisInputs().y * (Mathf.Cos((Time.time * _bobbingSpeed)) * _bobbingAmount) * grounded)), ref _tiltDampVelocity, _tiltSmoothing);
     }
 
