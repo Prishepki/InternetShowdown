@@ -37,7 +37,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [Header("Health Slider")]
     public Slider Health;
     public Image HealthFill;
-    
+
     [Space(9)]
 
     [SerializeField] private float _healthBarAniamtionSpeed = 5;
@@ -179,7 +179,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
             {
                 _inGame.alpha = Mathf.Lerp(1, 0, elapsed);
                 _inLobby.alpha = Mathf.Lerp(0, 1, elapsed);
-                
+
                 elapsed += Time.deltaTime;
                 yield return null;
             }
@@ -193,7 +193,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
             {
                 _inLobby.alpha = Mathf.Lerp(1, 0, elapsed);
                 _inGame.alpha = Mathf.Lerp(0, 1, elapsed);
-                
+
                 elapsed += Time.deltaTime;
                 yield return null;
             }
@@ -226,7 +226,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         ClearLeaderboardUI();
 
         int clampedLeaderboardSize = Mathf.Clamp(_leaderboard.Count, 0, 6);
-        
+
         for (int place = 0; place < clampedLeaderboardSize; place++)
         {
             Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
@@ -242,11 +242,11 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
                 case 1:
                     placeComp.Number.color = _firstPlaceColor;
                     break;
-                
+
                 case 2:
                     placeComp.Number.color = _secondPlaceColor;
                     break;
-                
+
                 case 3:
                     placeComp.Number.color = _thirdPlaceColor;
                     break;
@@ -357,7 +357,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         while (elapsed < fadeDuration)
         {
             target.alpha = Mathf.Lerp(1, 0, elapsed / fadeDuration);
-            
+
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -402,7 +402,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         while (elapsed < fadeParams.FadeDuration)
         {
             fadeParams.Target.alpha = Mathf.Lerp(fadeParams.FadeIn ? 0 : 1, fadeParams.FadeIn ? 1 : 0, elapsed / fadeParams.FadeDuration);
-            
+
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -418,7 +418,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         {
             UseTimer.value = Mathf.Lerp(0, 1, elapsed / duration);
             UseTimerFill.color = new Color(1, 1 - UseTimer.value, 1 - UseTimer.value / 3, Mathf.Sin(1 - UseTimer.value));
-            
+
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -447,7 +447,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     {
         EventSystem.current.SetSelectedGameObject(null);
     }
-    
+
     public static EverywhereCanvas Singleton()
     {
         return FindObjectOfType<EverywhereCanvas>(true);

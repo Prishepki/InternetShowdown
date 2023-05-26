@@ -1,15 +1,15 @@
-using UnityEngine;
-using Mirror;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
+using Mirror;
+using UnityEngine;
 
 public class CustomNetworkManager : NetworkManager
 {
     public override void Awake()
     {
         base.Awake();
-        
+
         List<GameObject> projectiles = Resources.LoadAll<GameObject>("Items/Projectiles").ToList();
         List<GameObject> netPrefs = Resources.LoadAll<GameObject>("NetworkedPrefabs").ToList();
 

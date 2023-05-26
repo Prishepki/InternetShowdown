@@ -10,7 +10,7 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private TMP_InputField _nickname;
     [SerializeField] private TMP_InputField _address;
 
-    private void Start() 
+    private void Start()
     {
         SetNickname(PlayerPrefs.GetString(_nicknameSavePath));
         SetIP(PlayerPrefs.GetString(_addressSavePath));
