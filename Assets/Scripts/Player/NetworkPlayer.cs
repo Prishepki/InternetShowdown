@@ -63,6 +63,7 @@ public class NetworkPlayer : NetworkBehaviour
     public KeyCode GroundDashKey = KeyCode.LeftControl;
 
     private (Vector3 center, float radius) _groundChecking;
+    private Vector3 _slopeNormal;
 
     private float _accel;
     private float _bhop;
@@ -359,7 +360,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         IdleHandle();
 
-        if (CheckIsGrounded())
+        if (IsGrounded())
         {
             _lastGroundedTime = Time.time;
         }
@@ -499,53 +500,27 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    public bool CheckIsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
+    public bool IsGrounded() // у меня нет поля для проверки на земле ли игрок, пусть лучше метод будет бля)
     {
         bool grounded = Physics.CheckSphere(_groundChecking.center, _groundChecking.radius, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
         return grounded;
     }
 
-    public (bool sloped, Vector3 normal, float angle) CheckIsSloped() // тупле метод ахуевший просто
+    public bool IsSloped() // не тупле метод не ахуевший сука
     {
+        if (!IsGrounded()) return false;
+
         RaycastHit hit;
-
         Physics.Raycast(_groundChecking.center, Vector3.down, out hit, 1f, _mapLayers.value, QueryTriggerInteraction.Ignore);
+        _slopeNormal = hit.normal;
 
-        return (hit.normal != Vector3.up, hit.normal, Vector3.Angle(Vector3.up, hit.normal));
+        return _slopeNormal != Vector3.up;
     }
 
     private void IdleHandle()
     {
-        if (IsMoving)
-        {
-            SetNoFrictionMaterial();
-
-            return;
-        }
-
-        if (CheckIsSloped().sloped)
-        {
-            const float slopeFriction = 1;
-
-            if (_cc.material.staticFriction != slopeFriction)
-            {
-                _cc.material.frictionCombine = PhysicMaterialCombine.Maximum;
-                _cc.material.staticFriction = slopeFriction;
-            }
-        }
-        else
-        {
-            SetNoFrictionMaterial();
-        }
-    }
-
-    private void SetNoFrictionMaterial()
-    {
-        if (_cc.material.staticFriction == 0) return;
-
-        _cc.material.frictionCombine = PhysicMaterialCombine.Multiply;
-        _cc.material.staticFriction = 0f;
+        _rb.useGravity = !IsSloped();
     }
 
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z (а так же делаем слоуп хандлинг по оси Y)
@@ -564,14 +539,13 @@ public class NetworkPlayer : NetworkBehaviour
             _accel = Mathf.Clamp(_accel, 0, _maximumAcceleration);
         }
 
-        (bool sloped, Vector3 normal, float angle) = CheckIsSloped();
+        bool sloped = IsSloped();
 
-        _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, normal);
+        _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, _slopeNormal);
 
-        float angleBoost = angle * 1.5f;
-        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
+        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop);
 
-        if (CheckIsGrounded())
+        if (IsGrounded())
         {
             _rb.drag = _dragOnGround;
         }
@@ -595,7 +569,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
-        float targetForce = CheckIsGrounded() ? _dashGroundedForce : _dashAirForce;
+        float targetForce = IsGrounded() ? _dashGroundedForce : _dashAirForce;
 
         _rb.AddForce(_playerDirection * targetForce, ForceMode.Impulse);
 
@@ -605,7 +579,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void GroundDash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || CheckIsGrounded()) return;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded()) return;
 
         _rb.AddForce(Vector3.down * _groundDashForce, ForceMode.Impulse);
 
@@ -614,7 +588,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private IEnumerator ShakeWhenLanded()
     {
-        yield return new WaitUntil(() => CheckIsGrounded());
+        yield return new WaitUntil(() => IsGrounded());
 
         PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
