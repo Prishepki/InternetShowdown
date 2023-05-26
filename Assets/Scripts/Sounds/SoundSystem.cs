@@ -1,14 +1,14 @@
-using UnityEngine;
 using System;
-using Mirror;
 using System.Collections.Generic;
+using Mirror;
 using NaughtyAttributes;
+using UnityEngine;
 
 public class SoundSystem : NetworkBehaviour
 {
     public List<AudioClip> NetworkRegisteredSounds = new List<AudioClip>();
 
-    public static void PlaySound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1,  float volume = 1, bool enableFade = true)
+    public static void PlaySound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
     {
         AudioClip targetSound = sound.Clips[UnityEngine.Random.Range(0, sound.Clips.Count)];
 
@@ -51,8 +51,11 @@ public class SoundSystem : NetworkBehaviour
 
         foreach (var clip in sound.Clips)
         {
-            if ( !NetworkRegisteredSounds.Contains(clip))
-            { Debug.LogWarning($"Network Registered Sounds does not contain {clip.name}! Are you forgot to add the sound in the list?"); return; }
+            if (!NetworkRegisteredSounds.Contains(clip))
+            {
+                Debug.LogWarning($"Network Registered Sounds does not contain {clip.name}! Are you forgot to add the sound in the list?");
+                return;
+            }
 
             idxes.Add(NetworkRegisteredSounds.IndexOf(clip));
         }
@@ -75,7 +78,7 @@ public class SoundSystem : NetworkBehaviour
         {
             targetSounds.Add(NetworkRegisteredSounds[soundsIndexes[i]]);
         }
-        
+
 
         SoundPositioner pos = target == null ? new SoundPositioner(position) : new SoundPositioner(target);
 
