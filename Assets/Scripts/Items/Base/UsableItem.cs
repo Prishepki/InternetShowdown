@@ -1,7 +1,7 @@
+using UnityEngine;
+using NaughtyAttributes;
 using System;
 using System.Collections.Generic;
-using NaughtyAttributes;
-using UnityEngine;
 
 [CreateAssetMenu()]
 public class UsableItem : ScriptableObject

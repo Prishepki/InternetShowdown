@@ -1,6 +1,7 @@
-using System.Collections;
-using Mirror;
 using UnityEngine;
+using Mirror;
+using System.Collections;
+using System;
 
 public class GameLoop : NetworkBehaviour
 {
@@ -37,8 +38,8 @@ public class GameLoop : NetworkBehaviour
         }
         else
         {
-            DontDestroyOnLoad(transform);
-        }
+            DontDestroyOnLoad(transform);   
+        } 
     }
 
     [ServerCallback]
@@ -48,7 +49,7 @@ public class GameLoop : NetworkBehaviour
     }
 
     private IEnumerator Loop() // ебанутый цикл я в ахуе
-    {
+    {        
         WaitForSeconds _sceneChangeDelay = new WaitForSeconds(0.15f);
 
         while (NetworkServer.active)
@@ -137,7 +138,7 @@ public class GameLoop : NetworkBehaviour
     {
         _currentGameState = state;
         CurrentUIState = uiState;
-
+        
         _timeCounter = time;
         _repeatSeconds = _timeCounter;
     }

@@ -1,7 +1,7 @@
+using UnityEngine;
+using Mirror;
 using System;
 using System.Collections;
-using Mirror;
-using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour
@@ -28,7 +28,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Space(9)]
 
-    [SerializeField, Tooltip("Чем меньше значение, тем больше скольжение у игрока. Так же наоборот"), Min(0)] private float _dragOnGround = 8.25f;
+    [SerializeField, Tooltip("Чем меньше значение, тем больше скольжение у игрока. Так же наоборот"), Min(0)] private float _dragOnGround = 8.25f; 
 
     [Header("Jumping Control")]
     [SerializeField, Tooltip("Сила прыжка"), Min(0)] private float _jumpForce = 11.25f;
@@ -96,14 +96,14 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SyncVar] public string Nickname;
     [SyncVar] public int Score;
-
+    
     [Command]
     private void CmdInitialize(string nickname)
     {
         Nickname = nickname;
     }
 
-    #region HealthSystem
+#region HealthSystem
 
     [SyncVar] public float Health;
 
@@ -144,13 +144,13 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         CmdSetHealth(clampedAmount);
-
+        
         StartCoroutine(nameof(OnHealthChanged), clampedAmount);
     }
 
     private IEnumerator OnHealthChanged(float amount)
     {
-        yield return new WaitUntil(() => Health == amount); // на случай задержки синхронизации поля Health
+        yield return new WaitUntil(()=> Health == amount); // на случай задержки синхронизации поля Health
 
         _everywhereCanvas.SetDisplayHealth(amount);
 
@@ -163,7 +163,7 @@ public class NetworkPlayer : NetworkBehaviour
     private void OnDeath()
     {
         Action respawn = OnRespawn;
-
+        
         _ir.LoseItem();
         _ir.RemoveAllMutations();
 
@@ -183,9 +183,9 @@ public class NetworkPlayer : NetworkBehaviour
 
         AllowMovement = true;
         PlayerMoveCamera.BlockMovement = false;
-
+        
         CmdDisablePlayer(true);
-
+        
         transform.position = Vector3.zero;
     }
 
@@ -197,7 +197,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     [ClientRpc]
     private void RpcDisablePlayer(bool enable)
-    {
+    { 
         _body.GetComponent<MeshRenderer>().enabled = enable;
         _cc.enabled = enable;
         _rb.useGravity = enable;
@@ -241,7 +241,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-    #endregion
+#endregion
 
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
@@ -288,7 +288,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         _body.SetActive(false);
         gameObject.layer = 12;
-
+        
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
 
         foreach (Camera camera in otherCameras)
@@ -361,7 +361,7 @@ public class NetworkPlayer : NetworkBehaviour
         {
             GroundDash();
         }
-
+        
         RaycastHit hit;
 
         Transform cameraTransform = PlayerCamera.transform;

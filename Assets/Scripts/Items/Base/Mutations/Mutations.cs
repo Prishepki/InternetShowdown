@@ -34,7 +34,7 @@ public abstract class Mutation // базовый класс мутации
         if (ChangeAs == ChangeType.Add)
         {
             OnAdd();
-
+            
             try
             {
                 Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
@@ -49,11 +49,11 @@ public abstract class Mutation // базовый класс мутации
                 throw ex;
             }
         }
-
+        
         else if (ChangeAs == ChangeType.Multiply)
         {
             OnMultiply();
-
+            
             try
             {
                 Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
@@ -107,14 +107,14 @@ public class SpeedMutation : Mutation // мутация скорости
 
         PlayerMutationStats.Singleton.Speed += _multipliedStats;
     }
-
+    
     protected override void OnDecrease()
     {
         if (_isCanceled) return;
 
         PlayerMutationStats.Singleton.Speed -= Amount;
     }
-
+    
     protected override void OnDivide()
     {
         if (_isCanceled) return;
@@ -139,14 +139,14 @@ public class BounceMutation : Mutation // мутация прыгучести
 
         PlayerMutationStats.Singleton.Bounce += _multipliedStats;
     }
-
+    
     protected override void OnDecrease()
     {
         if (_isCanceled) return;
 
         PlayerMutationStats.Singleton.Bounce -= Amount;
     }
-
+    
     protected override void OnDivide()
     {
         if (_isCanceled) return;
@@ -171,14 +171,14 @@ public class LuckMutation : Mutation // мутация удачи
 
         PlayerMutationStats.Singleton.Luck += ((byte)_multipliedStats);
     }
-
+    
     protected override void OnDecrease()
     {
         if (_isCanceled) return;
 
         PlayerMutationStats.Singleton.Luck -= ((byte)Amount);
     }
-
+    
     protected override void OnDivide()
     {
         if (_isCanceled) return;
@@ -203,18 +203,18 @@ public class DamageMutation : Mutation // мутация удачи
 
         PlayerMutationStats.Singleton.Damage += ((byte)_multipliedStats);
     }
-
+    
     protected override void OnDecrease()
     {
         if (_isCanceled) return;
 
         PlayerMutationStats.Singleton.Damage -= ((byte)Amount);
     }
-
+    
     protected override void OnDivide()
     {
         if (_isCanceled) return;
-
+        
         PlayerMutationStats.Singleton.Damage -= ((byte)_multipliedStats);
     }
 }

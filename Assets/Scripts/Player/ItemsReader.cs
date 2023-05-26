@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,7 +99,7 @@ public class ItemsReader : NetworkBehaviour
         foreach (InspectorMutation insMutation in _currentItem.Mutations) // проходим по каждой инспекторной мутации
         {
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную
-
+            
             mutation.Execute(); // запускаем мутацию на время
 
             ActiveMutations.Add(mutation);
@@ -183,7 +184,7 @@ public class ItemsReader : NetworkBehaviour
                 choosedCategory.Add(item);
             }
         }
-
+        
         SetCurrentItem(choosedCategory[UnityEngine.Random.Range(0, choosedCategory.Count)]);
     }
 
@@ -193,7 +194,7 @@ public class ItemsReader : NetworkBehaviour
 
         List<UsableItem> sortedItems = RarityJobs.SortAllItems(_registeredItems).ToList();
 
-        var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>();
+        var closestRarity = RarityJobs.Rarities.ToList<KeyValuePair<string, byte>>(); 
         closestRarity.Sort((first, second) => second.Value > choice ? 1 : -1);
 
         Rarity convertedClosestRarity = RarityJobs.KeyValueRarityToRarity(closestRarity.First());
@@ -231,7 +232,7 @@ public class ItemsReader : NetworkBehaviour
         CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position, _player.PlayerCamera.transform.forward, connectionToClient);
     }
 
-    #region NETWORK
+#region NETWORK
 
     [Command]
     private void CmdSpawnProjectile(int idx, Vector3 pos, Vector3 dir, NetworkConnectionToClient connection)
@@ -313,7 +314,7 @@ public static class MutationJobs // этот класс нужен для раб
         {
             case MutationType.Speed:
                 return new SpeedMutation(input.ChangeAs, input.Amount, input.Time);
-
+            
             case MutationType.Bounce:
                 return new BounceMutation(input.ChangeAs, input.Amount, input.Time);
 

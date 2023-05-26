@@ -12,7 +12,7 @@ public class ActiveSoundEffect : MonoBehaviour
         Locked = true;
     }
 
-    private void Update()
+    private void Update() 
     {
         if (Locked && target != null)
         {
@@ -20,7 +20,7 @@ public class ActiveSoundEffect : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void Start() 
     {
         Invoke(nameof(DestroySound), RemoveTime);
     }

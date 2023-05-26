@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class RarityJobs
@@ -41,7 +43,7 @@ public static class RarityJobs
     public static List<UsableItem> SortAllItems(List<UsableItem> input) // сортирует каждый UsableItem из input по уровню редкости в порядке возрастания
     {
         List<UsableItem> toReturn = input;
-
+       
         toReturn.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
         return toReturn;

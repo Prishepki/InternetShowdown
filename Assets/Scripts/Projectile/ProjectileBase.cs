@@ -1,8 +1,8 @@
-using System;
+using UnityEngine;
 using Mirror;
 using Mirror.Experimental;
 using NaughtyAttributes;
-using UnityEngine;
+using System;
 
 /*
 КОРОЧЕ ПАВЕЛ
@@ -49,7 +49,7 @@ public class ProjectileBase : NetworkBehaviour
     [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _soundEffects;
     [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _particleEffects;
     [SerializeField, Tooltip("Какие и когда звуки должны проигрываться?"), EnumFlags] protected EffectModes _shakeEffects;
-
+    
     [Header("Sound Effects")]
     [SerializeField, Tooltip("Звук спавна"), ShowIf(nameof(_soundEffects), EffectModes.OnSpawn), AllowNesting] protected SoundEffect _spawnSound;
     [SerializeField, Tooltip("Звук столкновения"), ShowIf(nameof(_soundEffects), EffectModes.OnCollide), AllowNesting] protected SoundEffect _collideSound;
@@ -75,7 +75,7 @@ public class ProjectileBase : NetworkBehaviour
     protected virtual void OnTime() { } // вызывается так же как и FixedUpdate
 
     private void OnValidate()
-    {
+    {   
         if (TryGetComponent<Rigidbody>(out _rb))
         {
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -117,7 +117,7 @@ public class ProjectileBase : NetworkBehaviour
         ApplyForce();
 
         if (!isOwned) return;
-
+        
         if (_destroyMode.HasFlag(HitDestroy.OnTime))
         {
             Invoke(nameof(DestroySelf), _destroyTime); // инвок вызывает метод через время
@@ -179,7 +179,7 @@ public class ProjectileBase : NetworkBehaviour
         if (other.gameObject.layer == 11)
         {
             OnHitPlayer(); // вызов калбека для кастомного повидения
-
+            
             HitPlayer(other.gameObject);
         }
 
@@ -201,7 +201,7 @@ public class ProjectileBase : NetworkBehaviour
         bool isSetForce = _forceApplyMode == ForceApplyMode.SetForce;
 
         Vector3 targetForce = _targetDirection * _projectileSpeed;
-
+        
         if (isSetForce)
         {
             _rb.velocity = targetForce;
@@ -289,7 +289,7 @@ public class ProjectileBase : NetworkBehaviour
         SceneGameManager.Singleton().RpcShakeAll(duration, strength);
     }
 
-    #endregion
+#endregion
 }
 
 public enum ForceApplyMode

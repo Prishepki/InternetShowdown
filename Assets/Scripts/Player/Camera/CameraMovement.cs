@@ -65,7 +65,7 @@ public class CameraMovement : MonoBehaviour
 
             CamHolder.rotation = Quaternion.Euler(CamHolder.eulerAngles.x, _rotY, CamHolder.eulerAngles.z);
             transform.rotation = Quaternion.Euler(_rotX, _rotY, _rotZ);
-
+            
             Focus();
             Orientation.localRotation = Quaternion.Euler(transform.localRotation.x, _rotY, transform.localRotation.z);
         }

@@ -1,5 +1,5 @@
-using System;
 using Mirror;
+using System;
 using UnityEngine;
 
 public class SceneGameManager : NetworkBehaviour

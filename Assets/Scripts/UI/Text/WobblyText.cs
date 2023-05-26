@@ -1,5 +1,7 @@
-using TMPro;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class WobblyText : MonoBehaviour
 {
@@ -7,7 +9,7 @@ public class WobblyText : MonoBehaviour
     [SerializeField] private float _speed = 1.5f;
     [SerializeField] private float _amplitude = 15.75f;
 
-    private void OnValidate()
+    private void OnValidate() 
     {
         TryGetComponent<TMP_Text>(out _textMesh);
     }
