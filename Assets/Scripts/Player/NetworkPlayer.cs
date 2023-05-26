@@ -358,8 +358,6 @@ public class NetworkPlayer : NetworkBehaviour
         RecieveInputs();
         SetVariables();
 
-        IdleHandle();
-
         if (IsGrounded())
         {
             _lastGroundedTime = Time.time;
@@ -492,6 +490,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!isLocalPlayer) return; // эта строка заставляет выйти из метода, если мы не являемся локальным игроком
 
+        IdleHandle();
         RigidbodyMovement();
 
         if (_bhopTimer > 0)
