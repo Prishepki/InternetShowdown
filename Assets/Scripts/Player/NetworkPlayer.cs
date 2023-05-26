@@ -10,7 +10,7 @@ public class NetworkPlayer : NetworkBehaviour
     private const string _horizontal = "Horizontal";
     private const string _vertical = "Vertical";
 
-    [Header("Components")]
+    [Header("Components")] // лукашенко ебаный гит я тебя взорву говно хуйни
     [SerializeField] private Rigidbody _rb;
     [SerializeField] private CapsuleCollider _cc;
     [SerializeField] private ItemsReader _ir;
