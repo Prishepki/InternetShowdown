@@ -642,7 +642,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded) return;
 
-        _rb.AddForce(Vector3.down * _groundDashForce, ForceMode.Impulse);
+        _rb.velocity = new Vector3(_rb.velocity.x, -_groundDashForce, _rb.velocity.z);
 
         StartCoroutine(nameof(ShakeWhenLanded));
     }
