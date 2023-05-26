@@ -32,7 +32,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Jumping Control")]
     [SerializeField, Tooltip("Сила прыжка"), Min(0)] private float _jumpForce = 11.25f;
-    [SerializeField, Tooltip("Когда игрок не на земле, его скорость будет поделена на значение этого поля"), Min(0)] private float _airSpeedMultiplier = 0.05f;
+    [SerializeField, Tooltip("Когда игрок не на земле, его скорость будет поделена на значение этого поля"), Min(1)] private float _airSpeedDivider = 6.25f;
 
     [Space(9)]
 
@@ -40,6 +40,8 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Если блять \nпосле прыжка проходит столько времени, то вся скорость с банихопа сбрасывается"), Min(0)] private float _bunnyHopTimeout = 0.35f;
 
     [Space(9)]
+
+    [SerializeField, Tooltip("Легкость использования прыжка (койоти тайм и джамп баффер). Менять не советую"), Min(0)] private float _jumpEasiness = 0.3f;
 
     [Header("Dashing Control")]
     [SerializeField, Tooltip("Сила рывка пока игрок на земле"), Min(0)] private float _dashGroundedForce = 50f;
@@ -49,10 +51,14 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Ground Dashing Control")]
     [SerializeField, Tooltip("Сила рывка вниз"), Min(0)] private float _groundDashForce = 5f;
 
+    private float? _lastGroundedTime;
+    private float? _lastTryToJump;
+
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
 
     [Header("Inputs")]
+    public KeyCode JumpKey = KeyCode.Space;
     public KeyCode DashKey = KeyCode.LeftShift;
     public KeyCode GroundDashKey = KeyCode.LeftControl;
 
@@ -65,6 +71,7 @@ public class NetworkPlayer : NetworkBehaviour
     private Vector3 _playerDirection;
 
     [HideInInspector] public bool IsMoving;
+    private bool _wantToJump;
 
     private bool _wantToDash;
     private bool _wantToGroundDash;
@@ -352,6 +359,24 @@ public class NetworkPlayer : NetworkBehaviour
 
         IdleHandle();
 
+        if (CheckIsGrounded())
+        {
+            _lastGroundedTime = Time.time;
+        }
+
+        if (_wantToJump)
+        {
+            _lastTryToJump = Time.time;
+        }
+
+        if (Time.time - _lastGroundedTime <= _jumpEasiness)
+        {
+            if (Time.time - _lastTryToJump <= _jumpEasiness)
+            {
+                Jump();
+            }
+        }
+
         if (_wantToDash && _readyToDash)
         {
             Dash();
@@ -408,11 +433,12 @@ public class NetworkPlayer : NetworkBehaviour
 
     }
 
-    public void Jump()
+    private void Jump()
     {
-        if (!isLocalPlayer || !CheckIsGrounded()) return;
-
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
+
+        _lastTryToJump = null;
+        _lastGroundedTime = null;
 
         PlayerCurrentStats.Singleton.Bounce = _jumpForce;
 
@@ -447,6 +473,7 @@ public class NetworkPlayer : NetworkBehaviour
         _inputs = GetAxisInputs();
         IsMoving = _inputs.magnitude > 0;
 
+        _wantToJump = Input.GetKeyDown(JumpKey);
         _wantToDash = Input.GetKeyDown(DashKey);
         _wantToGroundDash = Input.GetKeyDown(GroundDashKey);
 
@@ -542,20 +569,16 @@ public class NetworkPlayer : NetworkBehaviour
         _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, normal);
 
         float angleBoost = angle * 1.5f;
-
-        float currentFeaturesSpeed = (_startSpeed + _accel + _bhop + angleBoost);
+        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
 
         if (CheckIsGrounded())
         {
             _rb.drag = _dragOnGround;
-
-            PlayerCurrentStats.Singleton.Speed = currentFeaturesSpeed;
         }
         else
         {
             _rb.drag = 0;
-
-            PlayerCurrentStats.Singleton.Speed = currentFeaturesSpeed * _airSpeedMultiplier;
+            PlayerCurrentStats.Singleton.Speed /= _airSpeedDivider;
         }
 
         if (sloped)

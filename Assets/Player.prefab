@@ -17,7 +17,6 @@ GameObject:
   - component: {fileID: 2616357165067855253}
   - component: {fileID: 8348873482465104885}
   - component: {fileID: 2202756226007548306}
-  - component: {fileID: 3056300868541873477}
   m_Layer: 11
   m_Name: Player
   m_TagString: Player
@@ -112,9 +111,10 @@ MonoBehaviour:
   _maximumAcceleration: 14
   _dragOnGround: 8.25
   _jumpForce: 10.75
-  _airSpeedMultiplier: 0.1
+  _airSpeedDivider: 12.5
   _bunnyHopFactor: 2.5
   _bunnyHopTimeout: 1.85
+  _jumpEasiness: 0.3
   _dashGroundedForce: 50
   _dashAirForce: 15
   _dashTimeout: 0.25
@@ -122,6 +122,7 @@ MonoBehaviour:
   _mapLayers:
     serializedVersion: 2
     m_Bits: 64
+  JumpKey: 32
   DashKey: 304
   GroundDashKey: 306
   IsMoving: 0
@@ -249,52 +250,6 @@ MonoBehaviour:
   _luckModifier: 0
   _itemHolder: {fileID: 1427039731939656237}
   HasItem: 0
---- !u!114 &3056300868541873477
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3602822793115751588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Actions: {fileID: -944628639613478452, guid: b4130710c84b69e47b0acc705c463dca, type: 3}
-  m_NotificationBehavior: 2
-  m_UIInputModule: {fileID: 0}
-  m_DeviceLostEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_DeviceRegainedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ControlsChangedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1412873556054241733}
-        m_TargetAssemblyTypeName: NetworkPlayer, Assembly-CSharp
-        m_MethodName: Jump
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-    m_ActionId: 6334293d-c023-44da-b3c1-54628b26bcb6
-    m_ActionName: Player/Jump
-  m_NeverAutoSwitchControlSchemes: 0
-  m_DefaultControlScheme: 
-  m_DefaultActionMap: Player
-  m_SplitScreenIndex: -1
-  m_Camera: {fileID: 0}
 --- !u!1 &4215120267258587616
 GameObject:
   m_ObjectHideFlags: 0
