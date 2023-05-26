@@ -1,7 +1,7 @@
-using UnityEngine;
-using Mirror;
 using System;
 using System.Collections;
+using Mirror;
+using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
 public class NetworkPlayer : NetworkBehaviour
@@ -28,11 +28,11 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Space(9)]
 
-    [SerializeField, Tooltip("Чем меньше значение, тем больше скольжение у игрока. Так же наоборот"), Min(0)] private float _dragOnGround = 8.25f; 
+    [SerializeField, Tooltip("Чем меньше значение, тем больше скольжение у игрока. Так же наоборот"), Min(0)] private float _dragOnGround = 8.25f;
 
     [Header("Jumping Control")]
     [SerializeField, Tooltip("Сила прыжка"), Min(0)] private float _jumpForce = 11.25f;
-    [SerializeField, Tooltip("Когда игрок не на земле, его скорость будет поделена на значение этого поля"), Min(1)] private float _airSpeedDivider = 6.25f;
+    [SerializeField, Tooltip("Когда игрок не на земле, его скорость будет поделена на значение этого поля"), Min(0)] private float _airSpeedMultiplier = 0.05f;
 
     [Space(9)]
 
@@ -40,8 +40,6 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Если блять \nпосле прыжка проходит столько времени, то вся скорость с банихопа сбрасывается"), Min(0)] private float _bunnyHopTimeout = 0.35f;
 
     [Space(9)]
-
-    [SerializeField, Tooltip("Легкость использования прыжка (койоти тайм и джамп баффер). Менять не советую"), Min(0)] private float _jumpEasiness = 0.3f;
 
     [Header("Dashing Control")]
     [SerializeField, Tooltip("Сила рывка пока игрок на земле"), Min(0)] private float _dashGroundedForce = 50f;
@@ -51,14 +49,10 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Ground Dashing Control")]
     [SerializeField, Tooltip("Сила рывка вниз"), Min(0)] private float _groundDashForce = 5f;
 
-    private float? _lastGroundedTime;
-    private float? _lastTryToJump;
-
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
 
     [Header("Inputs")]
-    public KeyCode JumpKey = KeyCode.Space;
     public KeyCode DashKey = KeyCode.LeftShift;
     public KeyCode GroundDashKey = KeyCode.LeftControl;
 
@@ -71,7 +65,6 @@ public class NetworkPlayer : NetworkBehaviour
     private Vector3 _playerDirection;
 
     [HideInInspector] public bool IsMoving;
-    private bool _wantToJump;
 
     private bool _wantToDash;
     private bool _wantToGroundDash;
@@ -103,14 +96,14 @@ public class NetworkPlayer : NetworkBehaviour
 
     [SyncVar] public string Nickname;
     [SyncVar] public int Score;
-    
+
     [Command]
     private void CmdInitialize(string nickname)
     {
         Nickname = nickname;
     }
 
-#region HealthSystem
+    #region HealthSystem
 
     [SyncVar] public float Health;
 
@@ -151,13 +144,13 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         CmdSetHealth(clampedAmount);
-        
+
         StartCoroutine(nameof(OnHealthChanged), clampedAmount);
     }
 
     private IEnumerator OnHealthChanged(float amount)
     {
-        yield return new WaitUntil(()=> Health == amount); // на случай задержки синхронизации поля Health
+        yield return new WaitUntil(() => Health == amount); // на случай задержки синхронизации поля Health
 
         _everywhereCanvas.SetDisplayHealth(amount);
 
@@ -170,7 +163,7 @@ public class NetworkPlayer : NetworkBehaviour
     private void OnDeath()
     {
         Action respawn = OnRespawn;
-        
+
         _ir.LoseItem();
         _ir.RemoveAllMutations();
 
@@ -190,9 +183,9 @@ public class NetworkPlayer : NetworkBehaviour
 
         AllowMovement = true;
         PlayerMoveCamera.BlockMovement = false;
-        
+
         CmdDisablePlayer(true);
-        
+
         transform.position = Vector3.zero;
     }
 
@@ -204,7 +197,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     [ClientRpc]
     private void RpcDisablePlayer(bool enable)
-    { 
+    {
         _body.GetComponent<MeshRenderer>().enabled = enable;
         _cc.enabled = enable;
         _rb.useGravity = enable;
@@ -248,7 +241,7 @@ public class NetworkPlayer : NetworkBehaviour
         }
     }
 
-#endregion
+    #endregion
 
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
@@ -295,7 +288,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         _body.SetActive(false);
         gameObject.layer = 12;
-        
+
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
 
         foreach (Camera camera in otherCameras)
@@ -359,24 +352,6 @@ public class NetworkPlayer : NetworkBehaviour
 
         IdleHandle();
 
-        if (CheckIsGrounded())
-        {
-            _lastGroundedTime = Time.time;
-        }
-
-        if (_wantToJump)
-        {
-            _lastTryToJump = Time.time;
-        }
-
-        if (Time.time - _lastGroundedTime <= _jumpEasiness)
-        {
-            if (Time.time - _lastTryToJump <= _jumpEasiness)
-            {
-                Jump();
-            }
-        }
-
         if (_wantToDash && _readyToDash)
         {
             Dash();
@@ -386,7 +361,7 @@ public class NetworkPlayer : NetworkBehaviour
         {
             GroundDash();
         }
-        
+
         RaycastHit hit;
 
         Transform cameraTransform = PlayerCamera.transform;
@@ -433,12 +408,11 @@ public class NetworkPlayer : NetworkBehaviour
 
     }
 
-    private void Jump()
+    public void Jump()
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
+        if (!isLocalPlayer || !CheckIsGrounded()) return;
 
-        _lastTryToJump = null;
-        _lastGroundedTime = null;
+        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
 
         PlayerCurrentStats.Singleton.Bounce = _jumpForce;
 
@@ -473,7 +447,6 @@ public class NetworkPlayer : NetworkBehaviour
         _inputs = GetAxisInputs();
         IsMoving = _inputs.magnitude > 0;
 
-        _wantToJump = Input.GetKeyDown(JumpKey);
         _wantToDash = Input.GetKeyDown(DashKey);
         _wantToGroundDash = Input.GetKeyDown(GroundDashKey);
 
@@ -569,16 +542,20 @@ public class NetworkPlayer : NetworkBehaviour
         _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, normal);
 
         float angleBoost = angle * 1.5f;
-        PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
+
+        float currentFeaturesSpeed = (_startSpeed + _accel + _bhop + angleBoost);
 
         if (CheckIsGrounded())
         {
             _rb.drag = _dragOnGround;
+
+            PlayerCurrentStats.Singleton.Speed = currentFeaturesSpeed;
         }
         else
         {
             _rb.drag = 0;
-            PlayerCurrentStats.Singleton.Speed /= _airSpeedDivider;
+
+            PlayerCurrentStats.Singleton.Speed = currentFeaturesSpeed * _airSpeedMultiplier;
         }
 
         if (sloped)
