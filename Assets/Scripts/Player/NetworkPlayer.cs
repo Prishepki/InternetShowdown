@@ -581,7 +581,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!AllowMovement)
         {
-            _rb.velocity = Vector3.zero;
+            _rb.velocity = Vector3.up * _rb.velocity.y;
 
             return;
         }
@@ -694,7 +694,7 @@ public class NetworkPlayer : NetworkBehaviour
         Score += amount;
     }
 
-    private void OnCollisionEnter(Collision other)
+    private void OnCollisionStay(Collision other)
     {
         _isColliding = true;
     }
