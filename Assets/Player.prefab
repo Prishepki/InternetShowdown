@@ -106,20 +106,20 @@ MonoBehaviour:
   _cc: {fileID: 3602822793115751584}
   _ir: {fileID: 2202756226007548306}
   _maxHealth: 100
-  _startSpeed: 105
+  _startSpeed: 95
   _accelerationFactor: 2
   _maximumAcceleration: 14
   _dragOnGround: 8.25
   _jumpForce: 10.75
-  _airSpeedDivider: 12.5
+  _airSpeedDivider: 12
   _bunnyHopFactor: 2.5
   _bunnyHopTimeout: 1.85
   _availableAirJumps: 1
   _coyoteTime: 0.2
   _jumpBuffer: 0.25
-  _dashGroundedForce: 50
-  _dashAirForce: 15
-  _dashTimeout: 0.25
+  _dashGroundedForce: 55
+  _dashAirForce: 11.25
+  _dashTimeout: 0.4
   _groundDashForce: 17.5
   _mapLayers:
     serializedVersion: 2

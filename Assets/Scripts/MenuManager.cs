@@ -1,6 +1,8 @@
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
@@ -10,10 +12,19 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private TMP_InputField _nickname;
     [SerializeField] private TMP_InputField _address;
 
+    private Button[] _menuButtons;
+
     private void Start()
     {
         SetNickname(PlayerPrefs.GetString(_nicknameSavePath));
         SetIP(PlayerPrefs.GetString(_addressSavePath));
+
+        _menuButtons = GetComponentsInChildren<Button>(true);
+
+        foreach (var button in _menuButtons)
+        {
+            button.onClick.AddListener(ClearSelections);
+        }
     }
 
     public void SetNickname(string value)
@@ -46,5 +57,16 @@ public class MenuManager : MonoBehaviour
         }
 
         NetworkManager.singleton.StartClient();
+    }
+
+    public void ExitGame()
+    {
+        Debug.Log("Exiting");
+        Application.Quit();
+    }
+
+    private void ClearSelections()
+    {
+        EventSystem.current.SetSelectedGameObject(null);
     }
 }
