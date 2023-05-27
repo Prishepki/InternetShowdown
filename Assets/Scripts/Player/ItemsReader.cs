@@ -228,7 +228,9 @@ public class ItemsReader : NetworkBehaviour
 
     private void SpawnProjectile(ProjectileBase proj)
     {
-        CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position, _player.PlayerCamera.transform.forward, connectionToClient);
+        Vector3 forward = _player.PlayerCamera.transform.forward;
+
+        CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position + forward, forward, connectionToClient);
     }
 
     #region NETWORK
