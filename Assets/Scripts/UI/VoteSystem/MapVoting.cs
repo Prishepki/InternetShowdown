@@ -20,7 +20,7 @@ public class MapVoting : MonoBehaviour
 
     public void HideMapVoting()
     {
-        EverywhereCanvas.Singleton().SetMapVoting(false);
+        EverywhereCanvas.Singleton().SetMapVoting(false, false);
         SceneGameManager.Singleton().CmdVoteMap(ConnectedMap);
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,9 +41,16 @@ public class ItemsReader : NetworkBehaviour
         {
             if (_currentItem == null)
             {
+                CmdDestroyObject(other.gameObject);
+
                 GetItem();
             }
         }
+    }
+
+    private void CmdDestroyObject(GameObject gameObject)
+    {
+        NetworkServer.Destroy(gameObject);
     }
 
     private void Update()

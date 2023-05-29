@@ -189,7 +189,7 @@ public class NetworkPlayer : NetworkBehaviour
         AllowMovement = false;
         PlayerMoveCamera.BlockMovement = true;
 
-        CmdDisablePlayer(false);
+        DisablePlayer(false);
 
         _rb.velocity = Vector3.zero;
 
@@ -203,13 +203,20 @@ public class NetworkPlayer : NetworkBehaviour
         AllowMovement = true;
         PlayerMoveCamera.BlockMovement = false;
 
-        CmdDisablePlayer(true);
+        DisablePlayer(true);
 
         transform.position = NetworkManager.startPositions[UnityEngine.Random.Range(0, NetworkManager.startPositions.Count)].position;
     }
 
     [Command]
     private void CmdSetHealth(float amount) { Health = amount; }
+
+    private void DisablePlayer(bool enable)
+    {
+        _cc.enabled = enable;
+
+        CmdDisablePlayer(false);
+    }
 
     [Command]
     private void CmdDisablePlayer(bool enable) { RpcDisablePlayer(enable); }
@@ -391,6 +398,10 @@ public class NetworkPlayer : NetworkBehaviour
             if (hit.transform.TryGetComponent<NetworkPlayer>(out player))
             {
                 _everywhereCanvas.SwitchNicknameVisibility(true, player.Nickname);
+            }
+            else
+            {
+                _everywhereCanvas.SwitchNicknameVisibility(false);
             }
         }
         else

@@ -73,9 +73,9 @@ public class SceneGameManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcSetMapVoting(bool enable)
+    public void RpcSetMapVoting(bool enable, bool fade)
     {
-        EverywhereCanvas.Singleton().SetMapVoting(enable);
+        EverywhereCanvas.Singleton().SetMapVoting(enable, fade);
     }
 
     [ClientRpc]
@@ -105,7 +105,7 @@ public class SceneGameManager : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdAskForMapVoting()
     {
-        RpcSetMapVoting(EverywhereCanvas.Singleton().IsVotingActive);
+        RpcSetMapVoting(EverywhereCanvas.Singleton().IsVotingActive, false);
     }
 
     [Command(requiresAuthority = false)]

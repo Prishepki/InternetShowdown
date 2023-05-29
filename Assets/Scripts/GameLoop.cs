@@ -89,16 +89,16 @@ public class GameLoop : NetworkBehaviour
     {
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
 
-        sceneGameManager.RpcSetMapVoting(false);
+        sceneGameManager.RpcSetMapVoting(false, false);
 
         yield return new WaitForSeconds(_preVotingTime);
 
-        sceneGameManager.RpcSetMapVoting(true);
+        sceneGameManager.RpcSetMapVoting(true, true);
         sceneGameManager.RpcPlayVotingSound(true);
 
         yield return new WaitForSeconds(_votingTime);
 
-        sceneGameManager.RpcSetMapVoting(false);
+        sceneGameManager.RpcSetMapVoting(false, false);
         sceneGameManager.RpcPlayVotingSound(false);
 
         if (_votes.Count == 0)

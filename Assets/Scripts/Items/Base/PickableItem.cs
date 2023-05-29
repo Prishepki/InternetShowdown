@@ -18,17 +18,4 @@ public class PickableItem : NetworkBehaviour
     {
         transform.Rotate(Vector3.up, Space.Self);
     }
-
-    private void OnTriggerStay(Collider other)
-    {
-        ItemsReader reader;
-
-        if (other.TryGetComponent<ItemsReader>(out reader))
-        {
-            if (!reader.HasItem)
-            {
-                Destroy(gameObject);
-            }
-        }
-    }
 }

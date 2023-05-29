@@ -129,17 +129,23 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _votingEndText.text = string.Empty;
     }
 
-    public void SetMapVoting(bool enable)
+    public void SetMapVoting(bool enable, bool animation)
     {
         IsVotingActive = enable;
         _mapVoting.gameObject.SetActive(enable);
 
-        _mapVotingTween.Kill(true);
+        if (animation)
+        {
+            _mapVotingTween.Kill(true);
+        }
 
         if (enable)
         {
-            _mapVoting.alpha = 0;
-            _mapVotingTween = _mapVoting.DOFade(1, 0.6f).SetEase(Ease.OutCirc);
+            if (animation)
+            {
+                _mapVoting.alpha = 0;
+                _mapVotingTween = _mapVoting.DOFade(1, 0.6f).SetEase(Ease.OutCirc);
+            }
 
             Cursor.lockState = CursorLockMode.None;
         }
