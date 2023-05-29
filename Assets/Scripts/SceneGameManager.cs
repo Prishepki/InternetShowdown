@@ -56,6 +56,26 @@ public class SceneGameManager : NetworkBehaviour
         EverywhereCanvas.Singleton().HideDeathScreen();
     }
 
+    [ClientRpc]
+    public void RpcSetMapVoting(bool enable)
+    {
+        EverywhereCanvas.Singleton().SetMapVoting(enable);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdVoteMap(string mapName)
+    {
+        Debug.Log($"Someone voted for {mapName}");
+
+        GameLoop.Singleton().AddMapVote(mapName);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdAskForMapVoting()
+    {
+        RpcSetMapVoting(EverywhereCanvas.Singleton().IsVotingActive);
+    }
+
     [Command(requiresAuthority = false)]
     public void RecieveUIGameState()
     {

@@ -34,6 +34,9 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public CanvasGroup _killLog;
 
+    [Header("Voting")]
+    [SerializeField] private GameObject _mapVoting;
+
     [Header("Health Slider")]
     public Slider Health;
     public Image HealthFill;
@@ -53,6 +56,10 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [SerializeField] private TMP_Text _deathPhrase;
     [SerializeField] private List<string> _deathPhrases = new List<string>();
 
+    [Space(9)]
+
+    [SerializeField] private CanvasGroup _kafifEasterEgg;
+
     [Header("Leaderboard")]
     [SerializeField] private Place _placePrefab;
     [SerializeField] private Transform _placeContainer;
@@ -67,13 +74,29 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private NetworkPlayer _player;
 
-    [HideInInspector] public bool PauseMenuOpened;
+    [HideInInspector] public bool PauseMenuOpened { get; private set; }
+    [HideInInspector] public bool IsVotingActive { get; private set; }
 
     private bool _isExitingServer;
 
     public void QuitAction()
     {
         Application.Quit();
+    }
+
+    public void SetMapVoting(bool enable)
+    {
+        IsVotingActive = enable;
+        _mapVoting.SetActive(enable);
+
+        if (enable)
+        {
+            Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+        }
     }
 
     public void MenuAction()
@@ -277,6 +300,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         _killLog.alpha = 0;
         _pauseMenu.alpha = 0;
+        _kafifEasterEgg.alpha = 0;
 
         HideDeathScreen();
     }
@@ -329,6 +353,13 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private IEnumerator RespawnScreenCoroutine(Action onRespawn)
     {
+        int easterEgg = UnityEngine.Random.Range(1, 100);
+
+        if (easterEgg == 1)
+        {
+            StartCoroutine(LogCoroutine(0.25f, 0.5f, _kafifEasterEgg));
+        }
+
         _deathScreen.SetActive(true);
         _deathPhrase.text = _deathPhrases[UnityEngine.Random.Range(0, _deathPhrases.Count)];
 
@@ -367,6 +398,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public void Pause(bool enable)
     {
+        if (!NetworkManager.singleton.isNetworkActive) return;
+
         PauseMenuOpened = enable;
         StopCoroutine(nameof(FadeCanvasGroup));
         StartCoroutine(nameof(FadeCanvasGroup), new FadeGroupParams(enable, 0.1f, _pauseMenu));
@@ -377,6 +410,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         }
         else
         {
+            if (_mapVoting.activeInHierarchy) return;
+
             Cursor.lockState = CursorLockMode.Locked;
         }
     }

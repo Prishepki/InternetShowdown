@@ -205,7 +205,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         CmdDisablePlayer(true);
 
-        transform.position = Vector3.zero;
+        transform.position = NetworkManager.startPositions[UnityEngine.Random.Range(0, NetworkManager.startPositions.Count)].position;
     }
 
     [Command]
@@ -384,7 +384,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         Transform cameraTransform = PlayerCamera.transform;
 
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, 1500f, LayerMask.GetMask("Player")))
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, 1500f, LayerMask.GetMask("Player", "Map")))
         {
             NetworkPlayer player;
 

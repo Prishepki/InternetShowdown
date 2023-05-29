@@ -827,3 +827,8 @@ MonoBehaviour:
   _roundLength: 240
   _attentionTimeYellow: 60
   _attentionTimeRed: 10
+  _maps:
+  - Assets/Scenes/Maps/Prototype.unity
+  - Assets/Scenes/Maps/BestCity.unity
+  _preVotingTime: 10
+  _votingTime: 15

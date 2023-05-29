@@ -1,6 +1,9 @@
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameLoop : NetworkBehaviour
 {
@@ -21,6 +24,11 @@ public class GameLoop : NetworkBehaviour
     [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет желтым")] private int _attentionTimeYellow = 60;
     [SerializeField, Min(10), Tooltip("Время в секундах, когда счетчик времени станет красным")] private int _attentionTimeRed = 10;
 
+    [Header("Voting")]
+    [SerializeField, Scene] private List<string> _maps;
+    [SerializeField, Min(5), Tooltip("Время перед голосованием в секундах")] private int _preVotingTime = 10;
+    [SerializeField, Min(5), Tooltip("Долгота голосования в секундах")] private int _votingTime = 15;
+
     private GameState _currentGameState;
     public CanvasGameStates CurrentUIState { get; private set; }
 
@@ -28,6 +36,35 @@ public class GameLoop : NetworkBehaviour
 
     private int _timeCounter;
     private int _repeatSeconds;
+
+    private Dictionary<string, int> _votes = new Dictionary<string, int>();
+    private string _votedMap;
+
+    private bool _isSceneLoaded;
+
+    public void OnSceneLoaded()
+    {
+        _isSceneLoaded = true;
+    }
+
+    [ServerCallback]
+    public static GameLoop Singleton()
+    {
+        return FindObjectOfType<GameLoop>(true);
+    }
+
+    [Server]
+    public void AddMapVote(string mapName)
+    {
+        if (_votes.ContainsKey(mapName))
+        {
+            _votes[mapName]++;
+        }
+        else
+        {
+            _votes.Add(mapName, 1);
+        }
+    }
 
     private void Awake()
     {
@@ -47,13 +84,38 @@ public class GameLoop : NetworkBehaviour
         StartCoroutine(nameof(Loop));
     }
 
+    private IEnumerator HandleMapVoting()
+    {
+        SceneGameManager.Singleton().RpcSetMapVoting(false);
+
+        yield return new WaitForSeconds(_preVotingTime);
+
+        SceneGameManager.Singleton().RpcSetMapVoting(true);
+
+        yield return new WaitForSeconds(_votingTime);
+
+        SceneGameManager.Singleton().RpcSetMapVoting(false);
+
+        if (_votes.Count == 0)
+        {
+            Debug.LogWarning("Seems like nobody voted for map");
+
+            yield break;
+        }
+
+        List<KeyValuePair<string, int>> _votesList = _votes.ToList();
+        _votesList.Sort((current, next) => current.Value > next.Value ? -1 : 1);
+
+        _votedMap = _votesList.First().Key;
+    }
+
     private IEnumerator Loop() // ебанутый цикл я в ахуе
     {
-        WaitForSeconds _sceneChangeDelay = new WaitForSeconds(0.15f);
+        WaitUntil _waitForSceneLoaded = new WaitUntil(() => _isSceneLoaded);
 
         while (NetworkServer.active)
         {
-            yield return _sceneChangeDelay;
+            yield return _waitForSceneLoaded;
 
             // ПЕРЕРЫВ
             if (_currentGamesPlayed == _roundsToLagreBreak)
@@ -69,6 +131,8 @@ public class GameLoop : NetworkBehaviour
 
             SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
 
+            StartCoroutine(nameof(HandleMapVoting));
+
             for (int i = 0; i < _repeatSeconds; i++)
             {
                 OnTimeCounterUpdate(_timeCounter, Color.white);
@@ -80,7 +144,7 @@ public class GameLoop : NetworkBehaviour
 
             LoadMatch();
 
-            yield return _sceneChangeDelay;
+            yield return _waitForSceneLoaded;
 
             SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
 
@@ -144,7 +208,21 @@ public class GameLoop : NetworkBehaviour
 
     private void LoadMatch()
     {
-        NetworkManager.singleton.ServerChangeScene("TestMap");
+        _isSceneLoaded = false;
+
+        _votes.Clear();
+
+        if (string.IsNullOrEmpty(_votedMap))
+        {
+            Debug.LogWarning($"Voted Map is empty, loading random map instead");
+
+            string randomMap = _maps[Random.Range(0, _maps.Count)];
+            NetworkManager.singleton.ServerChangeScene(randomMap);
+
+            return;
+        }
+
+        NetworkManager.singleton.ServerChangeScene(_votedMap);
     }
 
     private void StartMatch()
@@ -174,12 +252,17 @@ public class GameLoop : NetworkBehaviour
 
     private void TimeToBreak()
     {
+        _isSceneLoaded = false;
         NetworkManager.singleton.ServerChangeScene("Lobby");
     }
 
     public void OnTimeCounterUpdate(int counter, Color color)
     {
-        SceneGameManager.Singleton().RpcOnTimeCounterUpdate(counter, color);
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+
+        if (sceneGameManager == null) return;
+
+        sceneGameManager.RpcOnTimeCounterUpdate(counter, color);
     }
 }
 

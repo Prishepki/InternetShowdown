@@ -1,8 +1,11 @@
 using System.Collections;
+using DG.Tweening;
 using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
+    private const float _shakeAdder = 0.5f;
+
     [Header("Sensitivity")]
     [Range(0.1f, 4f)] private float _sensitivityX = 2f;
     [Range(0.1f, 4f)] private float _sensitivityY = 2f;
@@ -45,7 +48,7 @@ public class CameraMovement : MonoBehaviour
     private void Start()
     {
         _camera = GetComponent<Camera>();
-        _initPosition = transform.position;
+        _initPosition = transform.localPosition;
 
         _everywhereCanvas = EverywhereCanvas.Singleton();
     }
@@ -86,30 +89,14 @@ public class CameraMovement : MonoBehaviour
 
     public void Shake(float duration = 0.2f, float strength = 0.25f)
     {
-        StartCoroutine(ShakeCoroutine(duration, strength));
+        transform.DOComplete();
+        transform.DOShakePosition(duration, strength + _shakeAdder);
     }
 
     public void Shake(ShakeEffect effect)
     {
-        StartCoroutine(ShakeCoroutine(effect.Duration, effect.Strength));
-    }
-
-    private IEnumerator ShakeCoroutine(float d, float s)
-    {
-        float elapsed = 0f;
-
-        while (elapsed < d)
-        {
-            Vector3 pos = Random.insideUnitSphere * s;
-
-            transform.localPosition = _initPosition + pos;
-
-            elapsed += Time.deltaTime;
-
-            yield return null;
-        }
-
-        transform.localPosition = _initPosition;
+        transform.DOComplete();
+        transform.DOShakePosition(effect.Duration, effect.Strength + _shakeAdder);
     }
 }
 

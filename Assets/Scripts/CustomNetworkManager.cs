@@ -39,6 +39,7 @@ public class CustomNetworkManager : NetworkManager
         Cursor.lockState = CursorLockMode.Locked;
 
         EverywhereCanvas.Singleton().EnableCanvasElements(true);
+
         StartCoroutine(WaitForSceneGameManagerSingleton());
     }
 
@@ -46,7 +47,10 @@ public class CustomNetworkManager : NetworkManager
     {
         yield return new WaitUntil(() => SceneGameManager.Singleton() != null);
 
-        SceneGameManager.Singleton().RecieveUIGameState();
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+
+        sceneGameManager.RecieveUIGameState();
+        sceneGameManager.CmdAskForMapVoting();
     }
 
     public override void OnStartServer()
@@ -56,8 +60,15 @@ public class CustomNetworkManager : NetworkManager
         Invoke(nameof(StartGameLoop), 1f); // ибал в рот
     }
 
+    public override void OnServerSceneChanged(string sceneName)
+    {
+        base.OnServerSceneChanged(sceneName);
+
+        GameLoop.Singleton().OnSceneLoaded();
+    }
+
     private void StartGameLoop()
     {
-        FindObjectOfType<GameLoop>().StartLoop();
+        GameLoop.Singleton().StartLoop();
     }
 }

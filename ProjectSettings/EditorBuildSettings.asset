@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Lobby.unity
     guid: 9fc0d4010bbf28b4594072e72b8655ab
   - enabled: 1
-    path: Assets/Scenes/TestMap.unity
+    path: Assets/Scenes/Maps/Prototype.unity
     guid: 1d769d2de569bc94cbe7b8f8868d82c3
+  - enabled: 1
+    path: Assets/Scenes/Maps/BestCity.unity
+    guid: 9a110e9b07a94184a8d3f319d7b2dc0b
   m_configObjects: {}
