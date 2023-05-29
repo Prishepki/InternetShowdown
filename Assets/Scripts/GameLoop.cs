@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Mirror;
 using UnityEngine;
@@ -86,15 +87,19 @@ public class GameLoop : NetworkBehaviour
 
     private IEnumerator HandleMapVoting()
     {
-        SceneGameManager.Singleton().RpcSetMapVoting(false);
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+
+        sceneGameManager.RpcSetMapVoting(false);
 
         yield return new WaitForSeconds(_preVotingTime);
 
-        SceneGameManager.Singleton().RpcSetMapVoting(true);
+        sceneGameManager.RpcSetMapVoting(true);
+        sceneGameManager.RpcPlayVotingSound(true);
 
         yield return new WaitForSeconds(_votingTime);
 
-        SceneGameManager.Singleton().RpcSetMapVoting(false);
+        sceneGameManager.RpcSetMapVoting(false);
+        sceneGameManager.RpcPlayVotingSound(false);
 
         if (_votes.Count == 0)
         {
@@ -107,6 +112,8 @@ public class GameLoop : NetworkBehaviour
         _votesList.Sort((current, next) => current.Value > next.Value ? -1 : 1);
 
         _votedMap = _votesList.First().Key;
+
+        sceneGameManager.RpcOnVotingEnd(Path.GetFileNameWithoutExtension(_votedMap));
     }
 
     private IEnumerator Loop() // ебанутый цикл я в ахуе

@@ -2,6 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DG.Tweening;
+using DG.Tweening.Core;
+using DG.Tweening.Plugins.Options;
 using Mirror;
 using TMPro;
 using UnityEngine;
@@ -20,7 +23,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     [Header("Other")]
     [SerializeField] private CanvasGroup _pauseMenu;
-    [SerializeField] private Button[] _pauseMenuButtons;
 
     public TMP_Text Timer;
 
@@ -35,7 +37,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public CanvasGroup _killLog;
 
     [Header("Voting")]
-    [SerializeField] private GameObject _mapVoting;
+    [SerializeField] private CanvasGroup _mapVoting;
+    [SerializeField] private TMP_Text _votingEndText;
 
     [Header("Health Slider")]
     public Slider Health;
@@ -79,18 +82,65 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private bool _isExitingServer;
 
+    private TweenerCore<float, float, FloatOptions> _lobbyGroupTween;
+    private TweenerCore<float, float, FloatOptions> _gameGroupTween;
+
+    private TweenerCore<float, float, FloatOptions> _killLogTween;
+
+    private TweenerCore<float, float, FloatOptions> _pauseMenuTween;
+
+    private TweenerCore<float, float, FloatOptions> _mapVotingTween;
+
     public void QuitAction()
     {
         Application.Quit();
     }
 
+    public void OnVotingEnd(string message)
+    {
+        StopCoroutine(nameof(OnVotingEndCoroutine));
+        StartCoroutine(nameof(OnVotingEndCoroutine), message);
+    }
+
+    private IEnumerator OnVotingEndCoroutine(string message)
+    {
+        _votingEndText.text = string.Empty;
+
+        char[] messageChars = message.ToCharArray();
+
+        foreach (var messageChar in messageChars)
+        {
+            _votingEndText.text += messageChar;
+
+            yield return null;
+        }
+
+        _votingEndText.text = message;
+
+        yield return new WaitForSeconds(2.5f);
+
+        for (int i = 0; i < messageChars.Length; i++)
+        {
+            _votingEndText.text = _votingEndText.text.Remove(_votingEndText.text.Length - 1);
+
+            yield return null;
+        }
+
+        _votingEndText.text = string.Empty;
+    }
+
     public void SetMapVoting(bool enable)
     {
         IsVotingActive = enable;
-        _mapVoting.SetActive(enable);
+        _mapVoting.gameObject.SetActive(enable);
+
+        _mapVotingTween.Kill(true);
 
         if (enable)
         {
+            _mapVoting.alpha = 0;
+            _mapVotingTween = _mapVoting.DOFade(1, 0.6f).SetEase(Ease.OutCirc);
+
             Cursor.lockState = CursorLockMode.None;
         }
         else
@@ -174,8 +224,18 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public void FadeUIGameState(CanvasGameStates state)
     {
-        StopCoroutine(nameof(FadeUIGameStateCoroutine));
-        StartCoroutine(nameof(FadeUIGameStateCoroutine), state);
+        (float lobbyEnd, float gameEnd) endValues = state == CanvasGameStates.Lobby ? (1, 0) : (0, 1);
+
+        KillGameStateTweens();
+
+        _lobbyGroupTween = _inLobby.DOFade(endValues.lobbyEnd, 0.6f);
+        _gameGroupTween = _inGame.DOFade(endValues.gameEnd, 0.6f);
+    }
+
+    private void KillGameStateTweens()
+    {
+        _lobbyGroupTween.Kill(true);
+        _gameGroupTween.Kill(true);
     }
 
     public void SwitchUIGameState(CanvasGameStates state)
@@ -187,40 +247,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         }
         else if (state == CanvasGameStates.Game)
         {
-            _inLobby.alpha = 0;
-            _inGame.alpha = 1;
-        }
-    }
-
-    private IEnumerator FadeUIGameStateCoroutine(CanvasGameStates state)
-    {
-        float elapsed = 0.0f;
-
-        if (state == CanvasGameStates.Lobby)
-        {
-            while (elapsed < 1)
-            {
-                _inGame.alpha = Mathf.Lerp(1, 0, elapsed);
-                _inLobby.alpha = Mathf.Lerp(0, 1, elapsed);
-
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
-            _inLobby.alpha = 1;
-            _inGame.alpha = 0;
-        }
-        else if (state == CanvasGameStates.Game)
-        {
-            while (elapsed < 1)
-            {
-                _inLobby.alpha = Mathf.Lerp(1, 0, elapsed);
-                _inGame.alpha = Mathf.Lerp(0, 1, elapsed);
-
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
-
             _inLobby.alpha = 0;
             _inGame.alpha = 1;
         }
@@ -336,7 +362,16 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public void LogKill()
     {
-        StartCoroutine(LogCoroutine(2, 0.65f, _killLog));
+        StartCoroutine(LogKillCoroutine(2, 0.65f));
+    }
+
+    private IEnumerator LogKillCoroutine(int staticDuration, float fadeDuration)
+    {
+        _killLog.alpha = 1;
+
+        yield return new WaitForSeconds(staticDuration);
+
+        _killLogTween = _killLog.DOFade(0, fadeDuration);
     }
 
     public void StartDeathScreen(ref Action onRespawn)
@@ -357,7 +392,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         if (easterEgg == 1)
         {
-            StartCoroutine(LogCoroutine(0.25f, 0.5f, _kafifEasterEgg));
+            _kafifEasterEgg.alpha = 0.5f;
+            _kafifEasterEgg.DOFade(0, 0.5f);
         }
 
         _deathScreen.SetActive(true);
@@ -377,40 +413,25 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _deathScreen.SetActive(false);
     }
 
-    private IEnumerator LogCoroutine(float wait, float fadeDuration, CanvasGroup target)
-    {
-        float elapsed = 0.0f;
-
-        target.alpha = 1;
-
-        yield return new WaitForSeconds(wait);
-
-        while (elapsed < fadeDuration)
-        {
-            target.alpha = Mathf.Lerp(1, 0, elapsed / fadeDuration);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        target.alpha = 0;
-    }
-
     public void Pause(bool enable)
     {
         if (!NetworkManager.singleton.isNetworkActive) return;
 
+        _pauseMenuTween.Kill(true);
+
         PauseMenuOpened = enable;
-        StopCoroutine(nameof(FadeCanvasGroup));
-        StartCoroutine(nameof(FadeCanvasGroup), new FadeGroupParams(enable, 0.1f, _pauseMenu));
 
         if (enable)
         {
             Cursor.lockState = CursorLockMode.None;
+
+            _pauseMenuTween = _pauseMenu.DOFade(1, 0.3f).SetEase(Ease.InOutCubic);
         }
         else
         {
-            if (_mapVoting.activeInHierarchy) return;
+            _pauseMenuTween = _pauseMenu.DOFade(0, 0.3f).SetEase(Ease.InOutCubic);
+
+            if (_mapVoting.gameObject.activeInHierarchy) return;
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -428,21 +449,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
             FadeDuration = fadeDuration;
             Target = target;
         }
-    }
-
-    private IEnumerator FadeCanvasGroup(FadeGroupParams fadeParams)
-    {
-        float elapsed = 0.0f;
-
-        while (elapsed < fadeParams.FadeDuration)
-        {
-            fadeParams.Target.alpha = Mathf.Lerp(fadeParams.FadeIn ? 0 : 1, fadeParams.FadeIn ? 1 : 0, elapsed / fadeParams.FadeDuration);
-
-            elapsed += Time.deltaTime;
-            yield return null;
-        }
-
-        fadeParams.Target.alpha = fadeParams.FadeIn ? 1 : 0;
     }
 
     private IEnumerator LerpUseTimer(float duration)
@@ -472,7 +478,9 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         DontDestroyOnLoad(transform);
 
-        foreach (var button in _pauseMenuButtons)
+        Button[] buttons = GetComponentsInChildren<Button>(true);
+
+        foreach (var button in buttons)
         {
             button.onClick.AddListener(ClearSelections);
         }

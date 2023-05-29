@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sceneId: 0
-  _assetId: 0
+  _assetId: 954978470
   serverOnly: 0
   visible: 0
   hasSpawned: 0
@@ -65,3 +65,11 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _clockTicks:
+  - {fileID: 8300000, guid: b7e5d5656b530684685970d1050d648e, type: 3}
+  - {fileID: 8300000, guid: f0b2548f6292fea48a0ea6bcd9b23c94, type: 3}
+  - {fileID: 8300000, guid: 1b95506352e7de14a9a1f8e305bb21e0, type: 3}
+  - {fileID: 8300000, guid: c49a3dedd80565d42b0658ddf24b1861, type: 3}
+  - {fileID: 8300000, guid: 6a31398bd3668014a9a76ba1fe2a7f72, type: 3}
+  _votingStart: {fileID: 8300000, guid: 351fec2046bea284aa6d15f453c0584c, type: 3}
+  _votingEnd: {fileID: 8300000, guid: 53ed21cb367d66b4593fd77b738de552, type: 3}
