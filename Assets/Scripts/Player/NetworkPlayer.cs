@@ -213,9 +213,9 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void DisablePlayer(bool enable)
     {
-        _cc.enabled = enable;
+        gameObject.layer = enable ? 12 : 13;
 
-        CmdDisablePlayer(false);
+        CmdDisablePlayer(enable);
     }
 
     [Command]
@@ -225,7 +225,10 @@ public class NetworkPlayer : NetworkBehaviour
     private void RpcDisablePlayer(bool enable)
     {
         _body.GetComponent<MeshRenderer>().enabled = enable;
-        _cc.enabled = enable;
+
+        if (isLocalPlayer) return;
+
+        gameObject.layer = enable ? 11 : 13;
     }
 
     [Command(requiresAuthority = false)]

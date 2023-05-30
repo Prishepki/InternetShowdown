@@ -131,7 +131,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.375
+  m_Radius: 0.425
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &2095939189038450475
 Rigidbody:
@@ -207,9 +207,9 @@ MonoBehaviour:
   _rb: {fileID: 2095939189038450475}
   _nrb: {fileID: 8798182013292799962}
   _destroyMode: 9
-  _destroyTime: 5
-  _projectileSpeed: 100
-  _projectileDamage: 20
+  _destroyTime: 4
+  _projectileSpeed: 75
+  _projectileDamage: 30
   _forceApplyMode: 0
   _continiousForceApply: 0
   _soundEffects: 4

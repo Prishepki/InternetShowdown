@@ -36,9 +36,26 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public CanvasGroup _killLog;
 
+    [Header("Preparing")]
+    [SerializeField] private TMP_Text _TTOText;
+
+    [Space(9)]
+
+    [SerializeField] private AudioClip _matchBegins;
+
+    [Space(9)]
+
+    [SerializeField] private AudioClip _preMatchOne;
+    [SerializeField] private AudioClip _preMatchTwo;
+    [SerializeField] private AudioClip _preMatchThree;
+
     [Header("Voting")]
     [SerializeField] private CanvasGroup _mapVoting;
     [SerializeField] private TMP_Text _votingEndText;
+
+    [Space(9)]
+
+    [SerializeField] private List<AudioClip> _keyboardTyping = new List<AudioClip>();
 
     [Header("Health Slider")]
     public Slider Health;
@@ -91,6 +108,10 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private TweenerCore<float, float, FloatOptions> _mapVotingTween;
 
+    private TweenerCore<Vector3, Vector3, VectorOptions> _ttoTextTweenY;
+    private TweenerCore<Vector3, Vector3, VectorOptions> _ttoTextTweenX;
+    private TweenerCore<Color, Color, ColorOptions> _ttoTextColorTween;
+
     public void QuitAction()
     {
         Application.Quit();
@@ -100,6 +121,76 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     {
         StopCoroutine(nameof(OnVotingEndCoroutine));
         StartCoroutine(nameof(OnVotingEndCoroutine), message);
+    }
+
+    public void PreMatchText(int fromCount)
+    {
+        StartCoroutine(nameof(PreMatchCoroutine), fromCount);
+    }
+
+    private IEnumerator PreMatchCoroutine(int fromCount)
+    {
+        Color targetColor = Color.white;
+        AudioClip targetSound = null;
+        string targetText = string.Empty;
+
+        void SetTextParams(Color color, AudioClip sound, string text)
+        {
+            targetColor = color;
+            targetSound = sound;
+            targetText = text;
+        }
+
+        for (int count = fromCount; count >= 0; count--)
+        {
+            switch (count)
+            {
+                case 0:
+                    SetTextParams(Color.magenta, _matchBegins, "Let's Go!");
+                    break;
+
+                case 1:
+                    SetTextParams(Color.red, _preMatchOne, count.ToString());
+                    break;
+
+                case 2:
+                    SetTextParams(Color.yellow, _preMatchTwo, count.ToString());
+                    break;
+
+                case 3:
+                    SetTextParams(Color.green, _preMatchThree, count.ToString());
+                    break;
+
+                default:
+                    SetTextParams(Color.white, null, count.ToString());
+                    break;
+
+            }
+
+            BounceTTOText(targetText, targetColor, targetSound);
+
+            yield return new WaitForSeconds(1f);
+        }
+    }
+
+    public void BounceTTOText(string text, Color color, AudioClip sound)
+    {
+        _TTOText.text = text;
+
+        _ttoTextTweenY.Kill(true);
+        _ttoTextTweenX.Kill(true);
+        _ttoTextColorTween.Kill(true);
+
+        _TTOText.transform.localScale = Vector2.one * 1.25f;
+        _TTOText.color = color;
+
+        _ttoTextTweenY = _TTOText.transform.DOScaleY(1f, 0.55f).SetEase(Ease.OutElastic);
+        _ttoTextTweenX = _TTOText.transform.DOScaleX(1f, 0.75f).SetEase(Ease.OutBack);
+        _ttoTextColorTween = _TTOText.DOColor(Color.clear, 2f);
+
+        if (sound == null) return;
+
+        SoundSystem.PlaySound(new SoundTransporter(sound), new SoundPositioner(Vector3.one), volume: 0.5f, enableFade: false);
     }
 
     private IEnumerator OnVotingEndCoroutine(string message)
@@ -112,18 +203,28 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         {
             _votingEndText.text += messageChar;
 
-            yield return null;
+            SoundSystem.PlaySound(new SoundTransporter(_keyboardTyping), new SoundPositioner(Vector3.zero), volume: 0.3f, enableFade: false);
+
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
 
         _votingEndText.text = message;
 
         yield return new WaitForSeconds(2.5f);
 
-        for (int i = 0; i < messageChars.Length; i++)
+        for (int ch = 0; ch < messageChars.Length; ch++)
         {
             _votingEndText.text = _votingEndText.text.Remove(_votingEndText.text.Length - 1);
 
-            yield return null;
+            SoundSystem.PlaySound(new SoundTransporter(_keyboardTyping), new SoundPositioner(Vector3.zero), volume: 0.3f, enableFade: false);
+
+            for (int i = 0; i < 5; i++)
+            {
+                yield return null;
+            }
         }
 
         _votingEndText.text = string.Empty;
@@ -132,6 +233,12 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public void SetMapVoting(bool enable, bool animation)
     {
         IsVotingActive = enable;
+
+        foreach (var votingVariant in _mapVoting.GetComponentsInChildren<MapVoting>())
+        {
+            votingVariant.ResetAnimations();
+        }
+
         _mapVoting.gameObject.SetActive(enable);
 
         if (animation)
@@ -333,6 +440,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _killLog.alpha = 0;
         _pauseMenu.alpha = 0;
         _kafifEasterEgg.alpha = 0;
+
+        _TTOText.color = Color.clear;
 
         HideDeathScreen();
     }

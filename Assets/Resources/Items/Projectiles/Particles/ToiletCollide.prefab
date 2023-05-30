@@ -4904,5 +4904,5 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
-  _radius: 5
+  _radius: 8
   _damage: 50

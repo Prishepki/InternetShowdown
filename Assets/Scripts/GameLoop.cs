@@ -43,6 +43,8 @@ public class GameLoop : NetworkBehaviour
 
     private bool _isSceneLoaded;
 
+    private bool _isSkipNeeded;
+
     public void OnSceneLoaded()
     {
         _isSceneLoaded = true;
@@ -85,6 +87,27 @@ public class GameLoop : NetworkBehaviour
         StartCoroutine(nameof(Loop));
     }
 
+    private void Update()
+    {
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        if (Input.GetKeyDown(KeyCode.Backspace))
+        {
+            _isSkipNeeded = true;
+        }
+#endif
+    }
+
+    private void CancelVoiting()
+    {
+        StopCoroutine(nameof(HandleMapVoting));
+
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+
+        sceneGameManager.RpcSetMapVoting(false, false);
+        sceneGameManager.RpcPlayVotingSound(false);
+
+        OnVotingEnd();
+    }
     private IEnumerator HandleMapVoting()
     {
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
@@ -101,11 +124,20 @@ public class GameLoop : NetworkBehaviour
         sceneGameManager.RpcSetMapVoting(false, false);
         sceneGameManager.RpcPlayVotingSound(false);
 
+        OnVotingEnd();
+    }
+
+    private void OnVotingEnd()
+    {
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+
         if (_votes.Count == 0)
         {
             Debug.LogWarning("Seems like nobody voted for map");
 
-            yield break;
+            sceneGameManager.RpcOnVotingEnd("Nobody voted :(");
+
+            return;
         }
 
         List<KeyValuePair<string, int>> _votesList = _votes.ToList();
@@ -113,7 +145,9 @@ public class GameLoop : NetworkBehaviour
 
         _votedMap = _votesList.First().Key;
 
-        sceneGameManager.RpcOnVotingEnd(Path.GetFileNameWithoutExtension(_votedMap));
+        string votingEndMessage = $"{Path.GetFileNameWithoutExtension(_votedMap).ToSentence()} won!";
+
+        sceneGameManager.RpcOnVotingEnd(votingEndMessage);
     }
 
     private IEnumerator Loop() // ебанутый цикл я в ахуе
@@ -142,8 +176,19 @@ public class GameLoop : NetworkBehaviour
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
-                OnTimeCounterUpdate(_timeCounter, Color.white);
+                if (_isSkipNeeded)
+                {
+                    _timeCounter = 0;
+                    _isSkipNeeded = false;
 
+                    CancelVoiting();
+
+                    break;
+                }
+
+                bool playSound = _timeCounter <= 10;
+
+                OnTimeCounterUpdate(_timeCounter, Color.white, playSound);
                 _timeCounter--;
 
                 yield return new WaitForSeconds(1f);
@@ -160,20 +205,30 @@ public class GameLoop : NetworkBehaviour
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
-                OnTimeCounterUpdate(_timeCounter, Color.gray);
+                if (_isSkipNeeded)
+                {
+                    _timeCounter = 0;
+                    _isSkipNeeded = false;
 
+                    break;
+                }
+
+                if (_timeCounter == 3)
+                {
+                    SceneGameManager.Singleton().RpcPrepareText(3);
+                }
+
+                OnTimeCounterUpdate(_timeCounter, Color.gray, true);
                 _timeCounter--;
 
                 yield return new WaitForSeconds(1f);
             }
 
-            OnTimeCounterUpdate(_timeCounter, Color.gray);
+            OnTimeCounterUpdate(_timeCounter, Color.gray, true);
 
             yield return new WaitForSeconds(1f);
 
             // МАТЧ
-            OnTimeCounterUpdate(_roundLength, Color.white);
-
             StartMatch();
             SetGameState(GameState.Match, CanvasGameStates.Game, _roundLength);
 
@@ -181,17 +236,25 @@ public class GameLoop : NetworkBehaviour
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
+                if (_isSkipNeeded)
+                {
+                    _timeCounter = 0;
+                    _isSkipNeeded = false;
+
+                    break;
+                }
+
                 // я мистер читабельность
                 Color targetColor = _timeCounter <= _attentionTimeRed ? Color.red : _timeCounter <= _attentionTimeYellow ? Color.yellow : Color.white;
+                bool playSound = _timeCounter <= 60;
 
-                OnTimeCounterUpdate(_timeCounter, targetColor);
-
+                OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
                 _timeCounter--;
 
                 yield return new WaitForSeconds(1f);
             }
 
-            OnTimeCounterUpdate(_timeCounter, Color.red);
+            OnTimeCounterUpdate(_timeCounter, Color.red, true);
 
             StopMatch();
             SetGameState(GameState.MatchEnded, CanvasGameStates.Game);
@@ -263,13 +326,13 @@ public class GameLoop : NetworkBehaviour
         NetworkManager.singleton.ServerChangeScene("Lobby");
     }
 
-    public void OnTimeCounterUpdate(int counter, Color color)
+    public void OnTimeCounterUpdate(int counter, Color color, bool playSound)
     {
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
 
         if (sceneGameManager == null) return;
 
-        sceneGameManager.RpcOnTimeCounterUpdate(counter, color);
+        sceneGameManager.RpcOnTimeCounterUpdate(counter, color, playSound);
     }
 }
 

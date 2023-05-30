@@ -126,8 +126,8 @@ MonoBehaviour:
   _nrb: {fileID: 6611837972110484501}
   _destroyMode: 3
   _destroyTime: 3
-  _projectileSpeed: 225
-  _projectileDamage: 60
+  _projectileSpeed: 200
+  _projectileDamage: 70
   _forceApplyMode: 0
   _continiousForceApply: 1
   _soundEffects: 5

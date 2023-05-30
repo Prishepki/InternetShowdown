@@ -16,7 +16,7 @@ public class SceneGameManager : NetworkBehaviour
     [SerializeField] private AudioClip _votingEnd;
 
     [ClientRpc] // методы с этим атрибутом будут вызываться на всех клиентах (работает только тогда если вызывается с класса который наследует NetworkBehaviour)
-    public void RpcOnTimeCounterUpdate(int counter, Color color) // так надо было сделать ибо срало ошибками и нихуя не работало (мы с войдом решали это час)
+    public void RpcOnTimeCounterUpdate(int counter, Color color, bool playSound) // так надо было сделать ибо срало ошибками и нихуя не работало (мы с войдом решали это час)
     {
         EverywhereCanvas everywhereCanvas = EverywhereCanvas.Singleton();
 
@@ -33,7 +33,14 @@ public class SceneGameManager : NetworkBehaviour
         everywhereCanvas.Timer.transform.localScale = Vector2.one * 1.075f;
         everywhereCanvas.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
 
+        if (!playSound) return;
         SoundSystem.PlaySound(new SoundTransporter(_clockTicks), new SoundPositioner(Vector3.zero), volume: 0.225f, enableFade: false);
+    }
+
+    [ClientRpc]
+    public void RpcPrepareText(int fromCount)
+    {
+        EverywhereCanvas.Singleton().PreMatchText(fromCount);
     }
 
     [ClientRpc]
@@ -79,11 +86,9 @@ public class SceneGameManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcOnVotingEnd(string mapName)
+    public void RpcOnVotingEnd(string message)
     {
-        string fixedMapName = mapName.ToSentence();
-
-        EverywhereCanvas.Singleton().OnVotingEnd($"{fixedMapName} won!");
+        EverywhereCanvas.Singleton().OnVotingEnd(message);
     }
 
     [ClientRpc]

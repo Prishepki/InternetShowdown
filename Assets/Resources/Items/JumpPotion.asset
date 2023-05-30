@@ -22,3 +22,4 @@ MonoBehaviour:
     Amount: 10
     Time: 20
   Projectiles: []
+  HealAmount: 0
