@@ -3,7 +3,12 @@ guid: 00281dd18f982ea41985a5487d57287f
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - MapScreenshot: {instanceID: 0}
+  - MapName: {instanceID: 0}
+  - VoteButton: {instanceID: 0}
+  - _onVoteSound: {fileID: 8300000, guid: 0e6f357c1bc369e49b380f5ff57573c0, type: 3}
+  - _onHoverSound: {fileID: 8300000, guid: d90716a9933c96a4bad0b0c7742ac5c0, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

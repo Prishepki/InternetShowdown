@@ -106,11 +106,12 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private TweenerCore<float, float, FloatOptions> _pauseMenuTween;
 
-    private TweenerCore<float, float, FloatOptions> _mapVotingTween;
+    private TweenerCore<float, float, FloatOptions> _mapVotingColorTween;
 
     private TweenerCore<Vector3, Vector3, VectorOptions> _ttoTextTweenY;
     private TweenerCore<Vector3, Vector3, VectorOptions> _ttoTextTweenX;
     private TweenerCore<Color, Color, ColorOptions> _ttoTextColorTween;
+    private TweenerCore<Vector3, Vector3, VectorOptions> _mapVotingScaleTween;
 
     public void QuitAction()
     {
@@ -190,7 +191,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         if (sound == null) return;
 
-        SoundSystem.PlaySound(new SoundTransporter(sound), new SoundPositioner(Vector3.one), volume: 0.5f, enableFade: false);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(sound), volume: 0.5f);
     }
 
     private IEnumerator OnVotingEndCoroutine(string message)
@@ -203,7 +204,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         {
             _votingEndText.text += messageChar;
 
-            SoundSystem.PlaySound(new SoundTransporter(_keyboardTyping), new SoundPositioner(Vector3.zero), volume: 0.3f, enableFade: false);
+            SoundSystem.PlayInterfaceSound(new SoundTransporter(_keyboardTyping), volume: 0.3f);
 
             for (int i = 0; i < 5; i++)
             {
@@ -219,7 +220,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         {
             _votingEndText.text = _votingEndText.text.Remove(_votingEndText.text.Length - 1);
 
-            SoundSystem.PlaySound(new SoundTransporter(_keyboardTyping), new SoundPositioner(Vector3.zero), volume: 0.3f, enableFade: false);
+            SoundSystem.PlayInterfaceSound(new SoundTransporter(_keyboardTyping), volume: 0.3f);
 
             for (int i = 0; i < 5; i++)
             {
@@ -232,32 +233,54 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     public void SetMapVoting(bool enable, bool animation)
     {
+        if (IsVotingActive == enable) return;
+
         IsVotingActive = enable;
 
         foreach (var votingVariant in _mapVoting.GetComponentsInChildren<MapVoting>())
         {
-            votingVariant.ResetAnimations();
+            votingVariant.SetActive(enable);
         }
-
-        _mapVoting.gameObject.SetActive(enable);
 
         if (animation)
         {
-            _mapVotingTween.Kill(true);
+            _mapVotingColorTween.Kill(true);
+            _mapVotingScaleTween.Kill(true);
         }
 
         if (enable)
         {
             if (animation)
             {
+                _mapVoting.transform.localScale = Vector3.one;
                 _mapVoting.alpha = 0;
-                _mapVotingTween = _mapVoting.DOFade(1, 0.6f).SetEase(Ease.OutCirc);
+
+                _mapVotingColorTween = _mapVoting.DOFade(1, 0.6f).SetEase(Ease.OutCirc);
+            }
+            else
+            {
+                _mapVoting.transform.localScale = Vector3.one;
+                _mapVoting.alpha = 1;
             }
 
             Cursor.lockState = CursorLockMode.None;
         }
         else
         {
+            if (animation)
+            {
+                _mapVoting.alpha = 1;
+                _mapVoting.transform.localScale = Vector3.one;
+
+                _mapVotingScaleTween = _mapVoting.transform.DOScale(Vector3.zero, 0.5f).SetEase(Ease.InBack);
+                _mapVotingColorTween = _mapVoting.DOFade(0, 0.5f).SetEase(Ease.OutCirc);
+            }
+            else
+            {
+                _mapVoting.transform.localScale = Vector3.one;
+                _mapVoting.alpha = 0;
+            }
+
             Cursor.lockState = CursorLockMode.Locked;
         }
     }
@@ -440,6 +463,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _killLog.alpha = 0;
         _pauseMenu.alpha = 0;
         _kafifEasterEgg.alpha = 0;
+        _mapVoting.alpha = 0;
 
         _TTOText.color = Color.clear;
 
@@ -546,7 +570,7 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         {
             _pauseMenuTween = _pauseMenu.DOFade(0, 0.3f).SetEase(Ease.InOutCubic);
 
-            if (_mapVoting.gameObject.activeInHierarchy) return;
+            if (IsVotingActive) return;
 
             Cursor.lockState = CursorLockMode.Locked;
         }

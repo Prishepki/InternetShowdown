@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
@@ -97,6 +98,11 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Sounds")]
     [SerializeField, Tooltip("Звук прыжка")] private AudioClip _jumpSound;
+    [SerializeField, Tooltip("Звук рывка")] private AudioClip _dashSound;
+    [SerializeField, Tooltip("Звук рывка")] private List<AudioClip> _groundSlamSounds = new List<AudioClip>();
+
+    [Space(9)]
+
     [SerializeField, Tooltip("Звук получения урона")] private AudioClip _damageSound;
     [SerializeField, Tooltip("Локальный звук получения урона")] private AudioClip _localDamageSound;
     [SerializeField, Tooltip("Звук уведомления о том что игрок ударил кого то")] private AudioClip _hitLogSound;
@@ -650,21 +656,26 @@ public class NetworkPlayer : NetworkBehaviour
 
         _readyToDash = false;
         Invoke(nameof(ResetDash), _dashTimeout);
+
+        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
     }
 
     private void GroundDash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
     {
         if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded) return;
 
-        _rb.velocity = new Vector3(_rb.velocity.x, -_groundDashForce, _rb.velocity.z);
+        float targetForce = _rb.velocity.y <= -1f ? -_groundDashForce + (_rb.velocity.y * 3) : -_groundDashForce;
 
-        StartCoroutine(nameof(ShakeWhenLanded));
+        _rb.velocity = new Vector3(_rb.velocity.x, targetForce, _rb.velocity.z);
+
+        StartCoroutine(nameof(EffectWhenLanded));
     }
 
-    private IEnumerator ShakeWhenLanded()
+    private IEnumerator EffectWhenLanded()
     {
         yield return new WaitUntil(() => IsGrounded);
 
+        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
 

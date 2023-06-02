@@ -22,8 +22,15 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     public TMP_Text MapName;
     public Button VoteButton;
 
+    [Space(9)]
+
+    [SerializeField] private AudioClip _onVoteSound;
+    [SerializeField] private AudioClip _onHoverSound;
+
     private TweenerCore<Vector3, Vector3, VectorOptions> _scaleTween;
     private TweenerCore<Color, Color, ColorOptions> _colorTween;
+
+    private bool _animationInteractable;
 
     private void OnValidate()
     {
@@ -40,10 +47,20 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         ResetAnimations();
     }
 
+    public void SetActive(bool enable)
+    {
+        VoteButton.interactable = enable;
+        _animationInteractable = enable;
+
+        ResetAnimations();
+    }
+
     public void HideMapVoting()
     {
-        EverywhereCanvas.Singleton().SetMapVoting(false, false);
+        EverywhereCanvas.Singleton().SetMapVoting(false, true);
         SceneGameManager.Singleton().CmdVoteMap(ConnectedMap);
+
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_onVoteSound), volume: 0.6f);
     }
 
     public void ResetAnimations()
@@ -62,14 +79,20 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!_animationInteractable) return;
+
         CompleteAllTweens();
 
         _scaleTween = transform.DOScale(Vector3.one * _scaleHighlighted, _animationSpeed).SetEase(Ease.OutBack);
         _colorTween = VoteButton.targetGraphic.DOColor(Color.white, 0.3f).SetEase(Ease.OutCubic);
+
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_onHoverSound), volume: 0.6f);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!_animationInteractable) return;
+
         CompleteAllTweens();
 
         _scaleTween = transform.DOScale(Vector3.one * _scaleNotHighlighted, _animationSpeed).SetEase(Ease.OutBack);

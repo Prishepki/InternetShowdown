@@ -108,6 +108,7 @@ public class GameLoop : NetworkBehaviour
 
         OnVotingEnd();
     }
+
     private IEnumerator HandleMapVoting()
     {
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
@@ -121,7 +122,7 @@ public class GameLoop : NetworkBehaviour
 
         yield return new WaitForSeconds(_votingTime);
 
-        sceneGameManager.RpcSetMapVoting(false, false);
+        sceneGameManager.RpcSetMapVoting(false, true);
         sceneGameManager.RpcPlayVotingSound(false);
 
         OnVotingEnd();

@@ -132,6 +132,10 @@ MonoBehaviour:
   _particles:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
   _jumpSound: {fileID: 8300000, guid: f785b3f95b3712c479e5b4cf5cac59c9, type: 3}
+  _dashSound: {fileID: 8300000, guid: 410ff9ab2e57b2247bbd31425f0608a4, type: 3}
+  _groundSlamSounds:
+  - {fileID: 8300000, guid: c72a4e0cb87ffce4bad94d41ce3d39f4, type: 3}
+  - {fileID: 8300000, guid: 1b87ce49fc630a848bc69acb5959314f, type: 3}
   _damageSound: {fileID: 8300000, guid: 1b0a8d0d394c6d3489907ef5854abba1, type: 3}
   _localDamageSound: {fileID: 8300000, guid: 23d00c411cfe6f545a09e791570c1f87, type: 3}
   _hitLogSound: {fileID: 8300000, guid: c4426c3389b8cf14fab0610dbb79f591, type: 3}

@@ -34,7 +34,7 @@ public class SceneGameManager : NetworkBehaviour
         everywhereCanvas.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
 
         if (!playSound) return;
-        SoundSystem.PlaySound(new SoundTransporter(_clockTicks), new SoundPositioner(Vector3.zero), volume: 0.225f, enableFade: false);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_clockTicks), volume: 0.225f);
     }
 
     [ClientRpc]
@@ -96,7 +96,7 @@ public class SceneGameManager : NetworkBehaviour
     {
         AudioClip targetSound = start ? _votingStart : _votingEnd;
 
-        SoundSystem.PlaySound(new SoundTransporter(targetSound), new SoundPositioner(Vector3.zero), volume: 0.4f, enableFade: false);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(targetSound), volume: 0.4f);
     }
 
     [Command(requiresAuthority = false)]

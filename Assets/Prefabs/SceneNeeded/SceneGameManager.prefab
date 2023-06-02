@@ -72,4 +72,4 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c49a3dedd80565d42b0658ddf24b1861, type: 3}
   - {fileID: 8300000, guid: 6a31398bd3668014a9a76ba1fe2a7f72, type: 3}
   _votingStart: {fileID: 8300000, guid: 351fec2046bea284aa6d15f453c0584c, type: 3}
-  _votingEnd: {fileID: 8300000, guid: 53ed21cb367d66b4593fd77b738de552, type: 3}
+  _votingEnd: {fileID: 8300000, guid: 49e86a6670ec7ab4ebde74f4c24499e1, type: 3}
