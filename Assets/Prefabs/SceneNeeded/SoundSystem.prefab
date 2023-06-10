@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1826781223852032746}
   - component: {fileID: 3952851275410498003}
   - component: {fileID: 8207623222271263633}
+  - component: {fileID: 4859153588020420742}
   m_Layer: 0
   m_Name: SoundSystem
   m_TagString: Untagged
@@ -81,3 +82,18 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 410ff9ab2e57b2247bbd31425f0608a4, type: 3}
   - {fileID: 8300000, guid: c72a4e0cb87ffce4bad94d41ce3d39f4, type: 3}
   - {fileID: 8300000, guid: 1b87ce49fc630a848bc69acb5959314f, type: 3}
+--- !u!114 &4859153588020420742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5164357967189912051}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6da9689f558fcd449b439f2a64ff966b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _lobbySoundtracks: []
+  _matchSoundtracks:
+  - {fileID: 8300000, guid: b29c030dd9e617146b895bf673d71b47, type: 3}

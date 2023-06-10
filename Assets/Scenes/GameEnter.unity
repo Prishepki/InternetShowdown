@@ -823,7 +823,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5:40
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a79f66a5db2a0c842b121021406ab823, type: 2}
   m_sharedMaterial: {fileID: 7531976830184237431, guid: a79f66a5db2a0c842b121021406ab823, type: 2}
@@ -4771,7 +4771,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00281dd18f982ea41985a5487d57287f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ConnectedMap: Assets/Scenes/Maps/BestCity.unity
+  ConnectedMap: Assets/Scenes/Maps/Prototype.unity
   MapScreenshot: {fileID: 1325000238}
   MapName: {fileID: 1509022844}
   VoteButton: {fileID: 1421754512}

@@ -64,7 +64,34 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnServerSceneChanged(sceneName);
 
-        GameLoop.Singleton().OnSceneLoaded();
+        GameLoop gameLoop = GameLoop.Singleton();
+        if (gameLoop == null) return;
+
+        gameLoop.OnSceneLoaded();
+    }
+
+    public override void OnServerChangeScene(string newSceneName)
+    {
+        base.OnServerChangeScene(newSceneName);
+
+        GameLoop gameLoop = GameLoop.Singleton();
+        if (gameLoop == null) return;
+
+        gameLoop.OnSceneUnloaded();
+    }
+
+    public override void OnClientSceneChanged()
+    {
+        base.OnClientSceneChanged();
+
+        StartCoroutine(nameof(WaitForMusic));
+    }
+
+    private IEnumerator WaitForMusic()
+    {
+        yield return new WaitUntil(() => SceneGameManager.Singleton() != null);
+
+        SceneGameManager.Singleton().CmdAskForMusic(NetworkClient.localPlayer);
     }
 
     private void StartGameLoop()

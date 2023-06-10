@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -99,6 +100,20 @@ public class SceneGameManager : NetworkBehaviour
         SoundSystem.PlayInterfaceSound(new SoundTransporter(targetSound), volume: 0.4f);
     }
 
+    [TargetRpc]
+    public void TRpcStartMusic(NetworkConnectionToClient target, MusicGameStates state, float offset)
+    {
+        MusicSystem.StartMusic(state, offset);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdAskForMusic(NetworkIdentity asker)
+    {
+        GameLoop gameLoop = GameLoop.Singleton();
+
+        TRpcStartMusic(asker.connectionToClient, gameLoop.CurrentMusicState, gameLoop.CurrentMusicOffset);
+    }
+
     [Command(requiresAuthority = false)]
     public void CmdVoteMap(string mapName)
     {
@@ -116,7 +131,7 @@ public class SceneGameManager : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void RecieveUIGameState()
     {
-        RpcSwitchUI(FindObjectOfType<GameLoop>().CurrentUIState);
+        RpcSwitchUI(GameLoop.Singleton().CurrentUIState);
     }
 
     public static SceneGameManager Singleton()

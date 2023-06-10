@@ -8,12 +8,12 @@ public class SoundSystem : NetworkBehaviour
 {
     public List<AudioClip> NetworkRegisteredSounds = new List<AudioClip>();
 
-    public static void PlayInterfaceSound(SoundTransporter sound, float pitchMin = 1, float pitchMax = 1, float volume = 1)
+    public static AudioSource PlayInterfaceSound(SoundTransporter sound, float pitchMin = 1, float pitchMax = 1, float volume = 1)
     {
-        PlaySound(sound, new SoundPositioner(Vector3.zero), pitchMin, pitchMax, volume, false);
+        return PlaySound(sound, new SoundPositioner(Vector3.zero), pitchMin, pitchMax, volume, false);
     }
 
-    public static void PlaySound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
+    public static AudioSource PlaySound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
     {
         AudioClip targetSound = sound.Clips[UnityEngine.Random.Range(0, sound.Clips.Count)];
 
@@ -48,6 +48,8 @@ public class SoundSystem : NetworkBehaviour
         }
 
         sourcePlayer.Play();
+
+        return sourcePlayer;
     }
 
     public void PlaySyncedSound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)

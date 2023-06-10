@@ -31,7 +31,11 @@ public class GameLoop : NetworkBehaviour
     [SerializeField, Min(5), Tooltip("Долгота голосования в секундах")] private int _votingTime = 15;
 
     private GameState _currentGameState;
+
     public CanvasGameStates CurrentUIState { get; private set; }
+    public MusicGameStates CurrentMusicState { get; private set; }
+
+    public int CurrentMusicOffset { get; private set; }
 
     private int _currentGamesPlayed;
 
@@ -48,6 +52,11 @@ public class GameLoop : NetworkBehaviour
     public void OnSceneLoaded()
     {
         _isSceneLoaded = true;
+    }
+
+    public void OnSceneUnloaded()
+    {
+        _isSceneLoaded = false;
     }
 
     [ServerCallback]
@@ -159,15 +168,17 @@ public class GameLoop : NetworkBehaviour
         {
             yield return _waitForSceneLoaded;
 
+            CurrentMusicOffset = 0;
+
             // ПЕРЕРЫВ
             if (_currentGamesPlayed == _roundsToLagreBreak)
             {
-                SetGameState(GameState.LargeBreak, CanvasGameStates.Lobby, _largeBreakLength);
+                SetGameState(GameState.LargeBreak, CanvasGameStates.Lobby, MusicGameStates.Lobby, _largeBreakLength);
                 _currentGamesPlayed = 0;
             }
             else
             {
-                SetGameState(GameState.Break, CanvasGameStates.Lobby, _breakLength);
+                SetGameState(GameState.Break, CanvasGameStates.Lobby, MusicGameStates.Lobby, _breakLength);
                 _timeCounter = _breakLength;
             }
 
@@ -187,6 +198,8 @@ public class GameLoop : NetworkBehaviour
                     break;
                 }
 
+                CurrentMusicOffset++;
+
                 bool playSound = _timeCounter <= 10;
 
                 OnTimeCounterUpdate(_timeCounter, Color.white, playSound);
@@ -199,10 +212,12 @@ public class GameLoop : NetworkBehaviour
 
             yield return _waitForSceneLoaded;
 
+            CurrentMusicOffset = 0;
+
             SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
 
             // ПОДГОТОВКА
-            SetGameState(GameState.Prepare, CanvasGameStates.Lobby, _prepareLength);
+            SetGameState(GameState.Prepare, CanvasGameStates.Lobby, MusicGameStates.Match, _prepareLength);
 
             for (int i = 0; i < _repeatSeconds; i++)
             {
@@ -213,6 +228,8 @@ public class GameLoop : NetworkBehaviour
 
                     break;
                 }
+
+                CurrentMusicOffset++;
 
                 if (_timeCounter == 3)
                 {
@@ -231,7 +248,7 @@ public class GameLoop : NetworkBehaviour
 
             // МАТЧ
             StartMatch();
-            SetGameState(GameState.Match, CanvasGameStates.Game, _roundLength);
+            SetGameState(GameState.Match, CanvasGameStates.Game, MusicGameStates.Match, _roundLength);
 
             SceneGameManager.Singleton().RpcFadeUI(CurrentUIState);
 
@@ -244,6 +261,8 @@ public class GameLoop : NetworkBehaviour
 
                     break;
                 }
+
+                CurrentMusicOffset++;
 
                 // я мистер читабельность
                 Color targetColor = _timeCounter <= _attentionTimeRed ? Color.red : _timeCounter <= _attentionTimeYellow ? Color.yellow : Color.white;
@@ -258,9 +277,14 @@ public class GameLoop : NetworkBehaviour
             OnTimeCounterUpdate(_timeCounter, Color.red, true);
 
             StopMatch();
-            SetGameState(GameState.MatchEnded, CanvasGameStates.Game);
+            SetGameState(GameState.MatchEnded, CanvasGameStates.Game, MusicGameStates.Match);
 
-            yield return new WaitForSeconds(5f);
+            for (int i = 0; i < 5; i++)
+            {
+                CurrentMusicOffset++;
+
+                yield return new WaitForSeconds(1f);
+            }
 
             _currentGamesPlayed++;
 
@@ -268,10 +292,11 @@ public class GameLoop : NetworkBehaviour
         }
     }
 
-    private void SetGameState(GameState state, CanvasGameStates uiState, int time = 0)
+    private void SetGameState(GameState state, CanvasGameStates uiState, MusicGameStates musicState, int time = 0)
     {
         _currentGameState = state;
         CurrentUIState = uiState;
+        CurrentMusicState = musicState;
 
         _timeCounter = time;
         _repeatSeconds = _timeCounter;
@@ -279,8 +304,6 @@ public class GameLoop : NetworkBehaviour
 
     private void LoadMatch()
     {
-        _isSceneLoaded = false;
-
         _votes.Clear();
 
         if (string.IsNullOrEmpty(_votedMap))
@@ -323,7 +346,6 @@ public class GameLoop : NetworkBehaviour
 
     private void TimeToBreak()
     {
-        _isSceneLoaded = false;
         NetworkManager.singleton.ServerChangeScene("Lobby");
     }
 
