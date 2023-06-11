@@ -1489,6 +1489,7 @@ GameObject:
   - component: {fileID: 446321748}
   - component: {fileID: 446321747}
   - component: {fileID: 446321746}
+  - component: {fileID: 446321749}
   m_Layer: 5
   m_Name: Menu
   m_TagString: Untagged
@@ -1536,7 +1537,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 1, g: 0.35294116, b: 0.36294562, a: 1}
@@ -1611,6 +1612,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 446321744}
   m_CullTransparentMesh: 1
+--- !u!114 &446321749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 446321744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24d232e28bbeeea4b92f3c934f470fff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorTarget: {fileID: 446321747}
+  SizeTarget: {fileID: 1543080094}
+  _clickTween:
+    TweenPreset: 1
+    TweenEase: 21
+    TweenDuration: 0
+    TweenColor: {r: 1, g: 1, b: 1, a: 1}
+    TweenSize: 1.075
+  _enterTween:
+    TweenPreset: 2
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 1, g: 0.30588236, b: 0.3529412, a: 1}
+    TweenSize: 1.025
+  _exitTween:
+    TweenPreset: 6
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    TweenSize: 1
+  _resizeParent: 1
+  _selectable: 0
 --- !u!1 &454338573
 GameObject:
   m_ObjectHideFlags: 0
@@ -2475,6 +2510,7 @@ GameObject:
   - component: {fileID: 772666871}
   - component: {fileID: 772666870}
   - component: {fileID: 772666869}
+  - component: {fileID: 772666872}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -2522,7 +2558,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.35294116, g: 1, b: 0.67056525, a: 1}
@@ -2585,6 +2621,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 772666867}
   m_CullTransparentMesh: 1
+--- !u!114 &772666872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 772666867}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24d232e28bbeeea4b92f3c934f470fff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorTarget: {fileID: 772666870}
+  SizeTarget: {fileID: 1460581190}
+  _clickTween:
+    TweenPreset: 1
+    TweenEase: 21
+    TweenDuration: 0
+    TweenColor: {r: 1, g: 1, b: 1, a: 1}
+    TweenSize: 1.075
+  _enterTween:
+    TweenPreset: 4
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 1, g: 1, b: 1, a: 1}
+    TweenSize: 1.025
+  _exitTween:
+    TweenPreset: 6
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    TweenSize: 1
+  _resizeParent: 1
+  _selectable: 0
 --- !u!1 &780609119
 GameObject:
   m_ObjectHideFlags: 0
@@ -6282,6 +6352,7 @@ GameObject:
   - component: {fileID: 2053216008}
   - component: {fileID: 2053216007}
   - component: {fileID: 2053216006}
+  - component: {fileID: 2053216009}
   m_Layer: 5
   m_Name: Resume
   m_TagString: Untagged
@@ -6329,7 +6400,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.3537736, g: 0.6729042, b: 1, a: 1}
@@ -6404,6 +6475,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2053216004}
   m_CullTransparentMesh: 1
+--- !u!114 &2053216009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053216004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24d232e28bbeeea4b92f3c934f470fff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorTarget: {fileID: 2053216007}
+  SizeTarget: {fileID: 861023025}
+  _clickTween:
+    TweenPreset: 1
+    TweenEase: 21
+    TweenDuration: 0
+    TweenColor: {r: 1, g: 1, b: 1, a: 1}
+    TweenSize: 1.075
+  _enterTween:
+    TweenPreset: 3
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 0.30588236, g: 1, b: 0.6392157, a: 1}
+    TweenSize: 1.025
+  _exitTween:
+    TweenPreset: 6
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+    TweenSize: 1
+  _resizeParent: 1
+  _selectable: 0
 --- !u!1 &2133187233
 GameObject:
   m_ObjectHideFlags: 0
@@ -6416,6 +6521,7 @@ GameObject:
   - component: {fileID: 2133187237}
   - component: {fileID: 2133187236}
   - component: {fileID: 2133187235}
+  - component: {fileID: 2133187238}
   m_Layer: 5
   m_Name: Quit
   m_TagString: Untagged
@@ -6463,7 +6569,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 0.49056602, g: 0.49056602, b: 0.49056602, a: 1}
     m_HighlightedColor: {r: 1, g: 0.3905328, b: 0.35294116, a: 1}
@@ -6538,6 +6644,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2133187233}
   m_CullTransparentMesh: 1
+--- !u!114 &2133187238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2133187233}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24d232e28bbeeea4b92f3c934f470fff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ColorTarget: {fileID: 2133187236}
+  SizeTarget: {fileID: 226824878}
+  _clickTween:
+    TweenPreset: 1
+    TweenEase: 21
+    TweenDuration: 0
+    TweenColor: {r: 1, g: 1, b: 1, a: 1}
+    TweenSize: 1.075
+  _enterTween:
+    TweenPreset: 2
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 1, g: 0.30588236, b: 0.3529412, a: 1}
+    TweenSize: 1.025
+  _exitTween:
+    TweenPreset: 5
+    TweenEase: 21
+    TweenDuration: 0.15
+    TweenColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    TweenSize: 1
+  _resizeParent: 1
+  _selectable: 0
 --- !u!1 &2142293023
 GameObject:
   m_ObjectHideFlags: 0
