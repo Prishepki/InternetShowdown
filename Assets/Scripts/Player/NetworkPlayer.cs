@@ -113,17 +113,27 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
 
     private EverywhereCanvas _everywhereCanvas;
+    private SoundSystem _soundSystem;
+    private SceneGameManager _sceneGameManager;
+    private PauseMenu _pauseMenu;
 
     [HideInInspector] public Camera PlayerCamera;
     [HideInInspector] public CameraMovement PlayerMoveCamera;
 
     [HideInInspector] public bool AllowMovement;
 
-    [SyncVar] public string Nickname;
-    [SyncVar] public int Score;
+    [SyncVar, HideInInspector] public string Nickname;
+    [SyncVar, HideInInspector] public int Score;
+    [SyncVar, HideInInspector] public int Activity;
+
+    [HideInInspector] public int Place;
+    [HideInInspector] public int Kills;
+    [HideInInspector] public int Hits;
+    [HideInInspector] public int Deaths;
+    [HideInInspector] public int Traumas;
 
     [Command]
-    private void CmdInitialize(string nickname)
+    public void CmdInitialize(string nickname)
     {
         Nickname = nickname;
     }
@@ -131,6 +141,8 @@ public class NetworkPlayer : NetworkBehaviour
     #region HealthSystem
 
     [SyncVar] public float Health;
+
+    private int _itemsUsed;
 
     public void Heal(float amount)
     {
@@ -143,10 +155,12 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
-        SoundSystem.PlaySound(new SoundTransporter(_localDamageSound), new SoundPositioner(transform));
+        _soundSystem.PlaySFX(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_localDamageSound));
 
         SetHealth(Health - amount);
+
+        Traumas++;
     }
 
     public void SetHealth(float amount)
@@ -200,6 +214,8 @@ public class NetworkPlayer : NetworkBehaviour
         _rb.velocity = Vector3.zero;
 
         _everywhereCanvas.StartDeathScreen(ref respawn);
+
+        Deaths++;
     }
 
     private void OnRespawn()
@@ -279,15 +295,17 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void OnValidate() // этот метод вызывается когда в инспекторе меняется поле или после компиляции скрипта
     {
-        TryGetRequiredComponents();
         SetVariables();
 
-        if (_rb != null) // важные параметры для ригидбоди
+        if (TryGetComponent<Rigidbody>(out _rb)) // важные параметры для ригидбоди
         {
             _rb.interpolation = RigidbodyInterpolation.Interpolate; // чтоб было плавно
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic; // чтоб была не лагучая коллизия
             _rb.freezeRotation = true; // чтоб игрока не вертело как ебанутого
         }
+
+        TryGetComponent<CapsuleCollider>(out _cc);
+        TryGetComponent<ItemsReader>(out _ir);
     }
 
     private void Start()
@@ -311,30 +329,44 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Initialize() // уничтожаем другие камеры на сцене и создаем себе новую
     {
-        CmdInitialize(PlayerPrefs.GetString("PlayerNicknameValue", "Player"));
+        CmdInitialize(PlayerPrefs.GetString("PlayerNicknameValue", "NoName " + UnityEngine.Random.Range(1000, 9999)));
 
-        _everywhereCanvas = EverywhereCanvas.Singleton();
+        SetupPlayerAndGameObject();
 
-        _everywhereCanvas.Initialize(this);
+        GetSingletons();
         _everywhereCanvas.SetMaxHealth(_maxHealth);
+        EverywhereCanvas.Leaderboard().Initialize(this);
 
+        DestroyCameras();
+        GameObject newCamera = new GameObject("Player Camera", (typeof(CameraMovement)));
+        PlayerCamera = newCamera.AddComponent<Camera>();
+        InitializeCamera();
+    }
+
+    private void GetSingletons()
+    {
+        _everywhereCanvas = EverywhereCanvas.Singleton();
+        _soundSystem = SoundSystem.Singleton();
+        _sceneGameManager = SceneGameManager.Singleton();
+        _pauseMenu = EverywhereCanvas.PauseMenu();
+    }
+
+    private void SetupPlayerAndGameObject()
+    {
         SetHealth(_maxHealth);
 
         _body.SetActive(false);
         gameObject.layer = 12;
+    }
 
+    private static void DestroyCameras()
+    {
         Camera[] otherCameras = FindObjectsOfType<Camera>(true);
 
         foreach (Camera camera in otherCameras)
         {
             Destroy(camera.gameObject);
         }
-
-        GameObject newCamera = new GameObject("Player Camera", (typeof(CameraMovement)));
-
-        PlayerCamera = newCamera.AddComponent<Camera>();
-
-        InitializeCamera();
     }
 
     private void InitializeCamera() // инициализируем камеру (задаем параметры по дефолту и добовляем нужные компоненты)
@@ -361,16 +393,9 @@ public class NetworkPlayer : NetworkBehaviour
         PlayerMoveCamera.Orientation = _orientation;
     }
 
-    private void SetVariables() //реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
+    private void SetVariables() // реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
     {
         _groundChecking = (transform.position + Vector3.down * (_cc.height / 2), _cc.radius / 3);
-    }
-
-    private void TryGetRequiredComponents() // тут мы получаем нужные компоненты и записываем их
-    {
-        TryGetComponent<Rigidbody>(out _rb);
-        TryGetComponent<CapsuleCollider>(out _cc);
-        TryGetComponent<ItemsReader>(out _ir);
     }
 
     private void Update()
@@ -396,27 +421,7 @@ public class NetworkPlayer : NetworkBehaviour
             GroundDash();
         }
 
-        RaycastHit hit;
-
-        Transform cameraTransform = PlayerCamera.transform;
-
-        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, 1500f, LayerMask.GetMask("Player", "Map")))
-        {
-            NetworkPlayer player;
-
-            if (hit.transform.TryGetComponent<NetworkPlayer>(out player))
-            {
-                _everywhereCanvas.SwitchNicknameVisibility(true, player.Nickname);
-            }
-            else
-            {
-                _everywhereCanvas.SwitchNicknameVisibility(false);
-            }
-        }
-        else
-        {
-            _everywhereCanvas.SwitchNicknameVisibility(false);
-        }
+        HandleNicknameDisplay();
     }
 
     private void JumpHandle()
@@ -481,9 +486,33 @@ public class NetworkPlayer : NetworkBehaviour
         _jumpedTimesInAir = 0;
     }
 
+    private void HandleNicknameDisplay()
+    {
+        RaycastHit hit;
+
+        Transform cameraTransform = PlayerCamera.transform;
+
+        if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, 1500f, LayerMask.GetMask("Player", "Map")))
+        {
+            NetworkPlayer player;
+
+            if (hit.transform.TryGetComponent<NetworkPlayer>(out player))
+            {
+                _everywhereCanvas.SwitchNicknameVisibility(true, player.Nickname);
+            }
+            else
+            {
+                _everywhereCanvas.SwitchNicknameVisibility(false);
+            }
+        }
+        else
+        {
+            _everywhereCanvas.SwitchNicknameVisibility(false);
+        }
+    }
+
     private void DebugKeys()
     {
-
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
@@ -505,17 +534,24 @@ public class NetworkPlayer : NetworkBehaviour
             Heal(5);
         }
 #endif
-
     }
 
     private void Jump()
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
+        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return;
 
         PlayerCurrentStats.Singleton.Bounce = _jumpForce;
 
         _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.Singleton.Bounce + PlayerMutationStats.Singleton.Bounce, _rb.velocity.z);
 
+        CheckForBhop();
+
+        // эффекты
+        MakeJumpEffects();
+    }
+
+    private void CheckForBhop()
+    {
         if (_bhopTimer > 0) // если наш банихоп не в таймауте
         {
             _bhop += _bunnyHopFactor; // то при прыжке добовляем скорости
@@ -526,9 +562,11 @@ public class NetworkPlayer : NetworkBehaviour
         }
 
         _bhopTimer = _bunnyHopTimeout;
+    }
 
-        // эффекты
-        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+    private void MakeJumpEffects()
+    {
+        _soundSystem.PlaySFX(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         CmdSpawnParticle(0);
     }
 
@@ -556,7 +594,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return Vector2.zero;
+        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return Vector2.zero;
 
         return new Vector2(Input.GetAxisRaw(_horizontal), Input.GetAxisRaw(_vertical));
     }
@@ -599,12 +637,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void RigidbodyMovement() // тут мы двигаем перса по оси X и Z (а так же делаем слоуп хандлинг по оси Y)
     {
-        if (!AllowMovement)
-        {
-            _rb.velocity = Vector3.up * _rb.velocity.y;
-
-            return;
-        }
+        if (!AllowMovement) { _rb.velocity = Vector3.up * _rb.velocity.y; return; }
 
         if (!IsMoving)
         {
@@ -618,37 +651,22 @@ public class NetworkPlayer : NetworkBehaviour
             _accel = Mathf.Clamp(_accel, 0, _maximumAcceleration);
         }
 
-        bool sloped = IsSloped();
-
-        _playerSlopeDirection = Vector3.ProjectOnPlane(_playerDirection, _slopeNormal);
-
+        _rb.drag = IsGrounded ? _dragOnGround : 0;
         float angleBoost = Mathf.Abs(Vector3.Angle(Vector3.up, _slopeNormal) * 1.75f);
+        Vector3 targetDirection = IsSloped() ? Vector3.ProjectOnPlane(_playerDirection, _slopeNormal) : _playerDirection;
 
         PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
-
-        if (IsGrounded)
+        if (!IsGrounded)
         {
-            _rb.drag = _dragOnGround;
-        }
-        else
-        {
-            _rb.drag = 0;
             PlayerCurrentStats.Singleton.Speed /= _airSpeedDivider;
         }
 
-        if (sloped)
-        {
-            _rb.AddForce(_playerSlopeDirection * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
-        }
-        else
-        {
-            _rb.AddForce(_playerDirection * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
-        }
+        _rb.AddForce(targetDirection * (PlayerCurrentStats.Singleton.Speed + PlayerMutationStats.Singleton.Speed));
     }
 
-    private void Dash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
+    private void Dash()
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened) return;
+        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return;
 
         float targetForce = IsGrounded ? _dashGroundedForce : _dashAirForce;
 
@@ -657,12 +675,12 @@ public class NetworkPlayer : NetworkBehaviour
         _readyToDash = false;
         Invoke(nameof(ResetDash), _dashTimeout);
 
-        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        _soundSystem.PlaySFX(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
     }
 
-    private void GroundDash() // АХАХАХАХАХАХАХАХАХАХАХАХА ДЕД С ЛЕСТНИЦЫ ЕБНУЛСЯ СМЕШНО АХАХАХАХАХАХХА
+    private void GroundDash()
     {
-        if (!AllowMovement || _everywhereCanvas.PauseMenuOpened || IsGrounded) return;
+        if (!AllowMovement || _pauseMenu.PauseMenuOpened || IsGrounded) return;
 
         float targetForce = _rb.velocity.y <= -1f ? -_groundDashForce + (_rb.velocity.y * 3) : -_groundDashForce;
 
@@ -675,25 +693,41 @@ public class NetworkPlayer : NetworkBehaviour
     {
         yield return new WaitUntil(() => IsGrounded);
 
-        FindObjectOfType<SoundSystem>().PlaySyncedSound(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        _soundSystem.PlaySFX(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
 
     public void LogHit()
     {
-        SoundSystem.PlaySound(new SoundTransporter(_hitLogSound), new SoundPositioner(transform.position));
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_hitLogSound));
         PlayerMoveCamera.Shake(strength: 0.1f);
 
         AddScore(1);
+
+        Hits++;
     }
 
     public void LogKill() // TODO доделать это говно
     {
-        SoundSystem.PlaySound(new SoundTransporter(_killLogSound), new SoundPositioner(transform.position), volume: 3);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(_killLogSound), volume: 3);
         PlayerMoveCamera.Shake(strength: 0.25f);
         _everywhereCanvas.LogKill();
 
         AddScore(3);
+
+        Kills++;
+    }
+
+    public void OnItemUsed()
+    {
+        AddActivity(1);
+
+        _itemsUsed++;
+
+        if (Convert.ToSingle(_itemsUsed) % 30f == 0)
+        {
+            AddScore(1);
+        }
     }
 
     private void ResetDash()
@@ -717,6 +751,23 @@ public class NetworkPlayer : NetworkBehaviour
     private void CmdChangeScore(int amount)
     {
         Score += amount;
+
+        EverywhereCanvas.Leaderboard().UpdateLeaderboard();
+        _sceneGameManager.RpcForceClientsForLeaderboardUpdate();
+    }
+
+    private void AddActivity(int amount)
+    {
+        CmdChangeActivity(amount);
+    }
+
+    [Command]
+    private void CmdChangeActivity(int amount)
+    {
+        Activity += amount;
+
+        EverywhereCanvas.Leaderboard().UpdateLeaderboard();
+        _sceneGameManager.RpcForceClientsForLeaderboardUpdate();
     }
 
     private void OnCollisionStay(Collision other)

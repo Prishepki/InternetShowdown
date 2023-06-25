@@ -824,7 +824,7 @@ MonoBehaviour:
   _roundsToLagreBreak: 5
   _largeBreakLength: 180
   _prepareLength: 10
-  _roundLength: 260
+  _roundLength: 259
   _attentionTimeYellow: 60
   _attentionTimeRed: 10
   _maps:

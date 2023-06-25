@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -12,19 +14,30 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private TMP_InputField _nickname;
     [SerializeField] private TMP_InputField _address;
 
-    private Button[] _menuButtons;
+    [SerializeField] private UnityEvent _onStart;
+
+    private Transition _transition;
 
     private void Start()
     {
+        _transition = Transition.Singleton();
+
         SetNickname(PlayerPrefs.GetString(_nicknameSavePath));
         SetIP(PlayerPrefs.GetString(_addressSavePath));
 
-        _menuButtons = GetComponentsInChildren<Button>(true);
+        Button[] menuButtons = GetComponentsInChildren<Button>(true);
 
-        foreach (var button in _menuButtons)
+        foreach (var button in menuButtons)
         {
             button.onClick.AddListener(ClearSelections);
         }
+
+        if (GameLoop.Singleton() != null)
+        {
+            Destroy(GameLoop.Singleton().gameObject);
+        }
+
+        _onStart.Invoke();
     }
 
     public void SetNickname(string value)
@@ -44,6 +57,11 @@ public class MenuManager : MonoBehaviour
 
     public void Connect()
     {
+        _transition.AwakeTransition(TransitionMode.In, DoConnect);
+    }
+
+    private void DoConnect()
+    {
         if (NetworkManager.singleton.networkAddress == "host_server")
         {
             NetworkManager.singleton.StartServer();
@@ -61,8 +79,9 @@ public class MenuManager : MonoBehaviour
 
     public void ExitGame()
     {
+        _transition.AwakeTransition(TransitionMode.In, Application.Quit);
+
         Debug.Log("Exiting");
-        Application.Quit();
     }
 
     private void ClearSelections()

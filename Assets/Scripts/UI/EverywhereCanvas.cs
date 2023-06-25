@@ -8,13 +8,15 @@ using DG.Tweening.Plugins.Options;
 using Mirror;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class EverywhereCanvas : MonoBehaviour // юи которое будет видно ВЕЗДЕ
+public class EverywhereCanvas : MonoBehaviour, IGameCanvas // юи которое будет видно ВЕЗДЕ
 {
     [Header("Main")]
     [SerializeField] private GameObject _canvas;
+    [SerializeField] private Transition _transition;
 
     [Space(9)]
 
@@ -22,8 +24,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     [SerializeField] private CanvasGroup _inGame;
 
     [Header("Other")]
-    [SerializeField] private CanvasGroup _pauseMenu;
-
     public TMP_Text Timer;
 
     public TMP_Text OthersNickname;
@@ -80,21 +80,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     [SerializeField] private CanvasGroup _kafifEasterEgg;
 
-    [Header("Leaderboard")]
-    [SerializeField] private Place _placePrefab;
-    [SerializeField] private Transform _placeContainer;
-
-    [Space(9)]
-
-    [SerializeField] private Color _firstPlaceColor;
-    [SerializeField] private Color _secondPlaceColor;
-    [SerializeField] private Color _thirdPlaceColor;
-
-    private List<(string nickname, int score)> _leaderboard = new List<(string nickname, int score)>();
-
-    private NetworkPlayer _player;
-
-    [HideInInspector] public bool PauseMenuOpened { get; private set; }
     [HideInInspector] public bool IsVotingActive { get; private set; }
 
     private bool _isExitingServer;
@@ -104,8 +89,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
     private TweenerCore<float, float, FloatOptions> _killLogTween;
 
-    private TweenerCore<float, float, FloatOptions> _pauseMenuTween;
-
     private TweenerCore<float, float, FloatOptions> _mapVotingColorTween;
 
     private TweenerCore<Vector3, Vector3, VectorOptions> _ttoTextTweenY;
@@ -113,9 +96,93 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     private TweenerCore<Color, Color, ColorOptions> _ttoTextColorTween;
     private TweenerCore<Vector3, Vector3, VectorOptions> _mapVotingScaleTween;
 
+    private GroupsManager _groupsManager;
+    private ResultsWindow _resultsWindow;
+    private PauseMenu _pauseMenu;
+
+    [SerializeField] private UnityEvent _onStart;
+
+    private void Awake()
+    {
+        if (FindObjectsOfType<EverywhereCanvas>(true).Length > 1)
+        {
+            Destroy(gameObject);
+        }
+
+        DontDestroyOnLoad(transform);
+
+        Button[] buttons = GetComponentsInChildren<Button>(true);
+
+        foreach (var button in buttons)
+        {
+            button.onClick.AddListener(ClearSelections);
+        }
+    }
+
+    private void Start()
+    {
+        EnableUseTimer(false);
+
+        _killLog.alpha = 0;
+        _kafifEasterEgg.alpha = 0;
+        _mapVoting.alpha = 0;
+
+        _TTOText.color = ColorISH.Invisible;
+
+        HideDeathScreen();
+
+        _groupsManager = GroupsManager.Singleton();
+        _resultsWindow = Results();
+        _pauseMenu = PauseMenu();
+
+        _onStart.Invoke();
+    }
+
+    private void Update()
+    {
+        _playerDebugPanel.SetActive(false);
+
+#if DEVELOPMENT_BUILD || UNITY_EDITOR
+        _playerDebugPanel.SetActive(true);
+        DebugStats();
+#endif
+
+        UpdateHealthDisplay();
+    }
+
     public void QuitAction()
     {
-        Application.Quit();
+        _transition.AwakeTransition(TransitionMode.In, Application.Quit);
+    }
+
+    public void MenuAction()
+    {
+        if (_isExitingServer || !NetworkClient.isConnected)
+        {
+            return;
+        }
+
+        StartCoroutine(nameof(OnDisconnectPressed));
+
+        _isExitingServer = true;
+
+        _transition.AwakeTransition(TransitionMode.In, ExitMatch);
+    }
+
+    private void ExitMatch()
+    {
+        NetworkManager.singleton.StopHost();
+    }
+
+    public void OnDisconnect() { }
+
+    private IEnumerator OnDisconnectPressed()
+    {
+        yield return new WaitUntil(() => !NetworkManager.singleton.isNetworkActive);
+
+        _transition.AwakeTransition(TransitionMode.Out);
+
+        _isExitingServer = false;
     }
 
     public void OnVotingEnd(string message)
@@ -147,19 +214,19 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
             switch (count)
             {
                 case 0:
-                    SetTextParams(Color.magenta, _matchBegins, "Let's Go!");
+                    SetTextParams(ColorISH.Magenta, _matchBegins, "Let's Go!");
                     break;
 
                 case 1:
-                    SetTextParams(Color.red, _preMatchOne, count.ToString());
+                    SetTextParams(ColorISH.Red, _preMatchOne, count.ToString());
                     break;
 
                 case 2:
-                    SetTextParams(Color.yellow, _preMatchTwo, count.ToString());
+                    SetTextParams(ColorISH.Yellow, _preMatchTwo, count.ToString());
                     break;
 
                 case 3:
-                    SetTextParams(Color.green, _preMatchThree, count.ToString());
+                    SetTextParams(ColorISH.Green, _preMatchThree, count.ToString());
                     break;
 
                 default:
@@ -187,11 +254,11 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         _ttoTextTweenY = _TTOText.transform.DOScaleY(1f, 0.55f).SetEase(Ease.OutElastic);
         _ttoTextTweenX = _TTOText.transform.DOScaleX(1f, 0.75f).SetEase(Ease.OutBack);
-        _ttoTextColorTween = _TTOText.DOColor(Color.clear, 2f);
+        _ttoTextColorTween = _TTOText.DOColor(ColorISH.Invisible * color, 2f);
 
         if (sound == null) return;
 
-        SoundSystem.PlayInterfaceSound(new SoundTransporter(sound), volume: 0.5f);
+        SoundSystem.PlayInterfaceSound(new SoundTransporter(sound), volume: 0.35f);
     }
 
     private IEnumerator OnVotingEndCoroutine(string message)
@@ -250,6 +317,8 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
 
         if (enable)
         {
+            _resultsWindow.SetWindow(false);
+
             if (animation)
             {
                 _mapVoting.transform.localScale = Vector3.one;
@@ -281,51 +350,9 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
                 _mapVoting.alpha = 0;
             }
 
+            if (_pauseMenu.PauseMenuOpened || _resultsWindow.IsActive) return;
+
             Cursor.lockState = CursorLockMode.Locked;
-        }
-    }
-
-    public void MenuAction()
-    {
-        Pause(false);
-
-        if (_isExitingServer || !NetworkClient.isConnected)
-        {
-            return;
-        }
-
-        StartCoroutine(nameof(OnDisconnectPressed));
-
-        NetworkManager.singleton.StopHost();
-        _isExitingServer = true;
-    }
-
-    private IEnumerator OnDisconnectPressed()
-    {
-        yield return new WaitUntil(() => !NetworkManager.singleton.isNetworkActive);
-
-        _isExitingServer = false;
-    }
-
-    private void Update()
-    {
-        _playerDebugPanel.SetActive(false);
-
-#if DEVELOPMENT_BUILD || UNITY_EDITOR
-        _playerDebugPanel.SetActive(true);
-        DebugStats();
-#endif
-
-        UpdateHealthDisplay();
-
-        HandlePauseMenu();
-    }
-
-    private void HandlePauseMenu()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            Pause(!PauseMenuOpened);
         }
     }
 
@@ -333,24 +360,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     {
         OthersNickname.text = target;
         OthersNickname.gameObject.SetActive(show);
-    }
-
-    public void Initialize(NetworkPlayer player)
-    {
-        _player = player;
-        StartCoroutine(nameof(LeaderboardTickLoop));
-    }
-
-    private IEnumerator LeaderboardTickLoop()
-    {
-        while (NetworkClient.isConnected)
-        {
-            UpdateLeaderboard();
-
-            yield return new WaitForSeconds(1f);
-        }
-
-        ClearLeaderboardUI();
     }
 
     public void EnableCanvasElements(bool enable)
@@ -388,86 +397,10 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         }
     }
 
-    public void UpdateLeaderboard()
-    {
-        List<(string nickname, int score)> newLeaderboardValue = new List<(string nickname, int score)>();
-
-        List<NetworkPlayer> allPlayers = FindObjectsOfType<NetworkPlayer>().ToList();
-
-        foreach (NetworkPlayer connPlayer in allPlayers)
-        {
-            newLeaderboardValue.Add((connPlayer.Nickname, connPlayer.Score));
-        }
-
-        _leaderboard = newLeaderboardValue;
-
-        _leaderboard.Sort((first, second) => first.score < second.score ? 1 : -1);
-
-        UpdateLeaderboardUI();
-    }
-
-    private void UpdateLeaderboardUI()
-    {
-        ClearLeaderboardUI();
-
-        int clampedLeaderboardSize = Mathf.Clamp(_leaderboard.Count, 0, 6);
-
-        for (int place = 0; place < clampedLeaderboardSize; place++)
-        {
-            Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
-
-            placeComp.Number.text = $"{place + 1})";
-
-            switch (place + 1)
-            {
-                default:
-                    placeComp.Number.color = Color.white;
-                    break;
-
-                case 1:
-                    placeComp.Number.color = _firstPlaceColor;
-                    break;
-
-                case 2:
-                    placeComp.Number.color = _secondPlaceColor;
-                    break;
-
-                case 3:
-                    placeComp.Number.color = _thirdPlaceColor;
-                    break;
-            }
-
-            placeComp.Nickname.text = _leaderboard[place].nickname;
-            placeComp.Score.text = _leaderboard[place].score.ToString();
-        }
-    }
-
-    private void ClearLeaderboardUI()
-    {
-        foreach (Transform place in _placeContainer)
-        {
-            Destroy(place.gameObject);
-        }
-    }
-
     private void UpdateHealthDisplay()
     {
         Health.value = Mathf.Lerp(Health.value, _targetHealth, Time.deltaTime * _healthBarAniamtionSpeed);
         HealthFill.color = Color.Lerp(_healthMinColor, _healthMaxColor, Health.value / Health.maxValue);
-    }
-
-    private void Start()
-    {
-        EnableUseTimer(false);
-
-        _killLog.alpha = 0;
-        _pauseMenu.alpha = 0;
-        _kafifEasterEgg.alpha = 0;
-        _mapVoting.alpha = 0;
-
-        _TTOText.color = Color.clear;
-
-        HideDeathScreen();
     }
 
     public void CancelUseTimer()
@@ -552,30 +485,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         _deathScreen.SetActive(false);
     }
 
-    public void Pause(bool enable)
-    {
-        if (!NetworkManager.singleton.isNetworkActive) return;
-
-        _pauseMenuTween.Kill(true);
-
-        PauseMenuOpened = enable;
-
-        if (enable)
-        {
-            Cursor.lockState = CursorLockMode.None;
-
-            _pauseMenuTween = _pauseMenu.DOFade(1, 0.3f).SetEase(Ease.InOutCubic);
-        }
-        else
-        {
-            _pauseMenuTween = _pauseMenu.DOFade(0, 0.3f).SetEase(Ease.InOutCubic);
-
-            if (IsVotingActive) return;
-
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-    }
-
     private class FadeGroupParams
     {
         public bool FadeIn;
@@ -608,23 +517,6 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
         EnableUseTimer(false);
     }
 
-    private void Awake()
-    {
-        if (FindObjectsOfType<EverywhereCanvas>(true).Length > 1)
-        {
-            Destroy(gameObject);
-        }
-
-        DontDestroyOnLoad(transform);
-
-        Button[] buttons = GetComponentsInChildren<Button>(true);
-
-        foreach (var button in buttons)
-        {
-            button.onClick.AddListener(ClearSelections);
-        }
-    }
-
     private void ClearSelections()
     {
         EventSystem.current.SetSelectedGameObject(null);
@@ -633,6 +525,21 @@ public class EverywhereCanvas : MonoBehaviour // юи которое будет 
     public static EverywhereCanvas Singleton()
     {
         return FindObjectOfType<EverywhereCanvas>(true);
+    }
+
+    public static ResultsWindow Results()
+    {
+        return FindObjectOfType<ResultsWindow>(true);
+    }
+
+    public static PauseMenu PauseMenu()
+    {
+        return FindObjectOfType<PauseMenu>(true);
+    }
+
+    public static Leaderboard Leaderboard()
+    {
+        return FindObjectOfType<Leaderboard>(true);
     }
 
     private void DebugStats()
@@ -681,4 +588,21 @@ public enum CanvasGameStates
 {
     Lobby,
     Game
+}
+
+public static class ColorISH
+{
+    public static readonly Color32 Red = new Color32(255, 66, 78, 255);
+    public static readonly Color32 Green = new Color32(78, 255, 163, 255);
+    public static readonly Color32 Blue = new Color32(78, 97, 255, 255);
+
+    public static readonly Color32 Cyan = new Color32(78, 242, 255, 255);
+    public static readonly Color32 Magenta = new Color32(255, 57, 204, 255);
+    public static readonly Color32 Yellow = new Color32(255, 217, 78, 255);
+
+    public static readonly Color32 Gold = new Color32(255, 214, 48, 255);
+    public static readonly Color32 Silver = new Color32(168, 169, 173, 255);
+    public static readonly Color32 Bronze = new Color32(187, 123, 61, 255);
+
+    public static readonly Color Invisible = new Color(1, 1, 1, 0);
 }

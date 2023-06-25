@@ -16,11 +16,16 @@ public class SceneGameManager : NetworkBehaviour
     [SerializeField] private AudioClip _votingStart;
     [SerializeField] private AudioClip _votingEnd;
 
+    private EverywhereCanvas _everywhereCanvas;
+
+    private void Awake()
+    {
+        _everywhereCanvas = EverywhereCanvas.Singleton();
+    }
+
     [ClientRpc] // методы с этим атрибутом будут вызываться на всех клиентах (работает только тогда если вызывается с класса который наследует NetworkBehaviour)
     public void RpcOnTimeCounterUpdate(int counter, Color color, bool playSound) // так надо было сделать ибо срало ошибками и нихуя не работало (мы с войдом решали это час)
     {
-        EverywhereCanvas everywhereCanvas = EverywhereCanvas.Singleton();
-
         int minutes = TimeSpan.FromSeconds(counter).Minutes;
         int seconds = TimeSpan.FromSeconds(counter).Seconds;
 
@@ -28,11 +33,11 @@ public class SceneGameManager : NetworkBehaviour
 
         string exposedTimeCounter = $"{minutes}:{exposedSeconds}";
 
-        everywhereCanvas.Timer.text = exposedTimeCounter; // текст таймера
-        everywhereCanvas.Timer.color = color; // цвет текста таймера
+        _everywhereCanvas.Timer.text = exposedTimeCounter; // текст таймера
+        _everywhereCanvas.Timer.color = color; // цвет текста таймера
 
-        everywhereCanvas.Timer.transform.localScale = Vector2.one * 1.075f;
-        everywhereCanvas.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
+        _everywhereCanvas.Timer.transform.localScale = Vector2.one * 1.075f;
+        _everywhereCanvas.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
 
         if (!playSound) return;
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_clockTicks), volume: 0.225f);
@@ -41,7 +46,7 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcPrepareText(int fromCount)
     {
-        EverywhereCanvas.Singleton().PreMatchText(fromCount);
+        _everywhereCanvas.PreMatchText(fromCount);
     }
 
     [ClientRpc]
@@ -65,31 +70,43 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSwitchUI(CanvasGameStates state) // меняет интерфейс у игроков
     {
-        EverywhereCanvas.Singleton().SwitchUIGameState(state);
+        _everywhereCanvas.SwitchUIGameState(state);
     }
 
     [ClientRpc]
     public void RpcFadeUI(CanvasGameStates state) // меняет интерфейс у игроков с плавной анимацией
     {
-        EverywhereCanvas.Singleton().FadeUIGameState(state);
+        _everywhereCanvas.FadeUIGameState(state);
+    }
+
+    [ClientRpc]
+    public void RpcTransition(TransitionMode mode) // вызывает эффект перехода на всех клиентах
+    {
+        Transition.Singleton().AwakeTransition(mode);
     }
 
     [ClientRpc]
     public void RpcHideDeathScreen() // на всякий случай, прячет экраны смерти у игроков
     {
-        EverywhereCanvas.Singleton().HideDeathScreen();
+        _everywhereCanvas.HideDeathScreen();
     }
 
     [ClientRpc]
     public void RpcSetMapVoting(bool enable, bool fade)
     {
-        EverywhereCanvas.Singleton().SetMapVoting(enable, fade);
+        _everywhereCanvas.SetMapVoting(enable, fade);
+    }
+
+    [TargetRpc]
+    public void TRpcSetMapVoting(NetworkConnectionToClient target, bool enable, bool fade)
+    {
+        _everywhereCanvas.SetMapVoting(enable, fade);
     }
 
     [ClientRpc]
     public void RpcOnVotingEnd(string message)
     {
-        EverywhereCanvas.Singleton().OnVotingEnd(message);
+        _everywhereCanvas.OnVotingEnd(message);
     }
 
     [ClientRpc]
@@ -98,6 +115,32 @@ public class SceneGameManager : NetworkBehaviour
         AudioClip targetSound = start ? _votingStart : _votingEnd;
 
         SoundSystem.PlayInterfaceSound(new SoundTransporter(targetSound), volume: 0.4f);
+    }
+
+    [ClientRpc]
+    public void RpcTriggerResultsWindow()
+    {
+        EverywhereCanvas.Results().SetWindow(true);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdVoteMap(string mapName)
+    {
+        Debug.Log($"Someone voted for {mapName}");
+
+        GameLoop.Singleton().AddMapVote(mapName);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdAskForMapVoting(NetworkIdentity asker)
+    {
+        TRpcSetMapVoting(asker.connectionToClient, GameLoop.Singleton().IsVotingTime, false);
+    }
+
+    [ClientRpc]
+    public void RpcForceClientsForLeaderboardUpdate()
+    {
+        EverywhereCanvas.Leaderboard().UpdateLeaderboard();
     }
 
     [TargetRpc]
@@ -115,23 +158,34 @@ public class SceneGameManager : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdVoteMap(string mapName)
-    {
-        Debug.Log($"Someone voted for {mapName}");
-
-        GameLoop.Singleton().AddMapVote(mapName);
-    }
-
-    [Command(requiresAuthority = false)]
-    public void CmdAskForMapVoting()
-    {
-        RpcSetMapVoting(EverywhereCanvas.Singleton().IsVotingActive, false);
-    }
-
-    [Command(requiresAuthority = false)]
     public void RecieveUIGameState()
     {
         RpcSwitchUI(GameLoop.Singleton().CurrentUIState);
+    }
+
+    [ClientRpc]
+    public void OnMatchEnd()
+    {
+        NetworkPlayer player = NetworkClient.localPlayer.GetComponent<NetworkPlayer>();
+
+        ResultsStatsJobs.StatsToDisplay["Place"] = (player.Place.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Score"] = (player.Score.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Activity"] = (player.Activity.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Kills"] = (player.Kills.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Hits"] = (player.Hits.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Deaths"] = (player.Deaths.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Traumas"] = (player.Traumas.ToString(), Color.white);
+
+        int total = Mathf.Clamp((player.Score * 3) + (player.Activity) + (player.Kills * 6) + (player.Hits * 3) - (player.Deaths * 2) - (player.Traumas) - (player.Place * 5), 0, 1000);
+
+        for (int i = ResultsStatsJobs.Rankings.Count - 1; i >= 0; i--)
+        {
+            if (total >= ResultsStatsJobs.Rankings[i].value)
+            {
+                ResultsStatsJobs.StatsToDisplay["Rank"] = (ResultsStatsJobs.Rankings[i].key, ResultsStatsJobs.Rankings[i].color);
+                break;
+            }
+        }
     }
 
     public static SceneGameManager Singleton()

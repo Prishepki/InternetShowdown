@@ -33,7 +33,7 @@ public enum Rarity : byte
 [Serializable]
 public class InspectorMutation // этот класс нужен чтоб отоброжать параметры мутации в инспекторе
 {
-    [Tooltip("ПОКА ЧТО ДОСТУПЫ ТОЛЬКО МУТАЦИИ СКОРОСТИ И ПРЫГУЧЕСТИ (другие мутации возможно будут срать ошибкой в консоль)")] public MutationType Type = MutationType.Speed;
+    [Tooltip("Какую стату надо мутировать?")] public MutationType Type = MutationType.Speed;
     [Tooltip("Что надо сделать со статой игрока? Сложить, или умножить?")] public ChangeType ChangeAs = ChangeType.Add;
     [Tooltip("На сколько или во сколько раз надо увеличить стату игрока?")] public float Amount = 10;
     [Tooltip("Сколько секунд бафф будет действовать")] public float Time = 5;

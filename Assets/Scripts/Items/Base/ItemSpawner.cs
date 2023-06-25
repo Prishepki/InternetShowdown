@@ -8,9 +8,12 @@ public class ItemSpawner : NetworkBehaviour // спавнер предметов
 
     [Space(9)]
 
-    [SerializeField, Min(1)] private float _spawnRadius = 100f;
     [SerializeField, Min(0)] private int _maxSpawnAmount = 50;
     [SerializeField, Min(0.1f)] private float _spawnRate = 4f;
+
+    [Space(9)]
+
+    [SerializeField] private Vector3 _bounds = new Vector3(1, 1, 1);
 
     [ServerCallback] // этот атрибут запрещает вызывать метод всем клиентам кроме сервера
     public void StartSpawnProcces()
@@ -41,17 +44,24 @@ public class ItemSpawner : NetworkBehaviour // спавнер предметов
 
         if (allSpawned.Length >= _maxSpawnAmount) return; // тут же выходит их метода если мы достигли лимита
 
-        Vector3 randomDirection = Random.insideUnitSphere * _spawnRadius;
+        Vector3 randomPlace = new Vector3
+        (
+            Random.Range(-(_bounds.x / 2), _bounds.x / 2),
+            Random.Range(-(_bounds.y / 2), _bounds.y / 2),
+            Random.Range(-(_bounds.z / 2), _bounds.z / 2)
+        );
 
         NavMeshHit hit;
+        NavMesh.SamplePosition(randomPlace, out hit, randomPlace.magnitude, 1);
 
-        while (!NavMesh.SamplePosition(randomDirection, out hit, _spawnRadius, 1)) // пока рандомная точка в сфере не попадет на навмеш
-        {
-            randomDirection = Random.insideUnitSphere * _spawnRadius;
-        }
-
-        GameObject spawnedItem = Instantiate(_itemPrefab, hit.position + (Vector3.up * 1.5f), Quaternion.identity); // когда попала оно заспавнит предмет
+        GameObject spawnedItem = Instantiate(_itemPrefab, hit.position + (Vector3.up * 1.5f), Quaternion.identity);
 
         NetworkServer.Spawn(spawnedItem);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = ColorISH.Cyan;
+        Gizmos.DrawWireCube(Vector3.zero, _bounds);
     }
 }

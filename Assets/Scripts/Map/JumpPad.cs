@@ -11,9 +11,15 @@ public class JumpPad : MonoBehaviour
 
         if (other.gameObject.TryGetComponent<Rigidbody>(out hit))
         {
-            //hit.velocity = new Vector3(hit.velocity.x + (transform.up.x * _force), transform.up.y * _force, hit.velocity.z + (transform.up.z * _force)); // я в ахуе
-            hit.velocity = new Vector3(0, transform.up.y * _force, 0); // я в ахуе
-            SoundSystem.PlaySound(new SoundTransporter(_sound), new SoundPositioner(transform.position), volume: 0.45f, pitchMin: 0.95f, pitchMax: 1.1f);
+            // я в ахуе
+            hit.velocity = new Vector3
+            (
+                hit.velocity.x + (transform.up.x * _force),
+                transform.up.y * _force,
+                hit.velocity.z + (transform.up.z * _force)
+            );
+
+            SoundSystem.PlaySound(new SoundTransporter(_sound), new SoundPositioner(transform.position), SoundType.SFX, volume: 0.45f, pitchMin: 0.95f, pitchMax: 1.1f);
         }
     }
 }

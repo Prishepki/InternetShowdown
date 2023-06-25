@@ -13,14 +13,6 @@ public static class RarityJobs
         { "Common", 255 },
     };
 
-    public static byte RarityToChance(Rarity input) // конвертирует энам редкости в шанс категории редкости
-    {
-        string key = RarityToName(input);
-
-        return Rarities[key];
-    }
-
-    public static string RarityToName(Rarity value) => Rarity.GetName(typeof(Rarity), value); // конвертирует энам редкости в имя категории редкости
     public static Rarity RarityFromName(this string value) => (Rarity)Rarity.Parse(typeof(Rarity), value, true); // конвертирует имя категории редкости в энам редкости
 
     public static List<UsableItem> ItemRaritySortHelper(List<UsableItem> input, Rarity sortBy) // возвращает все UsableItem из input, у которых ItemRarity равно sortBy

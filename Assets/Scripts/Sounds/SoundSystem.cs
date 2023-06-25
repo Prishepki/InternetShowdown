@@ -3,17 +3,23 @@ using System.Collections.Generic;
 using Mirror;
 using NaughtyAttributes;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class SoundSystem : NetworkBehaviour
 {
     public List<AudioClip> NetworkRegisteredSounds = new List<AudioClip>();
 
-    public static AudioSource PlayInterfaceSound(SoundTransporter sound, float pitchMin = 1, float pitchMax = 1, float volume = 1)
+    public static SoundSystem Singleton()
     {
-        return PlaySound(sound, new SoundPositioner(Vector3.zero), pitchMin, pitchMax, volume, false);
+        return FindObjectOfType<SoundSystem>(true);
     }
 
-    public static AudioSource PlaySound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
+    public static AudioSource PlayInterfaceSound(SoundTransporter sound, float pitchMin = 1, float pitchMax = 1, float volume = 1)
+    {
+        return PlaySound(sound, new SoundPositioner(Vector3.zero), SoundType.UI, pitchMin, pitchMax, volume, false);
+    }
+
+    public static AudioSource PlaySound(SoundTransporter sound, SoundPositioner positionMode, SoundType type, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
     {
         AudioClip targetSound = sound.Clips[UnityEngine.Random.Range(0, sound.Clips.Count)];
 
@@ -31,6 +37,12 @@ public class SoundSystem : NetworkBehaviour
         }
 
         AudioSource sourcePlayer = sourceObject.GetComponent<AudioSource>();
+
+        AudioMixer mixer = Resources.Load<AudioMixer>("InternetShowdownMaster");
+        string groupName = SoundType.GetName(typeof(SoundType), type);
+        AudioMixerGroup group = mixer.FindMatchingGroups(groupName)[0];
+
+        sourcePlayer.outputAudioMixerGroup = group;
 
         sourcePlayer.pitch = UnityEngine.Random.Range(pitchMin, pitchMax);
         sourcePlayer.volume = volume;
@@ -52,7 +64,7 @@ public class SoundSystem : NetworkBehaviour
         return sourcePlayer;
     }
 
-    public void PlaySyncedSound(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
+    public void PlaySFX(SoundTransporter sound, SoundPositioner positionMode, float pitchMin = 1, float pitchMax = 1, float volume = 1, bool enableFade = true)
     {
         List<int> idxes = new List<int>();
 
@@ -89,7 +101,7 @@ public class SoundSystem : NetworkBehaviour
 
         SoundPositioner pos = target == null ? new SoundPositioner(position) : new SoundPositioner(target);
 
-        PlaySound(new SoundTransporter(targetSounds), pos, pitchMin, pitchMax, volume, enableFade);
+        PlaySound(new SoundTransporter(targetSounds), pos, SoundType.SFX, pitchMin, pitchMax, volume, enableFade);
     }
 }
 
@@ -106,6 +118,13 @@ public class SoundTransporter
     {
         Clips = clips;
     }
+}
+
+public enum SoundType
+{
+    SFX,
+    UI,
+    Music
 }
 
 public class SoundPositioner

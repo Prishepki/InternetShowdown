@@ -97,3 +97,4 @@ MonoBehaviour:
   _lobbySoundtracks: []
   _matchSoundtracks:
   - {fileID: 8300000, guid: b29c030dd9e617146b895bf673d71b47, type: 3}
+  - {fileID: 8300000, guid: 0ecc5489309dee541859c518eaff9d41, type: 3}

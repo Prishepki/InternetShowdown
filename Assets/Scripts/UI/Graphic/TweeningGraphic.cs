@@ -10,6 +10,29 @@ using UnityEngine.UI;
 [RequireComponent(typeof(MaskableGraphic))]
 public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
+    private bool _interactable = true;
+
+    public bool Interactable
+    {
+        get
+        {
+            return _interactable;
+        }
+
+        set
+        {
+            _interactable = value;
+
+            CompleteTweens();
+            StopCoroutine(nameof(TweenCoroutine));
+
+            if (_exitTween != null)
+            {
+                DoTween(_exitTween);
+            }
+        }
+    }
+
     [Header("Components")]
     public MaskableGraphic ColorTarget;
     public Transform SizeTarget;
@@ -60,6 +83,8 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        if (!_interactable) return;
+
         SetStats(_clickTween);
 
         if (_isHighlighted)
@@ -74,19 +99,23 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerEnter(PointerEventData eventData)
     {
+        if (!_interactable) return;
+
         _isHighlighted = true;
         DoTween(_enterTween);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
+        if (!_interactable) return;
+
         _isHighlighted = false;
         DoTween(_exitTween);
     }
 
     private void DoTween(GraphicTween tween)
     {
-        if (_isSelected) return;
+        if (_isSelected || !gameObject.activeInHierarchy) return;
 
         StopCoroutine(nameof(TweenCoroutine));
         StartCoroutine(nameof(TweenCoroutine), tween);
@@ -103,11 +132,7 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         _isTweenActive = true;
 
-        if (_sizeTween != null && _colorTween != null)
-        {
-            _sizeTween.Complete();
-            _colorTween.Complete();
-        }
+        CompleteTweens();
 
         _sizeTween = SizeTarget.DOScale(tween.TweenSize, tween.TweenDuration).SetEase(tween.TweenEase);
         _colorTween = ColorTarget.DOColor(tween.TweenColor, tween.TweenDuration).SetEase(tween.TweenEase);
@@ -116,7 +141,16 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
         _colorTween.onComplete = OnTweenCompleted;
     }
 
-    private void SetStats(GraphicTween stats)
+    private void CompleteTweens()
+    {
+        if (_sizeTween != null && _colorTween != null)
+        {
+            _sizeTween.Complete();
+            _colorTween.Complete();
+        }
+    }
+
+    public void SetStats(GraphicTween stats)
     {
         if (_isSelected) return;
 
@@ -170,11 +204,11 @@ public class GraphicTween
                 break;
 
             case GraphicTweenPresets.HighlightDanger:
-                SetParams(Ease.OutCirc, 0.15f, new Color32(255, 78, 90, 255), 1.025f);
+                SetParams(Ease.OutCirc, 0.15f, ColorISH.Red, 1.025f);
                 break;
 
             case GraphicTweenPresets.HighlightPositive:
-                SetParams(Ease.OutCirc, 0.15f, new Color32(78, 255, 163, 255), 1.025f);
+                SetParams(Ease.OutCirc, 0.15f, ColorISH.Green, 1.025f);
                 break;
 
             case GraphicTweenPresets.NormalDark:

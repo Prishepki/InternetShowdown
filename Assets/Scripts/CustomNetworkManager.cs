@@ -6,6 +6,10 @@ using UnityEngine;
 
 public class CustomNetworkManager : NetworkManager
 {
+    [Header("Custom")]
+    [SerializeField] private EverywhereCanvas _everywhereCanvas;
+    [SerializeField] private Transition _transition;
+
     public override void Awake()
     {
         base.Awake();
@@ -20,16 +24,25 @@ public class CustomNetworkManager : NetworkManager
 
         spawnPrefabs = netPrefs;
 
-        EverywhereCanvas.Singleton().EnableCanvasElements(false);
+        _everywhereCanvas = EverywhereCanvas.Singleton();
+        _transition = Transition.Singleton();
+
+        _everywhereCanvas.EnableCanvasElements(false);
     }
 
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
 
+        IGameCanvas[] gameCanvases = FindObjectsOfType<MonoBehaviour>(true).OfType<IGameCanvas>().ToArray();
+        foreach (var canvas in gameCanvases)
+        {
+            canvas.OnDisconnect();
+        }
+
         Cursor.lockState = CursorLockMode.None;
 
-        EverywhereCanvas.Singleton().EnableCanvasElements(false);
+        _everywhereCanvas.EnableCanvasElements(false);
     }
 
     public override void OnClientConnect()
@@ -38,7 +51,8 @@ public class CustomNetworkManager : NetworkManager
 
         Cursor.lockState = CursorLockMode.Locked;
 
-        EverywhereCanvas.Singleton().EnableCanvasElements(true);
+        _everywhereCanvas.EnableCanvasElements(true);
+        _transition.AwakeTransition(TransitionMode.Out);
 
         StartCoroutine(WaitForSceneGameManagerSingleton());
     }
@@ -50,52 +64,55 @@ public class CustomNetworkManager : NetworkManager
         SceneGameManager sceneGameManager = SceneGameManager.Singleton();
 
         sceneGameManager.RecieveUIGameState();
-        sceneGameManager.CmdAskForMapVoting();
+        sceneGameManager.CmdAskForMapVoting(NetworkClient.localPlayer);
     }
 
     public override void OnStartServer()
     {
         base.OnStartServer();
 
-        Invoke(nameof(StartGameLoop), 1f); // ибал в рот
+        StartCoroutine(nameof(WaitForGameLoop));
     }
 
     public override void OnServerSceneChanged(string sceneName)
     {
         base.OnServerSceneChanged(sceneName);
 
-        GameLoop gameLoop = GameLoop.Singleton();
-        if (gameLoop == null) return;
-
-        gameLoop.OnSceneLoaded();
+        GameLoop.Singleton()?.SetSceneLoaded(true);
     }
 
     public override void OnServerChangeScene(string newSceneName)
     {
         base.OnServerChangeScene(newSceneName);
 
-        GameLoop gameLoop = GameLoop.Singleton();
-        if (gameLoop == null) return;
-
-        gameLoop.OnSceneUnloaded();
+        GameLoop.Singleton()?.SetSceneLoaded(false);
     }
 
     public override void OnClientSceneChanged()
     {
         base.OnClientSceneChanged();
 
+        _transition.AwakeTransition(TransitionMode.Out);
+
         StartCoroutine(nameof(WaitForMusic));
+    }
+
+    public override void OnClientChangeScene(string newSceneName, SceneOperation sceneOperation, bool customHandling)
+    {
+        EverywhereCanvas.Results().SetWindow(false);
     }
 
     private IEnumerator WaitForMusic()
     {
-        yield return new WaitUntil(() => SceneGameManager.Singleton() != null);
+        yield return new WaitUntil(() => SceneGameManager.Singleton());
 
         SceneGameManager.Singleton().CmdAskForMusic(NetworkClient.localPlayer);
     }
 
-    private void StartGameLoop()
+    private IEnumerator WaitForGameLoop()
     {
+        yield return new WaitUntil(() => GameLoop.Singleton());
+
         GameLoop.Singleton().StartLoop();
     }
 }

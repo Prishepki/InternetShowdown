@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +13,13 @@ public class ItemsReader : NetworkBehaviour
     [HideInInspector, SyncVar] public bool HasItem;
 
     private UsableItem _currentItem;
+
     private NetworkPlayer _player;
+    private EverywhereCanvas _everywhereCanvas;
 
     public List<Mutation> ActiveMutations = new List<Mutation>();
+
+    private int _itemsUsed;
 
     private void Awake()
     {
@@ -26,6 +29,7 @@ public class ItemsReader : NetworkBehaviour
     private void Start()
     {
         _player = GetComponent<NetworkPlayer>();
+        _everywhereCanvas = EverywhereCanvas.Singleton();
 
         if (!isLocalPlayer) return;
         _itemHolder.SetParent(_player.PlayerCamera.transform);
@@ -35,11 +39,9 @@ public class ItemsReader : NetworkBehaviour
     {
         if (!isLocalPlayer) return; // выходим из метода если игрок не локальный
 
-        PickableItem item;
-
-        if (other.TryGetComponent<PickableItem>(out item)) // тупая идея использовать трайгеткомпонент здесь и сейчас, но вдруг потом пригодится
+        if (other.GetComponent<PickableItem>())
         {
-            if (_currentItem == null)
+            if (!HasItem)
             {
                 CmdDestroyObject(other.gameObject);
 
@@ -48,6 +50,7 @@ public class ItemsReader : NetworkBehaviour
         }
     }
 
+    [Command]
     private void CmdDestroyObject(GameObject gameObject)
     {
         NetworkServer.Destroy(gameObject);
@@ -62,7 +65,7 @@ public class ItemsReader : NetworkBehaviour
 
     private void CheckForItem()
     {
-        if (_currentItem == null) return; // если у игрока нету предмета в руках, то выходим из метода
+        if (!HasItem) return; // если у игрока нету предмета в руках, то выходим из метода
 
         if (!_player.AllowMovement) return;
 
@@ -75,13 +78,13 @@ public class ItemsReader : NetworkBehaviour
                 float useTime = _currentItem.UseTime;
 
                 Invoke(nameof(UseItem), useTime);
-                EverywhereCanvas.Singleton().StartUseTimer(useTime);
+                _everywhereCanvas.StartUseTimer(useTime);
             }
 
             if (Input.GetMouseButtonUp(0))
             {
                 CancelInvoke(nameof(UseItem));
-                EverywhereCanvas.Singleton().CancelUseTimer();
+                _everywhereCanvas.CancelUseTimer();
             }
         }
         else
@@ -95,7 +98,7 @@ public class ItemsReader : NetworkBehaviour
 
     public void UseItem()
     {
-        if (_currentItem == null)
+        if (!HasItem)
         {
             Debug.LogWarning("Can't use item because it's NULL");
             return;
@@ -129,6 +132,8 @@ public class ItemsReader : NetworkBehaviour
         }
 
         LoseItem(); // теряем предмет из рук
+
+        _player.OnItemUsed();
     }
 
     private IEnumerator CancelMutationFromList(Mutation mutation)
@@ -150,7 +155,7 @@ public class ItemsReader : NetworkBehaviour
 
     public void LoseItem()
     {
-        if (_currentItem == null)
+        if (!HasItem)
         {
             Debug.LogWarning("Can not lose NULL item");
             return;
@@ -227,7 +232,7 @@ public class ItemsReader : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
-            if (_currentItem != null)
+            if (HasItem)
             {
                 MakeVisual(_currentItem.ItemVisual);
             }
@@ -271,10 +276,10 @@ public class ItemsReader : NetworkBehaviour
 
     private void SetCurrentItem(UsableItem target)
     {
-        List<UsableItem> toCheck = _registeredItems;
-        toCheck.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
+        _registeredItems.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
         _currentItem = target;
+        HasItem = target;
 
         if (target == null)
         {
@@ -282,23 +287,16 @@ public class ItemsReader : NetworkBehaviour
         }
         else
         {
-            CmdSetCurrentItem(toCheck.IndexOf(target), true);
+            CmdSetCurrentItem(_registeredItems.IndexOf(target), true);
         }
     }
 
     [Command]
     private void CmdSetCurrentItem(int? idx, bool hasItem)
     {
+        _registeredItems.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
+
         HasItem = hasItem;
-
-        RpcSetCurrentItem(idx);
-    }
-
-    [ClientRpc]
-    private void RpcSetCurrentItem(int? idx)
-    {
-        List<UsableItem> toCheck = _registeredItems;
-        toCheck.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
         if (idx == null)
         {
@@ -306,7 +304,24 @@ public class ItemsReader : NetworkBehaviour
         }
         else
         {
-            _currentItem = toCheck[idx.Value];
+            _currentItem = _registeredItems[idx.Value];
+        }
+
+        RpcSetCurrentItem(idx);
+    }
+
+    [ClientRpc]
+    private void RpcSetCurrentItem(int? idx)
+    {
+        _registeredItems.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
+
+        if (idx == null)
+        {
+            _currentItem = null;
+        }
+        else
+        {
+            _currentItem = _registeredItems[idx.Value];
         }
 
         OnCurrentItemChange();

@@ -6,9 +6,9 @@ using UnityEngine;
 [Serializable]
 public abstract class Mutation // базовый класс мутации
 {
-    public ChangeType ChangeAs;
-    public float Amount;
-    public float Time;
+    public ChangeType ChangeAs { get; protected set; }
+    public float Amount { get; protected set; }
+    public float Time { get; protected set; }
 
     public CancellationTokenSource Source { get; protected set; }
 
@@ -35,38 +35,14 @@ public abstract class Mutation // базовый класс мутации
         {
             OnAdd();
 
-            try
-            {
-                Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
-            }
-            catch (OperationCanceledException) when (Source.IsCancellationRequested)
-            {
-                Debug.Log("Mutation Canceled");
-                return;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDecrease(); });
         }
 
         else if (ChangeAs == ChangeType.Multiply)
         {
             OnMultiply();
 
-            try
-            {
-                Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
-            }
-            catch (OperationCanceledException) when (Source.IsCancellationRequested)
-            {
-                Debug.Log("Mutation Canceled");
-                return;
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+            Task.Delay(mili, Source.Token).ContinueWith(o => { OnDivide(); });
         }
     }
 

@@ -1,4 +1,3 @@
-using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 
@@ -44,6 +43,8 @@ public class CameraMovement : MonoBehaviour
     private Vector3 _initPosition;
 
     private EverywhereCanvas _everywhereCanvas;
+    private ResultsWindow _resultsWindow;
+    private PauseMenu _pauseMenu;
 
     private void Start()
     {
@@ -51,27 +52,28 @@ public class CameraMovement : MonoBehaviour
         _initPosition = transform.localPosition;
 
         _everywhereCanvas = EverywhereCanvas.Singleton();
+        _resultsWindow = EverywhereCanvas.Results();
+        _pauseMenu = EverywhereCanvas.PauseMenu();
     }
 
     private void Update()
     {
-        if (!BlockMovement && !_everywhereCanvas.PauseMenuOpened)
-        {
-            float mouseX = Input.GetAxisRaw("Mouse X") * _sensitivityX;
-            float mouseY = Input.GetAxisRaw("Mouse Y") * _sensitivityY;
+        bool isBlocked = BlockMovement || _pauseMenu.PauseMenuOpened || _everywhereCanvas.IsVotingActive || _resultsWindow.IsActive;
 
-            _rotY += mouseX;
-            _rotX -= mouseY;
-            _rotX = Mathf.Clamp(_rotX, _topClamp, _bottomClamp);
+        float mouseX = isBlocked ? 0 : Input.GetAxisRaw("Mouse X") * _sensitivityX;
+        float mouseY = isBlocked ? 0 : Input.GetAxisRaw("Mouse Y") * _sensitivityY;
 
-            Tilt();
+        _rotY += mouseX;
+        _rotX -= mouseY;
+        _rotX = Mathf.Clamp(_rotX, _topClamp, _bottomClamp);
 
-            CamHolder.rotation = Quaternion.Euler(CamHolder.eulerAngles.x, _rotY, CamHolder.eulerAngles.z);
-            transform.rotation = Quaternion.Euler(_rotX, _rotY, _rotZ);
+        Tilt();
 
-            Focus();
-            Orientation.localRotation = Quaternion.Euler(transform.localRotation.x, _rotY, transform.localRotation.z);
-        }
+        CamHolder.rotation = Quaternion.Euler(CamHolder.eulerAngles.x, _rotY, CamHolder.eulerAngles.z);
+        transform.rotation = Quaternion.Euler(_rotX, _rotY, _rotZ);
+
+        Focus();
+        Orientation.localRotation = Quaternion.Euler(transform.localRotation.x, _rotY, transform.localRotation.z);
     }
 
     private void Tilt()

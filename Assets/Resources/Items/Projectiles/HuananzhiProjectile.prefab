@@ -122,7 +122,7 @@ MonoBehaviour:
   _shakeEffects: 4
   _spawnSound:
     Sound: {fileID: 8300000, guid: 9228db89ff1f4a041babf4a5b7eba8aa, type: 3}
-    Volume: 0.6
+    Volume: 0.45
     Pitch: {x: 1, y: 1}
     Lock: 1
   _collideSound:
@@ -132,7 +132,7 @@ MonoBehaviour:
     Lock: 0
   _destroySound:
     Sound: {fileID: 8300000, guid: e0d77011221b09848a88546cc21fb435, type: 3}
-    Volume: 0.7
+    Volume: 0.5
     Pitch: {x: 1, y: 1}
     Lock: 0
   _spawnEffect: {fileID: 0}

@@ -46,7 +46,7 @@ public class MusicSystem : MonoBehaviour
             return null;
         }
 
-        source = SoundSystem.PlayInterfaceSound(new SoundTransporter(target), volume: 0.525f);
+        source = SoundSystem.PlaySound(new SoundTransporter(target), new SoundPositioner(Vector3.zero), SoundType.Music, volume: 0.525f, enableFade: false);
         source.time = offset;
 
         ActiveMusic newInstance = new ActiveMusic()

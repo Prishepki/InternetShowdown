@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,38 +32,32 @@ public class GameLoop : NetworkBehaviour
     [SerializeField, Min(5), Tooltip("Долгота голосования в секундах")] private int _votingTime = 15;
 
     private GameState _currentGameState;
-
-    public CanvasGameStates CurrentUIState { get; private set; }
-    public MusicGameStates CurrentMusicState { get; private set; }
-
-    public int CurrentMusicOffset { get; private set; }
-
     private int _currentGamesPlayed;
-
-    private int _timeCounter;
-    private int _repeatSeconds;
 
     private Dictionary<string, int> _votes = new Dictionary<string, int>();
     private string _votedMap;
 
     private bool _isSceneLoaded;
-
     private bool _isSkipNeeded;
 
-    public void OnSceneLoaded()
-    {
-        _isSceneLoaded = true;
-    }
+    private int _timeCounter;
+    private int _repeatSeconds;
 
-    public void OnSceneUnloaded()
-    {
-        _isSceneLoaded = false;
-    }
+    public CanvasGameStates CurrentUIState { get; private set; }
+    public MusicGameStates CurrentMusicState { get; private set; }
+    public int CurrentMusicOffset { get; private set; }
+    public bool IsVotingTime { get; private set; }
 
-    [ServerCallback]
-    public static GameLoop Singleton()
+    private SceneGameManager _sceneGameManager;
+
+    public void SetSceneLoaded(bool loaded)
     {
-        return FindObjectOfType<GameLoop>(true);
+        _isSceneLoaded = loaded;
+
+        if (loaded)
+        {
+            _sceneGameManager = SceneGameManager.Singleton();
+        }
     }
 
     [Server]
@@ -96,6 +91,7 @@ public class GameLoop : NetworkBehaviour
         StartCoroutine(nameof(Loop));
     }
 
+    [Server]
     private void Update()
     {
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
@@ -106,46 +102,34 @@ public class GameLoop : NetworkBehaviour
 #endif
     }
 
-    private void CancelVoiting()
-    {
-        StopCoroutine(nameof(HandleMapVoting));
-
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
-
-        sceneGameManager.RpcSetMapVoting(false, false);
-        sceneGameManager.RpcPlayVotingSound(false);
-
-        OnVotingEnd();
-    }
-
     private IEnumerator HandleMapVoting()
     {
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
-
-        sceneGameManager.RpcSetMapVoting(false, false);
+        _sceneGameManager.RpcSetMapVoting(false, false);
 
         yield return new WaitForSeconds(_preVotingTime);
 
-        sceneGameManager.RpcSetMapVoting(true, true);
-        sceneGameManager.RpcPlayVotingSound(true);
+        IsVotingTime = true;
+
+        _sceneGameManager.RpcSetMapVoting(true, true);
+        _sceneGameManager.RpcPlayVotingSound(true);
 
         yield return new WaitForSeconds(_votingTime);
 
-        sceneGameManager.RpcSetMapVoting(false, true);
-        sceneGameManager.RpcPlayVotingSound(false);
+        _sceneGameManager.RpcSetMapVoting(false, true);
+        _sceneGameManager.RpcPlayVotingSound(false);
 
         OnVotingEnd();
     }
 
     private void OnVotingEnd()
     {
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+        IsVotingTime = false;
 
         if (_votes.Count == 0)
         {
             Debug.LogWarning("Seems like nobody voted for map");
 
-            sceneGameManager.RpcOnVotingEnd("Nobody voted :(");
+            _sceneGameManager.RpcOnVotingEnd("Nobody voted :(");
 
             return;
         }
@@ -157,7 +141,85 @@ public class GameLoop : NetworkBehaviour
 
         string votingEndMessage = $"{Path.GetFileNameWithoutExtension(_votedMap).ToSentence()} won!";
 
-        sceneGameManager.RpcOnVotingEnd(votingEndMessage);
+        _sceneGameManager.RpcOnVotingEnd(votingEndMessage);
+    }
+
+    private void CancelVoiting()
+    {
+        StopCoroutine(nameof(HandleMapVoting));
+
+        _sceneGameManager.RpcSetMapVoting(false, false);
+        _sceneGameManager.RpcPlayVotingSound(false);
+
+        OnVotingEnd();
+    }
+
+    private class ColorFrom
+    {
+        public Color Color;
+        public int From;
+
+        public ColorFrom(Color color, int from)
+        {
+            Color = color;
+            From = from;
+        }
+    }
+
+    private IEnumerator Timer(List<ColorFrom> colors = null, int soundFrom = -1, int prepareFrom = -1)
+    {
+        Color targetColor = Color.white;
+        bool playSound = false;
+
+        for (int i = 0; i < _repeatSeconds; i++)
+        {
+            if (_isSkipNeeded)
+            {
+                _timeCounter = 0;
+                _isSkipNeeded = false;
+
+                if (IsVotingTime)
+                {
+                    CancelVoiting();
+                }
+                else
+                {
+                    StopCoroutine(nameof(HandleMapVoting));
+                }
+
+                break;
+            }
+
+            CurrentMusicOffset++;
+
+            playSound = _timeCounter <= soundFrom;
+
+            if (colors != null)
+            {
+                foreach (var color in colors)
+                {
+                    if (_timeCounter <= color.From)
+                    {
+                        targetColor = color.Color;
+                        break;
+                    }
+                }
+            }
+
+            if (_timeCounter == prepareFrom)
+            {
+                _sceneGameManager.RpcPrepareText(prepareFrom);
+            }
+
+            OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
+            _timeCounter--;
+
+            yield return new WaitForSecondsRealtime(1f);
+        }
+
+        OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
+
+        yield return new WaitForSecondsRealtime(1f);
     }
 
     private IEnumerator Loop() // ебанутый цикл я в ахуе
@@ -167,14 +229,12 @@ public class GameLoop : NetworkBehaviour
         while (NetworkServer.active)
         {
             yield return _waitForSceneLoaded;
-
             CurrentMusicOffset = 0;
 
             // ПЕРЕРЫВ
-            if (_currentGamesPlayed == _roundsToLagreBreak)
+            if (_currentGamesPlayed % _roundsToLagreBreak == 0)
             {
                 SetGameState(GameState.LargeBreak, CanvasGameStates.Lobby, MusicGameStates.Lobby, _largeBreakLength);
-                _currentGamesPlayed = 0;
             }
             else
             {
@@ -182,111 +242,54 @@ public class GameLoop : NetworkBehaviour
                 _timeCounter = _breakLength;
             }
 
-            SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
+            _sceneGameManager.RpcSwitchUI(CurrentUIState);
+            if (_currentGamesPlayed > 0)
+            {
+                _sceneGameManager.RpcTriggerResultsWindow();
+            }
 
             StartCoroutine(nameof(HandleMapVoting));
 
-            for (int i = 0; i < _repeatSeconds; i++)
-            {
-                if (_isSkipNeeded)
-                {
-                    _timeCounter = 0;
-                    _isSkipNeeded = false;
+            yield return StartCoroutine(Timer(soundFrom: 10));
 
-                    CancelVoiting();
-
-                    break;
-                }
-
-                CurrentMusicOffset++;
-
-                bool playSound = _timeCounter <= 10;
-
-                OnTimeCounterUpdate(_timeCounter, Color.white, playSound);
-                _timeCounter--;
-
-                yield return new WaitForSeconds(1f);
-            }
+            _sceneGameManager.RpcTransition(TransitionMode.In);
+            yield return new WaitForSeconds(Transition.Singleton().FullDurationIn);
 
             LoadMatch();
-
             yield return _waitForSceneLoaded;
-
             CurrentMusicOffset = 0;
 
-            SceneGameManager.Singleton().RpcSwitchUI(CurrentUIState);
+            _sceneGameManager.RpcSwitchUI(CurrentUIState);
 
             // ПОДГОТОВКА
             SetGameState(GameState.Prepare, CanvasGameStates.Lobby, MusicGameStates.Match, _prepareLength);
 
-            for (int i = 0; i < _repeatSeconds; i++)
-            {
-                if (_isSkipNeeded)
-                {
-                    _timeCounter = 0;
-                    _isSkipNeeded = false;
-
-                    break;
-                }
-
-                CurrentMusicOffset++;
-
-                if (_timeCounter == 3)
-                {
-                    SceneGameManager.Singleton().RpcPrepareText(3);
-                }
-
-                OnTimeCounterUpdate(_timeCounter, Color.gray, true);
-                _timeCounter--;
-
-                yield return new WaitForSeconds(1f);
-            }
-
-            OnTimeCounterUpdate(_timeCounter, Color.gray, true);
-
-            yield return new WaitForSeconds(1f);
+            yield return StartCoroutine(Timer(new List<ColorFrom>() { new ColorFrom(Color.gray, _repeatSeconds) }, _repeatSeconds, 3));
 
             // МАТЧ
             StartMatch();
             SetGameState(GameState.Match, CanvasGameStates.Game, MusicGameStates.Match, _roundLength);
 
-            SceneGameManager.Singleton().RpcFadeUI(CurrentUIState);
+            _sceneGameManager.RpcFadeUI(CurrentUIState);
 
-            for (int i = 0; i < _repeatSeconds; i++)
+            List<ColorFrom> colorFroms = new List<ColorFrom>()
             {
-                if (_isSkipNeeded)
-                {
-                    _timeCounter = 0;
-                    _isSkipNeeded = false;
+                new ColorFrom(ColorISH.Red, _attentionTimeRed),
+                new ColorFrom(ColorISH.Yellow, _attentionTimeYellow)
+            };
 
-                    break;
-                }
-
-                CurrentMusicOffset++;
-
-                // я мистер читабельность
-                Color targetColor = _timeCounter <= _attentionTimeRed ? Color.red : _timeCounter <= _attentionTimeYellow ? Color.yellow : Color.white;
-                bool playSound = _timeCounter <= 60;
-
-                OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
-                _timeCounter--;
-
-                yield return new WaitForSeconds(1f);
-            }
-
-            OnTimeCounterUpdate(_timeCounter, Color.red, true);
+            yield return StartCoroutine(Timer(colorFroms, 60));
 
             StopMatch();
             SetGameState(GameState.MatchEnded, CanvasGameStates.Game, MusicGameStates.Match);
 
-            for (int i = 0; i < 5; i++)
-            {
-                CurrentMusicOffset++;
-
-                yield return new WaitForSeconds(1f);
-            }
+            CurrentMusicOffset += 5;
+            yield return new WaitForSeconds(5f);
 
             _currentGamesPlayed++;
+
+            _sceneGameManager.RpcTransition(TransitionMode.In);
+            yield return new WaitForSeconds(Transition.Singleton().FullDurationIn);
 
             TimeToBreak();
         }
@@ -310,7 +313,7 @@ public class GameLoop : NetworkBehaviour
         {
             Debug.LogWarning($"Voted Map is empty, loading random map instead");
 
-            string randomMap = _maps[Random.Range(0, _maps.Count)];
+            string randomMap = _maps[UnityEngine.Random.Range(0, _maps.Count)];
             NetworkManager.singleton.ServerChangeScene(randomMap);
 
             return;
@@ -337,11 +340,10 @@ public class GameLoop : NetworkBehaviour
             NetworkServer.Destroy(projectile.gameObject);
         }
 
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
-
-        sceneGameManager.RpcHideDeathScreen();
-        sceneGameManager.RpcRemoveMutations();
-        sceneGameManager.RpcAllowMovement(false);
+        _sceneGameManager.RpcHideDeathScreen();
+        _sceneGameManager.RpcRemoveMutations();
+        _sceneGameManager.RpcAllowMovement(false);
+        _sceneGameManager.OnMatchEnd();
     }
 
     private void TimeToBreak()
@@ -351,11 +353,14 @@ public class GameLoop : NetworkBehaviour
 
     public void OnTimeCounterUpdate(int counter, Color color, bool playSound)
     {
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton();
+        if (_sceneGameManager == null) return;
 
-        if (sceneGameManager == null) return;
+        _sceneGameManager.RpcOnTimeCounterUpdate(counter, color, playSound);
+    }
 
-        sceneGameManager.RpcOnTimeCounterUpdate(counter, color, playSound);
+    public static GameLoop Singleton()
+    {
+        return FindObjectOfType<GameLoop>(true);
     }
 }
 

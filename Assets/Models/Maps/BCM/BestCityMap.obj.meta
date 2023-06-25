@@ -68,12 +68,12 @@ ModelImporter:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Metal
-    second: {fileID: 2100000, guid: d2e5917b6aae7dc489ca255743918fb7, type: 2}
+    second: {fileID: 2100000, guid: a1fbb921a051773408f6089c7e7fbccd, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: Metal.001
-    second: {fileID: 2100000, guid: a1fbb921a051773408f6089c7e7fbccd, type: 2}
+    second: {fileID: 2100000, guid: d2e5917b6aae7dc489ca255743918fb7, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -144,11 +144,6 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: bashna2
     second: {fileID: 2100000, guid: 39ab2d9df90428a4094c2ff8ed08ba7d, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: defaultMat
-    second: {fileID: 2100000, guid: d7b97b23d92d498488925cb1922b186a, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -192,7 +187,7 @@ ModelImporter:
     nodeNameCollisionStrategy: 1
     fileIdsGeneration: 2
     swapUVChannels: 0
-    generateSecondaryUV: 0
+    generateSecondaryUV: 1
     useFileUnits: 1
     keepQuads: 0
     weldVertices: 1
@@ -205,11 +200,11 @@ ModelImporter:
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
-    secondaryUVAreaDistortion: 15.000001
+    secondaryUVAreaDistortion: 15
     secondaryUVHardAngle: 88
     secondaryUVMarginMethod: 1
-    secondaryUVMinLightmapResolution: 40
-    secondaryUVMinObjectScale: 1
+    secondaryUVMinLightmapResolution: 64
+    secondaryUVMinObjectScale: 0.274
     secondaryUVPackMargin: 4
     useFileScale: 1
   tangentSpace:
