@@ -29,11 +29,8 @@ public class Transition : MonoBehaviour
     {
         if (TryGetComponent<RectTransform>(out _transform))
         {
-            _transform.anchorMin = new Vector2(0, 0);
-            _transform.anchorMax = new Vector2(1, 1);
-
-            _transform.offsetMin = new Vector2(0, 0);
-            _transform.offsetMax = new Vector2(0, 0);
+            (_transform.anchorMin, _transform.anchorMax) = (new Vector2(0, 0), new Vector2(1, 1));
+            (_transform.offsetMin, _transform.offsetMax) = (new Vector2(0, 0), new Vector2(0, 0));
         }
 
         TryGetComponent<Graphic>(out _graphic);

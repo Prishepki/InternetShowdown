@@ -117,9 +117,9 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 2
-      minScalar: 5
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -225,7 +225,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 2
       minColor: {r: 1, g: 0.40135294, b: 0, a: 1}
-      maxColor: {r: 0.6320754, g: 0.45878404, b: 0.36672303, a: 1}
+      maxColor: {r: 1, g: 0.27761838, b: 0.23921567, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 0.79383516, b: 0, a: 1}
@@ -1425,7 +1425,7 @@ ParticleSystem:
     serializedVersion: 2
     enabled: 1
     mode: 1
-    timeMode: 0
+    timeMode: 1
     fps: 30
     frameOverTime:
       serializedVersion: 2
@@ -1533,7 +1533,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    speedRange: {x: 0, y: 1}
+    speedRange: {x: 40, y: 120}
     tilesX: 1
     tilesY: 1
     animationType: 0
@@ -1542,7 +1542,10 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: c7932b616307d0946b508aebd7cdc447, type: 3}
+    - sprite: {fileID: -1442099973, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: -1019793266, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: 852477819, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: -2012966212, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -2740,7 +2743,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
   NoiseModule:
-    enabled: 0
+    enabled: 1
     strength:
       serializedVersion: 2
       minMaxState: 0
@@ -2910,7 +2913,7 @@ ParticleSystem:
     scrollSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4062,7 +4065,7 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 0.5329268, b: 0, a: 0.36078432}
+        key0: {r: 1, g: 0.4598413, b: 0.25, a: 0.36078432}
         key1: {r: 0, g: 0, b: 0, a: 0}
         key2: {r: 0, g: 0, b: 0, a: 1}
         key3: {r: 0, g: 0, b: 0, a: 0}

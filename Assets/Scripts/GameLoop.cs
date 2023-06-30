@@ -64,25 +64,17 @@ public class GameLoop : NetworkBehaviour
     public void AddMapVote(string mapName)
     {
         if (_votes.ContainsKey(mapName))
-        {
             _votes[mapName]++;
-        }
         else
-        {
             _votes.Add(mapName, 1);
-        }
     }
 
     private void Awake()
     {
         if (FindObjectsOfType<GameLoop>(true).Length > 1) // в случае если на сцене уже есть геймлуп он удалит себя нахуй чтоб не было приколов
-        {
             Destroy(gameObject);
-        }
         else
-        {
             DontDestroyOnLoad(transform);
-        }
     }
 
     [ServerCallback]
@@ -95,10 +87,7 @@ public class GameLoop : NetworkBehaviour
     private void Update()
     {
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            _isSkipNeeded = true;
-        }
+        if (Input.GetKeyDown(KeyCode.Backspace)) _isSkipNeeded = true;
 #endif
     }
 
@@ -179,13 +168,9 @@ public class GameLoop : NetworkBehaviour
                 _isSkipNeeded = false;
 
                 if (IsVotingTime)
-                {
                     CancelVoiting();
-                }
                 else
-                {
                     StopCoroutine(nameof(HandleMapVoting));
-                }
 
                 break;
             }
@@ -206,10 +191,7 @@ public class GameLoop : NetworkBehaviour
                 }
             }
 
-            if (_timeCounter == prepareFrom)
-            {
-                _sceneGameManager.RpcPrepareText(prepareFrom);
-            }
+            if (_timeCounter == prepareFrom) _sceneGameManager.RpcPrepareText(prepareFrom);
 
             OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
             _timeCounter--;
@@ -243,10 +225,7 @@ public class GameLoop : NetworkBehaviour
             }
 
             _sceneGameManager.RpcSwitchUI(CurrentUIState);
-            if (_currentGamesPlayed > 0)
-            {
-                _sceneGameManager.RpcTriggerResultsWindow();
-            }
+            if (_currentGamesPlayed > 0) _sceneGameManager.RpcTriggerResultsWindow();
 
             StartCoroutine(nameof(HandleMapVoting));
 
@@ -335,15 +314,12 @@ public class GameLoop : NetworkBehaviour
         itemSpawner.DestroyAll();
 
         ProjectileBase[] allProjectiles = FindObjectsOfType<ProjectileBase>();
-        foreach (var projectile in allProjectiles)
-        {
-            NetworkServer.Destroy(projectile.gameObject);
-        }
+        foreach (var projectile in allProjectiles) { NetworkServer.Destroy(projectile.gameObject); }
 
         _sceneGameManager.RpcHideDeathScreen();
         _sceneGameManager.RpcRemoveMutations();
         _sceneGameManager.RpcAllowMovement(false);
-        _sceneGameManager.OnMatchEnd();
+        _sceneGameManager.RpcOnMatchEnd();
     }
 
     private void TimeToBreak()

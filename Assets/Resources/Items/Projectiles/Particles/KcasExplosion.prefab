@@ -117,9 +117,9 @@ ParticleSystem:
     enabled: 1
     startLifetime:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 2
-      minScalar: 5
+      minScalar: 1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -979,7 +979,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 200
+        scalar: 300
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -1425,7 +1425,7 @@ ParticleSystem:
     serializedVersion: 2
     enabled: 1
     mode: 1
-    timeMode: 0
+    timeMode: 1
     fps: 30
     frameOverTime:
       serializedVersion: 2
@@ -1533,7 +1533,7 @@ ParticleSystem:
         m_PreInfinity: 2
         m_PostInfinity: 2
         m_RotationOrder: 4
-    speedRange: {x: 0, y: 1}
+    speedRange: {x: 5, y: 50}
     tilesX: 1
     tilesY: 1
     animationType: 0
@@ -1542,7 +1542,10 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: c7932b616307d0946b508aebd7cdc447, type: 3}
+    - sprite: {fileID: -1442099973, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: -1019793266, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: 852477819, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
+    - sprite: {fileID: -2012966212, guid: bea573cdd5d39cc4ea5bb5aa3714ce67, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -2095,13 +2098,13 @@ ParticleSystem:
           inWeight: 0
           outWeight: 0.22221532
         - serializedVersion: 3
-          time: 0.42947388
-          value: 0.048789978
-          inSlope: -0.39172813
-          outSlope: -0.39172813
+          time: 0.43196106
+          value: 0.007118225
+          inSlope: 2.3851767
+          outSlope: 2.3851767
           tangentMode: 0
           weightedMode: 0
-          inWeight: 0.24156941
+          inWeight: 0.13981889
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -2744,7 +2747,7 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 5
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -2910,7 +2913,7 @@ ParticleSystem:
     scrollSpeed:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2

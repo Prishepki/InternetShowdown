@@ -79,6 +79,12 @@ public class ProjectileBase : NetworkBehaviour
 
     private void OnValidate()
     {
+        GetAndSetComponents();
+        CheckEffects();
+    }
+
+    private void GetAndSetComponents()
+    {
         if (TryGetComponent<Rigidbody>(out _rb))
         {
             _rb.interpolation = RigidbodyInterpolation.Interpolate;
@@ -90,34 +96,32 @@ public class ProjectileBase : NetworkBehaviour
             _nrb.syncDirection = SyncDirection.ClientToServer;
             _nrb.clientAuthority = true;
         }
+    }
 
+    private void CheckEffects()
+    {
         CheckEffectForNetworkIdentity(ref _spawnEffect);
-
         CheckEffectForNetworkIdentity(ref _collideEffect);
-
         CheckEffectForNetworkIdentity(ref _destroyEffect);
     }
 
     private void CheckEffectForNetworkIdentity(ref GameObject target)
     {
-        if (target != null)
+        if (target && !target.GetComponent<NetworkIdentity>())
         {
-            if (target.GetComponent<NetworkIdentity>() == null)
-            {
-                Debug.LogWarning($"{target.name} has no NetworkIdentity attached");
-                target = null;
-            }
+            Debug.LogWarning($"{target.name} has no NetworkIdentity attached");
+            target = null;
         }
     }
 
-    public void Initialize(Vector3 direction)
+    private void Start()
     {
-        OnInit(); // вызов калбека для кастомного повидения
-
         _sceneGameManager = SceneGameManager.Singleton();
         _soundSystem = SoundSystem.Singleton();
 
-        _targetDirection = direction;
+        OnInit(); // вызов калбека для кастомного повидения
+
+        _targetDirection = transform.forward;
         gameObject.layer = 10;
 
         ApplyForce();
@@ -129,30 +133,14 @@ public class ProjectileBase : NetworkBehaviour
             Invoke(nameof(DestroySelf), _destroyTime); // инвок вызывает метод через время
         }
 
-        if (_soundEffects.HasFlag(EffectModes.OnSpawn))
-        {
-            PlayProjectileSound(_spawnSound);
-        }
-
-        if (_particleEffects.HasFlag(EffectModes.OnSpawn))
-        {
-            SpawnProjectileEffect(_spawnEffect);
-        }
-
-        if (_shakeEffects.HasFlag(EffectModes.OnSpawn))
-        {
-            ShakeScreen(_spawnShake);
-        }
+        CheckForEffects(EffectModes.OnSpawn, _spawnSound, _spawnEffect, _spawnShake);
     }
 
     private void FixedUpdate()
     {
         OnTime(); // вызов калбека для кастомного повидения
 
-        if (_continiousForceApply)
-        {
-            ApplyForce();
-        }
+        if (_continiousForceApply) ApplyForce();
     }
 
     private void OnCollisionEnter(Collision other)
@@ -161,26 +149,9 @@ public class ProjectileBase : NetworkBehaviour
 
         OnCollide(other.gameObject.layer); // вызов калбека для кастомного повидения
 
-        if (_soundEffects.HasFlag(EffectModes.OnCollide))
-        {
-            PlayProjectileSound(_collideSound);
-        }
-
-        if (_particleEffects.HasFlag(EffectModes.OnCollide))
-        {
-            SpawnProjectileEffect(_collideEffect);
-        }
-
-        if (_shakeEffects.HasFlag(EffectModes.OnCollide))
-        {
-            ShakeScreen(_collideShake);
-        }
-
         //Проверки и уничтожение
-        if (_destroyMode.HasFlag(HitDestroy.OnCollide))
-        {
-            DestroySelf();
-        }
+        CheckForEffects(EffectModes.OnCollide, _collideSound, _collideEffect, _collideShake);
+        CheckForDestroy(HitDestroy.OnCollide);
 
         if (other.gameObject.layer == 11)
         {
@@ -193,10 +164,7 @@ public class ProjectileBase : NetworkBehaviour
         {
             OnHitMap(); // вызов калбека для кастомного повидения
 
-            if (_destroyMode.HasFlag(HitDestroy.OnMap))
-            {
-                DestroySelf();
-            }
+            CheckForDestroy(HitDestroy.OnMap);
         }
     }
 
@@ -219,26 +187,6 @@ public class ProjectileBase : NetworkBehaviour
         }
     }
 
-    private void DestroySelf()
-    {
-        if (_soundEffects.HasFlag(EffectModes.OnDestroy))
-        {
-            PlayProjectileSound(_destroySound);
-        }
-
-        if (_particleEffects.HasFlag(EffectModes.OnDestroy))
-        {
-            SpawnProjectileEffect(_destroyEffect);
-        }
-
-        if (_shakeEffects.HasFlag(EffectModes.OnDestroy))
-        {
-            ShakeScreen(_destroyShake);
-        }
-
-        CmdDestroySelf();
-    }
-
     private void HitPlayer(GameObject player)
     {
         NetworkPlayer toHit;
@@ -252,10 +200,25 @@ public class ProjectileBase : NetworkBehaviour
         PlayerCurrentStats.Singleton.Damage = _projectileDamage;
         toHit.CmdHitPlayer(NetworkClient.localPlayer, _projectileDamage + PlayerMutationStats.Singleton.Damage);
 
-        if (_destroyMode.HasFlag(HitDestroy.OnPlayer))
-        {
-            DestroySelf();
-        }
+        CheckForDestroy(HitDestroy.OnPlayer);
+    }
+
+    private void DestroySelf()
+    {
+        CheckForEffects(EffectModes.OnDestroy, _destroySound, _destroyEffect, _destroyShake);
+        CmdDestroySelf();
+    }
+
+    private void CheckForDestroy(HitDestroy hitDestroy)
+    {
+        if (_destroyMode.HasFlag(hitDestroy)) DestroySelf();
+    }
+
+    private void CheckForEffects(EffectModes effectValue, SoundEffect sound, GameObject effect, ShakeEffect shake)
+    {
+        if (_soundEffects.HasFlag(effectValue)) PlayProjectileSound(sound);
+        if (_particleEffects.HasFlag(effectValue)) SpawnProjectileEffect(effect);
+        if (_shakeEffects.HasFlag(effectValue)) ShakeScreen(shake);
     }
 
     private void PlayProjectileSound(SoundEffect sound)

@@ -27,8 +27,6 @@ public class Leaderboard : MonoBehaviour, IGameCanvas
 
             yield return new WaitForSeconds(5f);
         }
-
-        ClearLeaderboardUI();
     }
 
     public void UpdateLeaderboard()
@@ -49,11 +47,9 @@ public class Leaderboard : MonoBehaviour, IGameCanvas
         });
 
         int place = 1;
-
         foreach (NetworkPlayer connPlayer in allPlayers)
         {
             connPlayer.Place = place;
-
             newLeaderboardValue.Add((connPlayer.Nickname, connPlayer.Score, connPlayer.Activity));
 
             place++;
@@ -70,13 +66,13 @@ public class Leaderboard : MonoBehaviour, IGameCanvas
 
         int clampedLeaderboardSize = Mathf.Clamp(_leaderboard.Count, 0, 6);
 
-        for (int place = 0; place < clampedLeaderboardSize; place++)
+        for (int idx = 0; idx < clampedLeaderboardSize; idx++)
         {
+            int place = idx + 1;
+
             Place placeComp = Instantiate(_placePrefab.gameObject, _placeContainer).GetComponent<Place>();
 
-            placeComp.Number.text = $"{place + 1})";
-
-            switch (place + 1)
+            switch (place)
             {
                 default:
                     placeComp.Number.color = Color.white;
@@ -95,8 +91,9 @@ public class Leaderboard : MonoBehaviour, IGameCanvas
                     break;
             }
 
-            placeComp.Nickname.text = _leaderboard[place].nickname;
-            placeComp.Score.text = _leaderboard[place].score.ToString();
+            placeComp.Number.text = place.ToString();
+            placeComp.Nickname.text = _leaderboard[idx].nickname;
+            placeComp.Score.text = _leaderboard[idx].score.ToString();
         }
     }
 
@@ -111,5 +108,7 @@ public class Leaderboard : MonoBehaviour, IGameCanvas
     public void OnDisconnect()
     {
         StopCoroutine(nameof(LeaderboardTickLoop));
+
+        ClearLeaderboardUI();
     }
 }

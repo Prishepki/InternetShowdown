@@ -9,10 +9,10 @@ public class RadiusDamage : NetworkBehaviour
 
     public override void OnStartAuthority()
     {
-        StartCoroutine(CastRadiusDamage());
+        CastRadiusDamage();
     }
 
-    private IEnumerator CastRadiusDamage()
+    private void CastRadiusDamage()
     {
         Collider[] all = Physics.OverlapSphere(transform.position, _radius);
 
@@ -20,10 +20,8 @@ public class RadiusDamage : NetworkBehaviour
         {
             NetworkPlayer outPlayer;
 
-            if (obj != null && obj.TryGetComponent<NetworkPlayer>(out outPlayer))
+            if (obj.TryGetComponent<NetworkPlayer>(out outPlayer))
             {
-                yield return new WaitUntil(() => outPlayer != null);
-
                 PlayerCurrentStats.Singleton.Damage = _damage;
                 outPlayer.CmdHitPlayer(NetworkClient.localPlayer, _damage + PlayerMutationStats.Singleton.Damage);
             }
@@ -32,8 +30,7 @@ public class RadiusDamage : NetworkBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.green;
-
+        Gizmos.color = ColorISH.Yellow;
         Gizmos.DrawWireSphere(transform.position, _radius);
     }
 }

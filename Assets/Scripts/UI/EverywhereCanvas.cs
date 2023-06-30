@@ -24,17 +24,17 @@ public class EverywhereCanvas : MonoBehaviour, IGameCanvas // юи которо�
     [SerializeField] private CanvasGroup _inGame;
 
     [Header("Other")]
-    public TMP_Text Timer;
 
-    public TMP_Text OthersNickname;
+    [SerializeField] private TMP_Text OthersNickname;
+    [field: SerializeField] public TMP_Text Timer { get; private set; }
 
-    public Slider UseTimer;
-    public Image UseTimerFill;
+    [SerializeField] private Slider UseTimer;
+    [SerializeField] private Image UseTimerFill;
 
-    public GameObject _playerDebugPanel;
-    public TMP_Text[] _playerDebugStats;
+    [SerializeField] private GameObject _playerDebugPanel;
+    [SerializeField] private TMP_Text[] _playerDebugStats;
 
-    public CanvasGroup _killLog;
+    [SerializeField] private CanvasGroup _killLog;
 
     [Header("Preparing")]
     [SerializeField] private TMP_Text _TTOText;
@@ -58,8 +58,8 @@ public class EverywhereCanvas : MonoBehaviour, IGameCanvas // юи которо�
     [SerializeField] private List<AudioClip> _keyboardTyping = new List<AudioClip>();
 
     [Header("Health Slider")]
-    public Slider Health;
-    public Image HealthFill;
+    [SerializeField] private Slider Health;
+    [SerializeField] private Image HealthFill;
 
     [Space(9)]
 
@@ -179,8 +179,6 @@ public class EverywhereCanvas : MonoBehaviour, IGameCanvas // юи которо�
     private IEnumerator OnDisconnectPressed()
     {
         yield return new WaitUntil(() => !NetworkManager.singleton.isNetworkActive);
-
-        _transition.AwakeTransition(TransitionMode.Out);
 
         _isExitingServer = false;
     }

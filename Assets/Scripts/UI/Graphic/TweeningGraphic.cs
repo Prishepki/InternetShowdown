@@ -49,31 +49,29 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private TweenerCore<Vector3, Vector3, VectorOptions> _sizeTween;
     private TweenerCore<Color, Color, ColorOptions> _colorTween;
 
-    private bool _isTweenActive;
+    private bool _isTweenActive
+    {
+        get
+        {
+            if (_sizeTween == null || _colorTween == null)
+                return false;
 
-    private bool _isHighlighted;
+            return _sizeTween.active && _colorTween.active;
+        }
+    }
 
-    private bool _isSelected;
+    public bool IsHighlighted { get; private set; }
+    public bool IsSelected { get; private set; }
 
     private void OnValidate()
     {
-        if (_clickTween != null && _enterTween != null && _exitTween != null)
-        {
-            _clickTween.OnValidate();
-            _enterTween.OnValidate();
-            _exitTween.OnValidate();
-        }
+        _clickTween?.OnValidate();
+        _enterTween?.OnValidate();
+        _exitTween?.OnValidate();
 
         TryGetComponent<MaskableGraphic>(out ColorTarget);
 
-        if (_resizeParent)
-        {
-            SizeTarget = transform.parent;
-        }
-        else
-        {
-            SizeTarget = transform;
-        }
+        SizeTarget = _resizeParent ? transform.parent : transform;
     }
 
     private void Start()
@@ -87,21 +85,15 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
         SetStats(_clickTween);
 
-        if (_isHighlighted)
-        {
-            DoTween(_enterTween);
-        }
-        else
-        {
-            DoTween(_exitTween);
-        }
+        GraphicTween targetTween = IsHighlighted ? _enterTween : _exitTween;
+        DoTween(targetTween);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (!_interactable) return;
 
-        _isHighlighted = true;
+        IsHighlighted = true;
         DoTween(_enterTween);
     }
 
@@ -109,13 +101,13 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
     {
         if (!_interactable) return;
 
-        _isHighlighted = false;
+        IsHighlighted = false;
         DoTween(_exitTween);
     }
 
     private void DoTween(GraphicTween tween)
     {
-        if (_isSelected || !gameObject.activeInHierarchy) return;
+        if (IsSelected || !gameObject.activeInHierarchy) return;
 
         StopCoroutine(nameof(TweenCoroutine));
         StartCoroutine(nameof(TweenCoroutine), tween);
@@ -130,15 +122,10 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private void MakeTween(GraphicTween tween)
     {
-        _isTweenActive = true;
-
         CompleteTweens();
 
         _sizeTween = SizeTarget.DOScale(tween.TweenSize, tween.TweenDuration).SetEase(tween.TweenEase);
         _colorTween = ColorTarget.DOColor(tween.TweenColor, tween.TweenDuration).SetEase(tween.TweenEase);
-
-        _sizeTween.onComplete = OnTweenCompleted;
-        _colorTween.onComplete = OnTweenCompleted;
     }
 
     private void CompleteTweens()
@@ -152,15 +139,10 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void SetStats(GraphicTween stats)
     {
-        if (_isSelected) return;
+        if (IsSelected) return;
 
         ColorTarget.color = stats.TweenColor;
         SizeTarget.localScale = Vector3.one * stats.TweenSize;
-    }
-
-    private void OnTweenCompleted()
-    {
-        _isTweenActive = false;
     }
 
     public void OnSelect(BaseEventData eventData)
@@ -169,14 +151,14 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
         DoTween(_enterTween);
 
-        _isSelected = true;
+        IsSelected = true;
     }
 
     public void OnDeselect(BaseEventData eventData)
     {
         if (!_selectable) return;
 
-        _isSelected = false;
+        IsSelected = false;
 
         DoTween(_exitTween);
     }

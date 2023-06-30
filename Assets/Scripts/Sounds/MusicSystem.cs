@@ -6,16 +6,11 @@ public class MusicSystem : MonoBehaviour
     [SerializeField] private List<AudioClip> _lobbySoundtracks;
     [SerializeField] private List<AudioClip> _matchSoundtracks;
 
-    public static List<ActiveMusic> ActiveSoundtracks { get; private set; } = new List<ActiveMusic>();
+    public static ActiveMusic MainSoundtrack { get; private set; }
 
     public static MusicSystem Singleton()
     {
         return FindObjectOfType<MusicSystem>(true);
-    }
-
-    private void Awake()
-    {
-        ActiveSoundtracks.Clear();
     }
 
     public static ActiveMusic StartMusic(MusicGameStates state, float offset = 0f)
@@ -55,16 +50,9 @@ public class MusicSystem : MonoBehaviour
             Source = source
         };
 
-        ActiveSoundtracks.Add(newInstance);
+        MainSoundtrack = newInstance;
 
         return newInstance;
-    }
-
-    public static void RemoveMusicElement(ActiveMusic target)
-    {
-        if (!ActiveSoundtracks.Contains(target)) return;
-
-        ActiveSoundtracks.Remove(target);
     }
 }
 
@@ -72,11 +60,6 @@ public class ActiveMusic
 {
     public AudioClip Current;
     public AudioSource Source;
-
-    ~ActiveMusic()
-    {
-        MusicSystem.RemoveMusicElement(this);
-    }
 }
 
 public enum MusicGameStates

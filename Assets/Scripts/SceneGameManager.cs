@@ -17,10 +17,12 @@ public class SceneGameManager : NetworkBehaviour
     [SerializeField] private AudioClip _votingEnd;
 
     private EverywhereCanvas _everywhereCanvas;
+    private PauseMenu _pauseMenu;
 
     private void Awake()
     {
         _everywhereCanvas = EverywhereCanvas.Singleton();
+        _pauseMenu = EverywhereCanvas.PauseMenu();
     }
 
     [ClientRpc] // методы с этим атрибутом будут вызываться на всех клиентах (работает только тогда если вызывается с класса который наследует NetworkBehaviour)
@@ -120,7 +122,7 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcTriggerResultsWindow()
     {
-        EverywhereCanvas.Results().SetWindow(true);
+        EverywhereCanvas.Results().SetWindowDynamic(true);
     }
 
     [Command(requiresAuthority = false)]
@@ -164,7 +166,7 @@ public class SceneGameManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void OnMatchEnd()
+    public void RpcOnMatchEnd()
     {
         NetworkPlayer player = NetworkClient.localPlayer.GetComponent<NetworkPlayer>();
 

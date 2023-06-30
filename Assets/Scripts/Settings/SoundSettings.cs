@@ -4,6 +4,11 @@ using UnityEngine.UI;
 
 public class SoundSettings : MonoBehaviour
 {
+    private const string MASTER_NAME = "Master";
+    private const string SFX_NAME = "SFX";
+    private const string UI_NAME = "UI";
+    private const string MUSIC_NAME = "Music";
+
     [SerializeField] private AudioMixer _targetMixer;
 
     [SerializeField] private Slider _masterSlider;
@@ -21,42 +26,42 @@ public class SoundSettings : MonoBehaviour
 
     public void LoadMaster()
     {
-        _masterSlider.value = LoadMixerGroup("Master");
+        _masterSlider.value = LoadMixerGroup(MASTER_NAME);
     }
 
     public void LoadSFX()
     {
-        _sfxSlider.value = LoadMixerGroup("SFX");
+        _sfxSlider.value = LoadMixerGroup(SFX_NAME);
     }
 
     public void LoadUI()
     {
-        _uiSlider.value = LoadMixerGroup("UI");
+        _uiSlider.value = LoadMixerGroup(UI_NAME);
     }
 
     public void LoadMusic()
     {
-        _musicSlider.value = LoadMixerGroup("Music");
+        _musicSlider.value = LoadMixerGroup(MUSIC_NAME);
     }
 
     public void SetMaster(float value)
     {
-        SetMixerGroup("Master", value);
+        SetMixerGroup(MASTER_NAME, value);
     }
 
     public void SetSFX(float value)
     {
-        SetMixerGroup("SFX", value);
+        SetMixerGroup(SFX_NAME, value);
     }
 
     public void SetUI(float value)
     {
-        SetMixerGroup("UI", value);
+        SetMixerGroup(UI_NAME, value);
     }
 
     public void SetMusic(float value)
     {
-        SetMixerGroup("Music", value);
+        SetMixerGroup(MUSIC_NAME, value);
     }
 
     private void SetMixerGroup(string name, float value)

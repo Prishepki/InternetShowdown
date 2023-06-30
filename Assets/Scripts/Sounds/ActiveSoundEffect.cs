@@ -3,20 +3,20 @@ using UnityEngine;
 public class ActiveSoundEffect : MonoBehaviour
 {
     public float RemoveTime;
-    public bool Locked;
-    private Transform target;
+    public bool Locked { get; private set; }
+    private Transform _target;
 
     public void LockSound(Transform t)
     {
-        target = t;
+        _target = t;
         Locked = true;
     }
 
     private void Update()
     {
-        if (Locked && target != null)
+        if (Locked && _target != null)
         {
-            transform.position = target.position;
+            transform.position = _target.position;
         }
     }
 

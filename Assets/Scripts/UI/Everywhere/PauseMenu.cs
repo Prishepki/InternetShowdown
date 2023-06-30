@@ -35,11 +35,16 @@ public class PauseMenu : MonoBehaviour, IGameCanvas
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Pause(!PauseMenuOpened);
+            PauseDynamic(!PauseMenuOpened);
         }
     }
 
-    public void Pause(bool enable)
+    public void PauseDynamic(bool enable)
+    {
+        Pause(enable, !_everywhereCanvas.IsVotingActive && !_resultsWindow.IsActive);
+    }
+
+    public void Pause(bool enable, bool modifyCursor = true)
     {
         if (!NetworkManager.singleton.isNetworkActive) return;
 
@@ -51,24 +56,21 @@ public class PauseMenu : MonoBehaviour, IGameCanvas
 
         if (enable)
         {
-            Cursor.lockState = CursorLockMode.None;
+            if (modifyCursor) Cursor.lockState = CursorLockMode.None;
 
             _pauseMenuTween = _pauseMenu.DOFade(1, 0.3f).SetEase(Ease.InOutCubic);
         }
         else
         {
+            if (modifyCursor) Cursor.lockState = CursorLockMode.Locked;
+
             _groupsManager.SetGroup(_settingsWindow, false);
-
             _pauseMenuTween = _pauseMenu.DOFade(0, 0.3f).SetEase(Ease.InOutCubic);
-
-            if (_everywhereCanvas.IsVotingActive || _resultsWindow.IsActive) return;
-
-            Cursor.lockState = CursorLockMode.Locked;
         }
     }
 
     public void OnDisconnect()
     {
-        Pause(false);
+        Pause(false, false);
     }
 }

@@ -146,7 +146,9 @@ MonoBehaviour:
   PlayerMoveCamera: {fileID: 0}
   AllowMovement: 0
   Nickname: 
-  Score: 0
+  _score: 0
+  _activity: 0
+  <Place>k__BackingField: 0
   Health: 0
 --- !u!114 &6314750545462305294
 MonoBehaviour:

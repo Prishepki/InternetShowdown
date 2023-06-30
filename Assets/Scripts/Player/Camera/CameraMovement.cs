@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CameraMovement : MonoBehaviour
 {
-    private const float _shakeAdder = 0.5f;
+    private const float SHAKE_INCREASE = 0.5f;
 
     [Header("Sensitivity")]
     [Range(0.1f, 4f)] private float _sensitivityX = 2f;
@@ -92,13 +92,13 @@ public class CameraMovement : MonoBehaviour
     public void Shake(float duration = 0.2f, float strength = 0.25f)
     {
         transform.DOComplete();
-        transform.DOShakePosition(duration, strength + _shakeAdder);
+        transform.DOShakePosition(duration, strength + SHAKE_INCREASE);
     }
 
     public void Shake(ShakeEffect effect)
     {
         transform.DOComplete();
-        transform.DOShakePosition(effect.Duration, effect.Strength + _shakeAdder);
+        transform.DOShakePosition(effect.Duration, effect.Strength + SHAKE_INCREASE);
     }
 }
 

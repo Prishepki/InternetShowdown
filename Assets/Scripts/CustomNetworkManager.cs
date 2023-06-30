@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CustomNetworkManager : NetworkManager
 {
     [Header("Custom")]
     [SerializeField] private EverywhereCanvas _everywhereCanvas;
     [SerializeField] private Transition _transition;
+
+    private bool _sceneChanged;
 
     public override void Awake()
     {
@@ -17,10 +20,7 @@ public class CustomNetworkManager : NetworkManager
         List<GameObject> projectiles = Resources.LoadAll<GameObject>("Items/Projectiles").ToList();
         List<GameObject> netPrefs = Resources.LoadAll<GameObject>("NetworkedPrefabs").ToList();
 
-        foreach (var proj in projectiles)
-        {
-            netPrefs.Add(proj);
-        }
+        netPrefs.AddRange(projectiles);
 
         spawnPrefabs = netPrefs;
 
@@ -28,21 +28,37 @@ public class CustomNetworkManager : NetworkManager
         _transition = Transition.Singleton();
 
         _everywhereCanvas.EnableCanvasElements(false);
+
+        SceneManager.activeSceneChanged += (Scene a, Scene b) => _sceneChanged = true;
     }
 
     public override void OnClientDisconnect()
     {
         base.OnClientDisconnect();
 
+        StartCoroutine(OnDisconnect());
+    }
+
+    private IEnumerator OnDisconnect()
+    {
         IGameCanvas[] gameCanvases = FindObjectsOfType<MonoBehaviour>(true).OfType<IGameCanvas>().ToArray();
         foreach (var canvas in gameCanvases)
         {
             canvas.OnDisconnect();
         }
 
-        Cursor.lockState = CursorLockMode.None;
-
         _everywhereCanvas.EnableCanvasElements(false);
+
+        yield return new WaitUntil(() => _sceneChanged);
+        _sceneChanged = false;
+
+        OnEnterMenu();
+    }
+
+    private void OnEnterMenu()
+    {
+        _transition.AwakeTransition(TransitionMode.Out);
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public override void OnClientConnect()

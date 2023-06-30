@@ -10,7 +10,7 @@ public class ItemsReader : NetworkBehaviour
     [SerializeField] private Transform _itemHolder;
     private List<UsableItem> _registeredItems = new List<UsableItem>();
 
-    [HideInInspector, SyncVar] public bool HasItem;
+    public bool HasItem { get => _currentItem != null; }
 
     private UsableItem _currentItem;
 
@@ -241,15 +241,15 @@ public class ItemsReader : NetworkBehaviour
 
     private void SpawnProjectile(ProjectileBase proj)
     {
-        Vector3 forward = _player.PlayerCamera.transform.forward;
+        Transform cameraTransform = _player.PlayerCamera.transform;
 
-        CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position + forward, forward, connectionToClient);
+        CmdSpawnProjectile(_currentItem.Projectiles.IndexOf(proj), transform.position + cameraTransform.forward, cameraTransform.rotation, connectionToClient);
     }
 
     #region NETWORK
 
     [Command]
-    private void CmdSpawnProjectile(int idx, Vector3 pos, Vector3 dir, NetworkConnectionToClient connection)
+    private void CmdSpawnProjectile(int idx, Vector3 pos, Quaternion dir, NetworkConnectionToClient connection)
     {
         ItemsReader client = connection.identity.GetComponent<ItemsReader>();
 
@@ -259,44 +259,35 @@ public class ItemsReader : NetworkBehaviour
             return;
         }
 
-        GameObject newProjectile = Instantiate(client._currentItem.Projectiles[idx].gameObject, pos, Quaternion.identity);
+        GameObject newProjectile = Instantiate(client._currentItem.Projectiles[idx].gameObject, pos, dir);
         NetworkServer.Spawn(newProjectile, connection);
 
-        RpcOnProjectileSpawned(newProjectile, dir);
+        RpcOnProjectileSpawned(newProjectile);
     }
 
     [ClientRpc]
-    private void RpcOnProjectileSpawned(GameObject proj, Vector3 dir)
-    {
-        if (proj != null)
-        {
-            proj.GetComponent<ProjectileBase>().Initialize(dir);
-        }
-    }
+    private void RpcOnProjectileSpawned(GameObject proj) { }
 
     private void SetCurrentItem(UsableItem target)
     {
         _registeredItems.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
 
         _currentItem = target;
-        HasItem = target;
 
         if (target == null)
         {
-            CmdSetCurrentItem(null, false);
+            CmdSetCurrentItem(null);
         }
         else
         {
-            CmdSetCurrentItem(_registeredItems.IndexOf(target), true);
+            CmdSetCurrentItem(_registeredItems.IndexOf(target));
         }
     }
 
     [Command]
-    private void CmdSetCurrentItem(int? idx, bool hasItem)
+    private void CmdSetCurrentItem(int? idx)
     {
         _registeredItems.Sort((first, second) => (byte)first.ItemRarity < (byte)second.ItemRarity ? -1 : 1);
-
-        HasItem = hasItem;
 
         if (idx == null)
         {

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using DG.Tweening;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins.Options;
-using TMPro;
 using UnityEngine;
 
 public class ResultsWindow : MonoBehaviour, IGameCanvas
@@ -24,6 +23,7 @@ public class ResultsWindow : MonoBehaviour, IGameCanvas
 
     private GroupsManager _groupsManager;
     private EverywhereCanvas _everywhereCanvas;
+    private PauseMenu _pauseMenu;
 
     private TweenerCore<float, float, FloatOptions> _fadeTween;
     private TweenerCore<Vector3, Vector3, VectorOptions> _scaleTween;
@@ -32,41 +32,55 @@ public class ResultsWindow : MonoBehaviour, IGameCanvas
     {
         _groupsManager = GroupsManager.Singleton();
         _everywhereCanvas = EverywhereCanvas.Singleton();
+        _pauseMenu = EverywhereCanvas.PauseMenu();
     }
 
-    public void SetWindow(bool active)
+    public void SetWindowDynamic(bool active)
+    {
+        SetWindow(active, !_everywhereCanvas.IsVotingActive && !_pauseMenu.PauseMenuOpened);
+    }
+
+    public void SetWindow(bool active, bool modifyCursor = true)
     {
         StopCoroutine(nameof(SetWindowCorourine));
 
-        StartCoroutine(nameof(SetWindowCorourine), active);
+        WindowParams windowParams = new WindowParams()
+        {
+            Active = active,
+            ModifyCursor = modifyCursor
+        };
+
+        StartCoroutine(nameof(SetWindowCorourine), windowParams);
     }
 
-    private IEnumerator SetWindowCorourine(bool active)
+    private class WindowParams
     {
-        IsActive = active;
+        public bool Active;
+        public bool ModifyCursor;
+    }
 
-        _groupsManager.SetGroup(_window, active, false);
+    private IEnumerator SetWindowCorourine(WindowParams windowParams)
+    {
+        IsActive = windowParams.Active;
+
+        _groupsManager.SetGroup(_window, windowParams.Active, false);
 
         _fadeTween.Complete();
         _scaleTween.Complete();
 
-        float endValue = active ? 1 : 0;
-        Ease ease = active ? Ease.OutBack : Ease.InBack;
+        float endValue = windowParams.Active ? 1 : 0;
+        Ease ease = windowParams.Active ? Ease.OutBack : Ease.InBack;
 
         _fadeTween = _window.DOFade(endValue, 0.45f);
         _scaleTween = _window.transform.DOScale(Vector2.one * endValue, 0.5f).SetEase(ease);
 
-        if (active)
+        if (windowParams.Active)
         {
-            foreach (Transform stat in _statsContainer)
-            {
-                Destroy(stat.gameObject);
-            }
+            foreach (Transform stat in _statsContainer) { Destroy(stat.gameObject); }
 
             _stats.Clear();
 
             int index = 1;
-
             foreach (var stat in ResultsStatsJobs.StatsToDisplay)
             {
                 ResultsStat newStat = Instantiate(_statPrefab, _statsContainer).GetComponent<ResultsStat>();
@@ -89,18 +103,17 @@ public class ResultsWindow : MonoBehaviour, IGameCanvas
             }
 
             SoundSystem.PlayInterfaceSound(new SoundTransporter(_windowShow), volume: 0.6f);
-            Cursor.lockState = CursorLockMode.None;
+
+            if (windowParams.ModifyCursor) { Cursor.lockState = CursorLockMode.None; }
 
             yield return new WaitForSeconds(0.5f);
 
             float pitch = 0.85f;
-
             foreach (var stat in _stats)
             {
                 stat.Group.DOFade(1, 0.15f);
 
                 SoundSystem.PlayInterfaceSound(new SoundTransporter(_statShow), pitch, pitch, 0.6f);
-
                 pitch += 0.05f;
 
                 yield return new WaitForSeconds(0.125f);
@@ -110,20 +123,14 @@ public class ResultsWindow : MonoBehaviour, IGameCanvas
         {
             SoundSystem.PlayInterfaceSound(new SoundTransporter(_windowHide), volume: 0.6f);
 
-            if (!_everywhereCanvas.IsVotingActive)
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-            }
+            if (windowParams.ModifyCursor) { Cursor.lockState = CursorLockMode.Locked; }
 
-            foreach (var stat in _stats)
-            {
-                stat.Group.alpha = 0;
-            }
+            foreach (var stat in _stats) { stat.Group.alpha = 0; }
         }
     }
 
     public void OnDisconnect()
     {
-        SetWindow(false);
+        SetWindow(false, false);
     }
 }

@@ -9,10 +9,10 @@ using UnityEngine.UI;
 
 public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 {
-    private const float _animationSpeed = 0.25f;
+    private const float ANIM_SPEED = 0.25f;
 
-    private const float _scaleNotHighlighted = 0.95f;
-    private const float _scaleHighlighted = 1.05f;
+    private const float SCALE_NH = 1f;
+    private const float SCALE_H = 1.075f;
 
     [Scene] public string ConnectedMap;
 
@@ -67,7 +67,7 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     {
         CompleteAllTweens();
 
-        transform.localScale = Vector3.one * _scaleNotHighlighted;
+        transform.localScale = Vector3.one * SCALE_NH;
         VoteButton.targetGraphic.color = Color.gray;
     }
 
@@ -83,7 +83,7 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         CompleteAllTweens();
 
-        _scaleTween = transform.DOScale(Vector3.one * _scaleHighlighted, _animationSpeed).SetEase(Ease.OutBack);
+        _scaleTween = transform.DOScale(Vector3.one * SCALE_H, ANIM_SPEED).SetEase(Ease.OutBack);
         _colorTween = VoteButton.targetGraphic.DOColor(Color.white, 0.3f).SetEase(Ease.OutCubic);
 
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_onHoverSound), volume: 0.6f);
@@ -95,7 +95,7 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
         CompleteAllTweens();
 
-        _scaleTween = transform.DOScale(Vector3.one * _scaleNotHighlighted, _animationSpeed).SetEase(Ease.OutBack);
+        _scaleTween = transform.DOScale(Vector3.one * SCALE_NH, ANIM_SPEED).SetEase(Ease.OutBack);
         _colorTween = VoteButton.targetGraphic.DOColor(Color.gray, 0.3f).SetEase(Ease.OutCubic);
     }
 }

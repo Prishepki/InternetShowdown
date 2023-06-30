@@ -623,15 +623,14 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2142293024}
+  m_Children: []
   m_Father: {fileID: 738467205}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -17.5}
-  m_SizeDelta: {x: 44, y: 165}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &90383854
 MonoBehaviour:
@@ -646,7 +645,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.21568628}
+  m_Color: {r: 0.09803922, g: 0.09803922, b: 0.09803922, a: 0.5882353}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1983,6 +1982,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hoverSound: {fileID: 8300000, guid: 6bce8d1724c5c964a9648e5bfb118ad3, type: 3}
   _clickSound: {fileID: 8300000, guid: cee220e06bca6a145830850fb5aabafc, type: 3}
+  _selectable: 0
 --- !u!1 &454338573
 GameObject:
   m_ObjectHideFlags: 0
@@ -2518,14 +2518,6 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 1574141763}
-    - target: {fileID: 8989045577573120780, guid: ffa5dc6da1b414241b6004ef1bcf4aa4, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: DisableGroup
-      objectReference: {fileID: 0}
-    - target: {fileID: 8989045577573120780, guid: ffa5dc6da1b414241b6004ef1bcf4aa4, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: GroupsManager, Assembly-CSharp
-      objectReference: {fileID: 0}
     - target: {fileID: 8989045578350465735, guid: ffa5dc6da1b414241b6004ef1bcf4aa4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -3021,6 +3013,8 @@ GameObject:
   m_Component:
   - component: {fileID: 738467205}
   - component: {fileID: 738467208}
+  - component: {fileID: 738467210}
+  - component: {fileID: 738467209}
   m_Layer: 5
   m_Name: Vote
   m_TagString: Untagged
@@ -3041,15 +3035,16 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 90383853}
+  - {fileID: 2142293024}
   - {fileID: 2047367073}
   m_Father: {fileID: 142998772}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 175}
-  m_SizeDelta: {x: 650, y: 250}
-  m_Pivot: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 25}
+  m_SizeDelta: {x: 650, y: 350}
+  m_Pivot: {x: 0.5, y: 0}
 --- !u!225 &738467208
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3062,6 +3057,40 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &738467209
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738467204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc3f2433a49a6ad42adab4994440db10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09803922, g: 0.09803922, b: 0.09803922, a: 0.78431374}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Texture: {fileID: 0}
+  _outlineWidth: 10
+  _cornerRadius: 10
+  _cornerSegments: 20
+  _mappingBias: 0.5
+  _fillCenter: 0
+--- !u!222 &738467210
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 738467204}
+  m_CullTransparentMesh: 1
 --- !u!1 &772666867
 GameObject:
   m_ObjectHideFlags: 0
@@ -3150,7 +3179,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1574141763}
         m_TargetAssemblyTypeName: GroupsManager, Assembly-CSharp
-        m_MethodName: EnableGroup
+        m_MethodName: ShowGroup
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 527185588}
@@ -3246,6 +3275,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hoverSound: {fileID: 8300000, guid: 6bce8d1724c5c964a9648e5bfb118ad3, type: 3}
   _clickSound: {fileID: 8300000, guid: cee220e06bca6a145830850fb5aabafc, type: 3}
+  _selectable: 0
 --- !u!1 &780609119
 GameObject:
   m_ObjectHideFlags: 0
@@ -5853,7 +5883,7 @@ MonoBehaviour:
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -6358,8 +6388,8 @@ MonoBehaviour:
   _transition: {fileID: 215440082}
   _inLobby: {fileID: 943002128}
   _inGame: {fileID: 1391987260}
-  Timer: {fileID: 215489541}
   OthersNickname: {fileID: 1526949384}
+  <Timer>k__BackingField: {fileID: 215489541}
   UseTimer: {fileID: 74714939}
   UseTimerFill: {fileID: 1252664623}
   _playerDebugPanel: {fileID: 454338573}
@@ -7467,7 +7497,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1574141764}
         m_TargetAssemblyTypeName: ResultsWindow, Assembly-CSharp
-        m_MethodName: SetWindow
+        m_MethodName: SetWindowDynamic
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7529,6 +7559,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hoverSound: {fileID: 8300000, guid: 6bce8d1724c5c964a9648e5bfb118ad3, type: 3}
   _clickSound: {fileID: 8300000, guid: cee220e06bca6a145830850fb5aabafc, type: 3}
+  _selectable: 0
 --- !u!1 &2047367072
 GameObject:
   m_ObjectHideFlags: 0
@@ -7561,7 +7592,7 @@ RectTransform:
   - {fileID: 1421754511}
   - {fileID: 780609120}
   m_Father: {fileID: 738467205}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -7581,12 +7612,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 10
-    m_Right: 10
-    m_Top: 35
-    m_Bottom: -25
+    m_Left: 30
+    m_Right: 30
+    m_Top: 70
+    m_Bottom: 30
   m_ChildAlignment: 4
-  m_Spacing: 30
+  m_Spacing: 50
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
@@ -7682,7 +7713,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1574141765}
         m_TargetAssemblyTypeName: PauseMenu, Assembly-CSharp
-        m_MethodName: Pause
+        m_MethodName: PauseDynamic
         m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -7778,6 +7809,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hoverSound: {fileID: 8300000, guid: 6bce8d1724c5c964a9648e5bfb118ad3, type: 3}
   _clickSound: {fileID: 8300000, guid: cee220e06bca6a145830850fb5aabafc, type: 3}
+  _selectable: 0
 --- !u!1 &2133187233
 GameObject:
   m_ObjectHideFlags: 0
@@ -7962,6 +7994,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hoverSound: {fileID: 8300000, guid: 6bce8d1724c5c964a9648e5bfb118ad3, type: 3}
   _clickSound: {fileID: 8300000, guid: cee220e06bca6a145830850fb5aabafc, type: 3}
+  _selectable: 0
 --- !u!1 &2142293023
 GameObject:
   m_ObjectHideFlags: 0
@@ -7993,12 +8026,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 90383853}
-  m_RootOrder: 0
+  m_Father: {fileID: 738467205}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -47.5}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2142293025
@@ -8048,8 +8081,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 60
-  m_fontSizeBase: 60
+  m_fontSize: 70
+  m_fontSizeBase: 70
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
