@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -31,7 +30,6 @@ public class GameLoop : NetworkBehaviour
     [SerializeField, Min(5), Tooltip("Время перед голосованием в секундах")] private int _preVotingTime = 10;
     [SerializeField, Min(5), Tooltip("Долгота голосования в секундах")] private int _votingTime = 15;
 
-    private GameState _currentGameState;
     private int _currentGamesPlayed;
 
     private Dictionary<string, int> _votes = new Dictionary<string, int>();
@@ -43,21 +41,18 @@ public class GameLoop : NetworkBehaviour
     private int _timeCounter;
     private int _repeatSeconds;
 
+    public GameState CurrentGameState { get; private set; }
     public CanvasGameStates CurrentUIState { get; private set; }
     public MusicGameStates CurrentMusicState { get; private set; }
+
     public int CurrentMusicOffset { get; private set; }
     public bool IsVotingTime { get; private set; }
 
-    private SceneGameManager _sceneGameManager;
+    public Dictionary<string, (int score, int activity)> LeftedPlayers = new Dictionary<string, (int score, int activity)>();
 
     public void SetSceneLoaded(bool loaded)
     {
         _isSceneLoaded = loaded;
-
-        if (loaded)
-        {
-            _sceneGameManager = SceneGameManager.Singleton();
-        }
     }
 
     [Server]
@@ -83,7 +78,7 @@ public class GameLoop : NetworkBehaviour
         StartCoroutine(nameof(Loop));
     }
 
-    [Server]
+    [ServerCallback]
     private void Update()
     {
 #if DEVELOPMENT_BUILD || UNITY_EDITOR
@@ -93,19 +88,19 @@ public class GameLoop : NetworkBehaviour
 
     private IEnumerator HandleMapVoting()
     {
-        _sceneGameManager.RpcSetMapVoting(false, false);
+        SceneGameManager.Singleton.RpcSetMapVoting(false, false);
 
         yield return new WaitForSeconds(_preVotingTime);
 
         IsVotingTime = true;
 
-        _sceneGameManager.RpcSetMapVoting(true, true);
-        _sceneGameManager.RpcPlayVotingSound(true);
+        SceneGameManager.Singleton.RpcSetMapVoting(true, true);
+        SceneGameManager.Singleton.RpcPlayVotingSound(true);
 
         yield return new WaitForSeconds(_votingTime);
 
-        _sceneGameManager.RpcSetMapVoting(false, true);
-        _sceneGameManager.RpcPlayVotingSound(false);
+        SceneGameManager.Singleton.RpcSetMapVoting(false, true);
+        SceneGameManager.Singleton.RpcPlayVotingSound(false);
 
         OnVotingEnd();
     }
@@ -118,7 +113,7 @@ public class GameLoop : NetworkBehaviour
         {
             Debug.LogWarning("Seems like nobody voted for map");
 
-            _sceneGameManager.RpcOnVotingEnd("Nobody voted :(");
+            SceneGameManager.Singleton.RpcOnVotingEnd("Nobody voted :(");
 
             return;
         }
@@ -130,15 +125,15 @@ public class GameLoop : NetworkBehaviour
 
         string votingEndMessage = $"{Path.GetFileNameWithoutExtension(_votedMap).ToSentence()} won!";
 
-        _sceneGameManager.RpcOnVotingEnd(votingEndMessage);
+        SceneGameManager.Singleton.RpcOnVotingEnd(votingEndMessage);
     }
 
     private void CancelVoiting()
     {
         StopCoroutine(nameof(HandleMapVoting));
 
-        _sceneGameManager.RpcSetMapVoting(false, false);
-        _sceneGameManager.RpcPlayVotingSound(false);
+        SceneGameManager.Singleton.RpcSetMapVoting(false, false);
+        SceneGameManager.Singleton.RpcPlayVotingSound(false);
 
         OnVotingEnd();
     }
@@ -191,7 +186,7 @@ public class GameLoop : NetworkBehaviour
                 }
             }
 
-            if (_timeCounter == prepareFrom) _sceneGameManager.RpcPrepareText(prepareFrom);
+            if (_timeCounter == prepareFrom) SceneGameManager.Singleton.RpcPrepareText(prepareFrom);
 
             OnTimeCounterUpdate(_timeCounter, targetColor, playSound);
             _timeCounter--;
@@ -207,6 +202,8 @@ public class GameLoop : NetworkBehaviour
     private IEnumerator Loop() // ебанутый цикл я в ахуе
     {
         WaitUntil _waitForSceneLoaded = new WaitUntil(() => _isSceneLoaded);
+
+        _currentGamesPlayed = 1;
 
         while (NetworkServer.active)
         {
@@ -224,21 +221,18 @@ public class GameLoop : NetworkBehaviour
                 _timeCounter = _breakLength;
             }
 
-            _sceneGameManager.RpcSwitchUI(CurrentUIState);
-            if (_currentGamesPlayed > 0) _sceneGameManager.RpcTriggerResultsWindow();
-
             StartCoroutine(nameof(HandleMapVoting));
 
             yield return StartCoroutine(Timer(soundFrom: 10));
 
-            _sceneGameManager.RpcTransition(TransitionMode.In);
+            SceneGameManager.Singleton.RpcTransition(TransitionMode.In);
             yield return new WaitForSeconds(Transition.Singleton().FullDurationIn);
 
             LoadMatch();
             yield return _waitForSceneLoaded;
             CurrentMusicOffset = 0;
 
-            _sceneGameManager.RpcSwitchUI(CurrentUIState);
+            SceneGameManager.Singleton.RpcSwitchUI(CurrentUIState);
 
             // ПОДГОТОВКА
             SetGameState(GameState.Prepare, CanvasGameStates.Lobby, MusicGameStates.Match, _prepareLength);
@@ -249,7 +243,7 @@ public class GameLoop : NetworkBehaviour
             StartMatch();
             SetGameState(GameState.Match, CanvasGameStates.Game, MusicGameStates.Match, _roundLength);
 
-            _sceneGameManager.RpcFadeUI(CurrentUIState);
+            SceneGameManager.Singleton.RpcFadeUI(CurrentUIState);
 
             List<ColorFrom> colorFroms = new List<ColorFrom>()
             {
@@ -267,7 +261,7 @@ public class GameLoop : NetworkBehaviour
 
             _currentGamesPlayed++;
 
-            _sceneGameManager.RpcTransition(TransitionMode.In);
+            SceneGameManager.Singleton.RpcTransition(TransitionMode.In);
             yield return new WaitForSeconds(Transition.Singleton().FullDurationIn);
 
             TimeToBreak();
@@ -276,7 +270,7 @@ public class GameLoop : NetworkBehaviour
 
     private void SetGameState(GameState state, CanvasGameStates uiState, MusicGameStates musicState, int time = 0)
     {
-        _currentGameState = state;
+        CurrentGameState = state;
         CurrentUIState = uiState;
         CurrentMusicState = musicState;
 
@@ -316,10 +310,12 @@ public class GameLoop : NetworkBehaviour
         ProjectileBase[] allProjectiles = FindObjectsOfType<ProjectileBase>();
         foreach (var projectile in allProjectiles) { NetworkServer.Destroy(projectile.gameObject); }
 
-        _sceneGameManager.RpcHideDeathScreen();
-        _sceneGameManager.RpcRemoveMutations();
-        _sceneGameManager.RpcAllowMovement(false);
-        _sceneGameManager.RpcOnMatchEnd();
+        SceneGameManager.Singleton.RpcHideDeathScreen();
+        SceneGameManager.Singleton.RpcRemoveMutations();
+        SceneGameManager.Singleton.RpcAllowMovement(false);
+        SceneGameManager.Singleton.RpcOnMatchEnd();
+
+        LeftedPlayers.Clear();
     }
 
     private void TimeToBreak()
@@ -329,9 +325,9 @@ public class GameLoop : NetworkBehaviour
 
     public void OnTimeCounterUpdate(int counter, Color color, bool playSound)
     {
-        if (_sceneGameManager == null) return;
+        if (SceneGameManager.Singleton == null) return;
 
-        _sceneGameManager.RpcOnTimeCounterUpdate(counter, color, playSound);
+        SceneGameManager.Singleton.RpcOnTimeCounterUpdate(counter, color, playSound);
     }
 
     public static GameLoop Singleton()

@@ -8,11 +8,13 @@ using UnityEngine.Audio;
 
 public class SoundSystem : NetworkBehaviour
 {
+    public static SoundSystem Singleton { get; private set; }
+
     public List<AudioClip> NetworkRegisteredSounds = new List<AudioClip>();
 
-    public static SoundSystem Singleton()
+    private void Awake()
     {
-        return FindObjectOfType<SoundSystem>(true);
+        Singleton = this;
     }
 
     public static AudioSource PlayInterfaceSound(SoundTransporter sound, float pitchMin = 1, float pitchMax = 1, float volume = 1)

@@ -145,11 +145,15 @@ MonoBehaviour:
   PlayerCamera: {fileID: 0}
   PlayerMoveCamera: {fileID: 0}
   AllowMovement: 0
-  Nickname: 
   _score: 0
   _activity: 0
   <Place>k__BackingField: 0
-  Health: 0
+  <Kills>k__BackingField: 0
+  <Hits>k__BackingField: 0
+  <Deaths>k__BackingField: 0
+  <Traumas>k__BackingField: 0
+  _nickname: 
+  _health: 0
 --- !u!114 &6314750545462305294
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256,9 +260,14 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _pickupParticle: {fileID: 1689321560167764970, guid: d46d0a62c6c416a46acfba53d877f16d, type: 3}
+  _pickupSound:
+    Sound: {fileID: 8300000, guid: 1b2b0cf763e33044c8fa84cffe13cbed, type: 3}
+    Lock: 0
+    Volume: 0.5
+    Pitch: {x: 0.85, y: 1.15}
   _luckModifier: 0
   _itemHolder: {fileID: 1427039731939656237}
-  HasItem: 0
 --- !u!1 &4215120267258587616
 GameObject:
   m_ObjectHideFlags: 0

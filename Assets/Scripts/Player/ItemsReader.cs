@@ -6,6 +6,11 @@ using UnityEngine;
 
 public class ItemsReader : NetworkBehaviour
 {
+    [Header("Objects")]
+    [SerializeField] private GameObject _pickupParticle;
+    [SerializeField] private SoundEffect _pickupSound;
+
+    [Header("Other")]
     [SerializeField] private byte _luckModifier = 0;
     [SerializeField] private Transform _itemHolder;
     private List<UsableItem> _registeredItems = new List<UsableItem>();
@@ -13,9 +18,7 @@ public class ItemsReader : NetworkBehaviour
     public bool HasItem { get => _currentItem != null; }
 
     private UsableItem _currentItem;
-
     private NetworkPlayer _player;
-    private EverywhereCanvas _everywhereCanvas;
 
     public List<Mutation> ActiveMutations = new List<Mutation>();
 
@@ -29,7 +32,6 @@ public class ItemsReader : NetworkBehaviour
     private void Start()
     {
         _player = GetComponent<NetworkPlayer>();
-        _everywhereCanvas = EverywhereCanvas.Singleton();
 
         if (!isLocalPlayer) return;
         _itemHolder.SetParent(_player.PlayerCamera.transform);
@@ -43,7 +45,16 @@ public class ItemsReader : NetworkBehaviour
         {
             if (!HasItem)
             {
-                CmdDestroyObject(other.gameObject);
+                CmdOnItemPickup(other.gameObject, other.transform.position);
+                _player.PlayerMoveCamera.Shake();
+
+                SoundSystem.Singleton.PlaySFX
+                (
+                    new SoundTransporter(_pickupSound.Sound),
+                    new SoundPositioner(transform.position),
+                    _pickupSound.Pitch.x, _pickupSound.Pitch.y,
+                    _pickupSound.Volume
+                );
 
                 GetItem();
             }
@@ -51,9 +62,12 @@ public class ItemsReader : NetworkBehaviour
     }
 
     [Command]
-    private void CmdDestroyObject(GameObject gameObject)
+    private void CmdOnItemPickup(GameObject item, Vector3 position)
     {
-        NetworkServer.Destroy(gameObject);
+        GameObject newPickupParticle = Instantiate(_pickupParticle, position, Quaternion.identity);
+        NetworkServer.Spawn(newPickupParticle);
+
+        NetworkServer.Destroy(item);
     }
 
     private void Update()
@@ -78,13 +92,13 @@ public class ItemsReader : NetworkBehaviour
                 float useTime = _currentItem.UseTime;
 
                 Invoke(nameof(UseItem), useTime);
-                _everywhereCanvas.StartUseTimer(useTime);
+                EverywhereCanvas.Singleton.StartUseTimer(useTime);
             }
 
             if (Input.GetMouseButtonUp(0))
             {
                 CancelInvoke(nameof(UseItem));
-                _everywhereCanvas.CancelUseTimer();
+                EverywhereCanvas.Singleton.CancelUseTimer();
             }
         }
         else
@@ -111,7 +125,6 @@ public class ItemsReader : NetworkBehaviour
             Mutation mutation = MutationJobs.InspectorToMutation(insMutation); // преобразуем её в нормальную
 
             mutation.Execute(); // запускаем мутацию на время
-
             ActiveMutations.Add(mutation);
 
             StartCoroutine(nameof(CancelMutationFromList), mutation);
@@ -169,7 +182,6 @@ public class ItemsReader : NetworkBehaviour
         yield return new WaitUntil(() => _itemHolder.childCount > 0);
 
         SetCurrentItem(null);
-        RemoveVisual();
     }
 
     public void GetItem() // меня касирша послала нахуй // да пошёл ты нахуй
@@ -214,13 +226,15 @@ public class ItemsReader : NetworkBehaviour
         return (choice, sortedItems, convertedClosestRarity);
     }
 
-    private void MakeVisual(GameObject visual)
+    private void MakeVisual(GameObject visual, float zOffset = 0)
     {
-        RemoveVisual();
-        Instantiate(visual, _itemHolder);
+        ClearItemHolder();
+
+        GameObject newVisual = Instantiate(visual, _itemHolder);
+        newVisual.transform.localPosition += transform.forward * zOffset;
     }
 
-    private void RemoveVisual()
+    private void ClearItemHolder()
     {
         foreach (Transform item in _itemHolder)
         {
@@ -230,13 +244,10 @@ public class ItemsReader : NetworkBehaviour
 
     private void OnCurrentItemChange()
     {
-        if (isLocalPlayer)
-        {
-            if (HasItem)
-            {
-                MakeVisual(_currentItem.ItemVisual);
-            }
-        }
+        if (HasItem)
+            MakeVisual(_currentItem.ItemVisual, isLocalPlayer ? 0 : 1);
+        else
+            ClearItemHolder();
     }
 
     private void SpawnProjectile(ProjectileBase proj)

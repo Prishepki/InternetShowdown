@@ -112,11 +112,7 @@ public class NetworkPlayer : NetworkBehaviour
     [SerializeField, Tooltip("Не меняй")] private Transform _orientation;
     [SerializeField, Tooltip("Не меняй")] private GameObject _body;
 
-    private EverywhereCanvas _everywhereCanvas;
-    private SoundSystem _soundSystem;
-    private SceneGameManager _sceneGameManager;
-    private PauseMenu _pauseMenu;
-    private Leaderboard _leaderboard;
+    private GameLoop _gameLoop;
 
     [HideInInspector] public Camera PlayerCamera;
     [HideInInspector] public CameraMovement PlayerMoveCamera;
@@ -142,10 +138,16 @@ public class NetworkPlayer : NetworkBehaviour
     [SyncVar, SerializeField, ReadOnly] private string _nickname;
     public string Nickname { get => _nickname; }
 
+    [SyncVar, SerializeField, ReadOnly] private bool _initialized;
+    public bool Initialized { get => _initialized; }
+
     [Command]
     public void CmdInitialize(string nickname)
     {
         _nickname = nickname;
+        _initialized = true;
+
+        _gameLoop = GameLoop.Singleton();
     }
 
     #region HealthSystem
@@ -166,7 +168,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         if (!isLocalPlayer) return;
 
-        _soundSystem.PlaySFX(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_localDamageSound));
 
         SetHealth(_health - amount);
@@ -202,7 +204,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         yield return new WaitUntil(() => _health == amount); // на случай задержки синхронизации поля Health
 
-        _everywhereCanvas.SetDisplayHealth(amount);
+        EverywhereCanvas.Singleton.SetDisplayHealth(amount);
 
         if (_health <= 0)
         {
@@ -224,7 +226,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         _rb.velocity = Vector3.zero;
 
-        _everywhereCanvas.StartDeathScreen(ref respawn);
+        EverywhereCanvas.Singleton.StartDeathScreen(ref respawn);
         Deaths++;
     }
 
@@ -318,11 +320,6 @@ public class NetworkPlayer : NetworkBehaviour
         TryGetComponent<ItemsReader>(out _ir);
     }
 
-    private void Awake()
-    {
-        GetSingletons();
-    }
-
     private void Start()
     {
         InitializeVariables();
@@ -346,8 +343,8 @@ public class NetworkPlayer : NetworkBehaviour
 
         SetupPlayerAndGameObject();
 
-        _everywhereCanvas.SetMaxHealth(_maxHealth);
-        EverywhereCanvas.Leaderboard().Initialize(this);
+        EverywhereCanvas.Singleton.SetMaxHealth(_maxHealth);
+        Leaderboard.Singleton.StartLeaderboard();
 
         DestroyCameras();
         GameObject newCamera = new GameObject("Player Camera", (typeof(CameraMovement)));
@@ -356,15 +353,6 @@ public class NetworkPlayer : NetworkBehaviour
 
         PlayerCurrentStats.Singleton.ResetStats();
         PlayerMutationStats.Singleton.ResetStats();
-    }
-
-    private void GetSingletons()
-    {
-        _everywhereCanvas = EverywhereCanvas.Singleton();
-        _soundSystem = SoundSystem.Singleton();
-        _sceneGameManager = SceneGameManager.Singleton();
-        _pauseMenu = EverywhereCanvas.PauseMenu();
-        _leaderboard = EverywhereCanvas.Leaderboard();
     }
 
     private void SetupPlayerAndGameObject()
@@ -419,8 +407,8 @@ public class NetworkPlayer : NetworkBehaviour
     {
         _score += amount;
 
-        _leaderboard.UpdateLeaderboard();
-        _sceneGameManager.RpcForceClientsForLeaderboardUpdate();
+        Leaderboard.Singleton.UpdateLeaderboard();
+        SceneGameManager.Singleton.RpcForceClientsForLeaderboardUpdate();
     }
 
     [Command]
@@ -428,8 +416,15 @@ public class NetworkPlayer : NetworkBehaviour
     {
         _activity += amount;
 
-        _leaderboard.UpdateLeaderboard();
-        _sceneGameManager.RpcForceClientsForLeaderboardUpdate();
+        Leaderboard.Singleton.UpdateLeaderboard();
+        SceneGameManager.Singleton.RpcForceClientsForLeaderboardUpdate();
+    }
+
+    [Server]
+    public void SetLeaderboardStats(int score, int activity)
+    {
+        _score = score;
+        _activity = activity;
     }
 
     private void Update()
@@ -532,16 +527,16 @@ public class NetworkPlayer : NetworkBehaviour
 
             if (hit.transform.TryGetComponent<NetworkPlayer>(out player))
             {
-                _everywhereCanvas.SwitchNicknameVisibility(true, player.Nickname);
+                EverywhereCanvas.Singleton.SwitchNicknameVisibility(true, player.Nickname);
             }
             else
             {
-                _everywhereCanvas.SwitchNicknameVisibility(false);
+                EverywhereCanvas.Singleton.SwitchNicknameVisibility(false);
             }
         }
         else
         {
-            _everywhereCanvas.SwitchNicknameVisibility(false);
+            EverywhereCanvas.Singleton.SwitchNicknameVisibility(false);
         }
     }
 
@@ -572,7 +567,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Jump()
     {
-        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return;
+        if (!AllowMovement || PauseMenu.Singleton.PauseMenuOpened) return;
 
         PlayerCurrentStats.Singleton.Bounce = _jumpForce;
         _rb.velocity = new Vector3(_rb.velocity.x, PlayerCurrentStats.Singleton.Bounce + PlayerMutationStats.Singleton.Bounce, _rb.velocity.z);
@@ -597,7 +592,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void MakeJumpEffects()
     {
-        _soundSystem.PlaySFX(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(_jumpSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         CmdSpawnParticle(0);
     }
 
@@ -625,7 +620,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     public Vector2 GetAxisInputs() // можно было и без этого метода но тут чисто ради выебонов
     {
-        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return Vector2.zero;
+        if (!AllowMovement || PauseMenu.Singleton.PauseMenuOpened) return Vector2.zero;
 
         return new Vector2(Input.GetAxisRaw(HORIZONTAL), Input.GetAxisRaw(VERTICAL));
     }
@@ -698,19 +693,19 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void Dash()
     {
-        if (!AllowMovement || _pauseMenu.PauseMenuOpened) return;
+        if (!AllowMovement || PauseMenu.Singleton.PauseMenuOpened) return;
 
         float targetForce = IsGrounded ? _dashGroundedForce : _dashAirForce;
 
         _rb.AddForce(_playerDirection * targetForce, ForceMode.Impulse);
         TimeoutDash(_dashTimeout);
 
-        _soundSystem.PlaySFX(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
     }
 
     private void GroundDash()
     {
-        if (!AllowMovement || _pauseMenu.PauseMenuOpened || IsGrounded) return;
+        if (!AllowMovement || PauseMenu.Singleton.PauseMenuOpened || IsGrounded) return;
 
         float targetForce = _rb.velocity.y <= -1f ? -_groundDashForce + (_rb.velocity.y * 3) : -_groundDashForce;
 
@@ -723,7 +718,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         yield return new WaitUntil(() => IsGrounded);
 
-        _soundSystem.PlaySFX(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         PlayerMoveCamera.Shake(0.15f, 0.15f);
     }
 
@@ -741,7 +736,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_killLogSound), volume: 3);
         PlayerMoveCamera.Shake(strength: 0.25f);
-        _everywhereCanvas.LogKill();
+        EverywhereCanvas.Singleton.LogKill();
 
         CmdChangeScore(3);
 

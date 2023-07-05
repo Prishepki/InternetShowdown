@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using DG.Tweening;
 using Mirror;
 using TMPro;
@@ -12,6 +13,8 @@ public class MenuManager : MonoBehaviour
     private const string NICKNAME_SAVE_PATH = "PlayerNicknameValue";
     private const string ADDRESS_SAVE_PATH = "MenuAddressValue";
 
+    [SerializeField] private GroupsManager _groupsManager;
+
     [SerializeField] private TMP_InputField _nickname;
     [SerializeField] private TMP_InputField _address;
 
@@ -20,6 +23,21 @@ public class MenuManager : MonoBehaviour
     private Transition _transition;
 
     [SerializeField] private RectTransform[] _menuButtons;
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape) && _groupsManager.EnabledGroups.Count > 0)
+        {
+            CanvasGroup target = _groupsManager.EnabledGroups.Last();
+
+            _groupsManager.SetGroup(target, false, true);
+            if (_groupsManager.WindowTweens.ContainsKey(target))
+            {
+                _groupsManager.WindowTweens[target].KillAll();
+                _groupsManager.WindowTweens.Remove(target);
+            }
+        }
+    }
 
     private void Start()
     {
@@ -48,7 +66,7 @@ public class MenuManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.15f * delayMult);
 
-        button.DOLocalMove(button.localPosition - shiftAmount, 1f).SetEase(Ease.OutCirc);
+        button.DOLocalMove(button.localPosition - shiftAmount, 0.65f).SetEase(Ease.OutCirc);
     }
 
     public void SetNickname(string value)

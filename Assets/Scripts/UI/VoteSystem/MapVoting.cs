@@ -57,8 +57,8 @@ public class MapVoting : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
 
     public void HideMapVoting()
     {
-        EverywhereCanvas.Singleton().SetMapVoting(false, true);
-        SceneGameManager.Singleton().CmdVoteMap(ConnectedMap);
+        EverywhereCanvas.Singleton.SetMapVoting(false, true);
+        SceneGameManager.Singleton.CmdVoteMap(ConnectedMap);
 
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_onVoteSound), volume: 0.6f);
     }

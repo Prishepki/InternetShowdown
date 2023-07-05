@@ -9,6 +9,8 @@ using UnityEngine;
 
 public class SceneGameManager : NetworkBehaviour
 {
+    public static SceneGameManager Singleton { get; private set; }
+
     [SerializeField] private List<AudioClip> _clockTicks = new List<AudioClip>();
 
     [Space(9)]
@@ -16,13 +18,9 @@ public class SceneGameManager : NetworkBehaviour
     [SerializeField] private AudioClip _votingStart;
     [SerializeField] private AudioClip _votingEnd;
 
-    private EverywhereCanvas _everywhereCanvas;
-    private PauseMenu _pauseMenu;
-
     private void Awake()
     {
-        _everywhereCanvas = EverywhereCanvas.Singleton();
-        _pauseMenu = EverywhereCanvas.PauseMenu();
+        Singleton = this;
     }
 
     [ClientRpc] // методы с этим атрибутом будут вызываться на всех клиентах (работает только тогда если вызывается с класса который наследует NetworkBehaviour)
@@ -35,11 +33,11 @@ public class SceneGameManager : NetworkBehaviour
 
         string exposedTimeCounter = $"{minutes}:{exposedSeconds}";
 
-        _everywhereCanvas.Timer.text = exposedTimeCounter; // текст таймера
-        _everywhereCanvas.Timer.color = color; // цвет текста таймера
+        EverywhereCanvas.Singleton.Timer.text = exposedTimeCounter; // текст таймера
+        EverywhereCanvas.Singleton.Timer.color = color; // цвет текста таймера
 
-        _everywhereCanvas.Timer.transform.localScale = Vector2.one * 1.075f;
-        _everywhereCanvas.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
+        EverywhereCanvas.Singleton.Timer.transform.localScale = Vector2.one * 1.075f;
+        EverywhereCanvas.Singleton.Timer.transform.DOScale(Vector2.one, 0.5f).SetEase(Ease.OutElastic);
 
         if (!playSound) return;
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_clockTicks), volume: 0.225f);
@@ -48,7 +46,7 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcPrepareText(int fromCount)
     {
-        _everywhereCanvas.PreMatchText(fromCount);
+        EverywhereCanvas.Singleton.PreMatchText(fromCount);
     }
 
     [ClientRpc]
@@ -72,13 +70,13 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcSwitchUI(CanvasGameStates state) // меняет интерфейс у игроков
     {
-        _everywhereCanvas.SwitchUIGameState(state);
+        EverywhereCanvas.Singleton.SwitchUIGameState(state);
     }
 
     [ClientRpc]
     public void RpcFadeUI(CanvasGameStates state) // меняет интерфейс у игроков с плавной анимацией
     {
-        _everywhereCanvas.FadeUIGameState(state);
+        EverywhereCanvas.Singleton.FadeUIGameState(state);
     }
 
     [ClientRpc]
@@ -90,25 +88,25 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcHideDeathScreen() // на всякий случай, прячет экраны смерти у игроков
     {
-        _everywhereCanvas.HideDeathScreen();
+        EverywhereCanvas.Singleton.HideDeathScreen();
     }
 
     [ClientRpc]
     public void RpcSetMapVoting(bool enable, bool fade)
     {
-        _everywhereCanvas.SetMapVoting(enable, fade);
+        EverywhereCanvas.Singleton.SetMapVoting(enable, fade);
     }
 
     [TargetRpc]
     public void TRpcSetMapVoting(NetworkConnectionToClient target, bool enable, bool fade)
     {
-        _everywhereCanvas.SetMapVoting(enable, fade);
+        EverywhereCanvas.Singleton.SetMapVoting(enable, fade);
     }
 
     [ClientRpc]
     public void RpcOnVotingEnd(string message)
     {
-        _everywhereCanvas.OnVotingEnd(message);
+        EverywhereCanvas.Singleton.OnVotingEnd(message);
     }
 
     [ClientRpc]
@@ -122,7 +120,7 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcTriggerResultsWindow()
     {
-        EverywhereCanvas.Results().SetWindowDynamic(true);
+        EverywhereUIController.Singleton.ExposeResults();
     }
 
     [Command(requiresAuthority = false)]
@@ -142,7 +140,7 @@ public class SceneGameManager : NetworkBehaviour
     [ClientRpc]
     public void RpcForceClientsForLeaderboardUpdate()
     {
-        EverywhereCanvas.Leaderboard().UpdateLeaderboard();
+        Leaderboard.Singleton.UpdateLeaderboard();
     }
 
     [TargetRpc]
@@ -188,11 +186,8 @@ public class SceneGameManager : NetworkBehaviour
                 break;
             }
         }
-    }
 
-    public static SceneGameManager Singleton()
-    {
-        return FindObjectOfType<SceneGameManager>();
+        EverywhereUIController.Singleton.RequestLobbySetup(7);
     }
 }
 

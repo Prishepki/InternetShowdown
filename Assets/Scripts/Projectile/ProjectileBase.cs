@@ -67,9 +67,6 @@ public class ProjectileBase : NetworkBehaviour
 
     private Vector3 _targetDirection;
 
-    private SceneGameManager _sceneGameManager;
-    private SoundSystem _soundSystem;
-
     protected virtual void OnCollide(int layer) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
     protected virtual void OnHitPlayer() { } // вызывается когда снаряд касается игрока
     protected virtual void OnHitMap() { } // вызывается когда снаряд касается карты
@@ -116,9 +113,6 @@ public class ProjectileBase : NetworkBehaviour
 
     private void Start()
     {
-        _sceneGameManager = SceneGameManager.Singleton();
-        _soundSystem = SoundSystem.Singleton();
-
         OnInit(); // вызов калбека для кастомного повидения
 
         _targetDirection = transform.forward;
@@ -224,7 +218,7 @@ public class ProjectileBase : NetworkBehaviour
     private void PlayProjectileSound(SoundEffect sound)
     {
         SoundPositioner positioner = new SoundPositioner(sound.Lock, transform);
-        _soundSystem.PlaySFX(new SoundTransporter(sound.Sound), positioner, sound.Pitch.x, sound.Pitch.y, sound.Volume);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(sound.Sound), positioner, sound.Pitch.x, sound.Pitch.y, sound.Volume);
     }
 
     private void SpawnProjectileEffect(GameObject effect)
@@ -255,7 +249,7 @@ public class ProjectileBase : NetworkBehaviour
     [Command]
     private void CmdShakeScreen(float duration, float strength)
     {
-        _sceneGameManager.RpcShakeAll(duration, strength);
+        SceneGameManager.Singleton.RpcShakeAll(duration, strength);
     }
 
     #endregion

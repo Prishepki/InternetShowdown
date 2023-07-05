@@ -42,23 +42,15 @@ public class CameraMovement : MonoBehaviour
 
     private Vector3 _initPosition;
 
-    private EverywhereCanvas _everywhereCanvas;
-    private ResultsWindow _resultsWindow;
-    private PauseMenu _pauseMenu;
-
     private void Start()
     {
         _camera = GetComponent<Camera>();
         _initPosition = transform.localPosition;
-
-        _everywhereCanvas = EverywhereCanvas.Singleton();
-        _resultsWindow = EverywhereCanvas.Results();
-        _pauseMenu = EverywhereCanvas.PauseMenu();
     }
 
     private void Update()
     {
-        bool isBlocked = BlockMovement || _pauseMenu.PauseMenuOpened || _everywhereCanvas.IsVotingActive || _resultsWindow.IsActive;
+        bool isBlocked = BlockMovement || PauseMenu.Singleton.PauseMenuOpened || EverywhereCanvas.Singleton.IsVotingActive || ResultsWindow.Singleton.IsEnabled;
 
         float mouseX = isBlocked ? 0 : Input.GetAxisRaw("Mouse X") * _sensitivityX;
         float mouseY = isBlocked ? 0 : Input.GetAxisRaw("Mouse Y") * _sensitivityY;
