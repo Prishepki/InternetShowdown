@@ -109,7 +109,7 @@ MonoBehaviour:
   _groundDashForce: 17.5
   _mapLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 2112
   JumpKey: 32
   DashKey: 304
   GroundDashKey: 306

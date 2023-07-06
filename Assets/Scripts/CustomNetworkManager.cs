@@ -65,6 +65,12 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnClientConnect();
 
+        foreach (var canvas in GetEverywhereCanvases())
+        {
+            canvas.Reset();
+            canvas.Active = true;
+        }
+
         StartCoroutine(nameof(WaitForClientLoad));
     }
 
@@ -74,12 +80,6 @@ public class CustomNetworkManager : NetworkManager
 
         Cursor.lockState = CursorLockMode.Locked;
         _transition.AwakeTransition(TransitionMode.Out);
-
-        foreach (var canvas in GetEverywhereCanvases())
-        {
-            canvas.Reset();
-            canvas.Active = true;
-        }
 
         SceneGameManager sceneGameManager = SceneGameManager.Singleton;
 

@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8664618077674353065}
   - component: {fileID: 4303385425697265546}
   m_Layer: 0
-  m_Name: MochevoiMuzirParticle
+  m_Name: WaterSplash
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -224,8 +224,8 @@ ParticleSystem:
     startColor:
       serializedVersion: 2
       minMaxState: 2
-      minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.9553981, g: 1, b: 0, a: 1}
+      minColor: {r: 0.2117647, g: 0.6906786, b: 1, a: 1}
+      maxColor: {r: 0.6462264, g: 0.8029938, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 0.79383516, b: 0, a: 1}

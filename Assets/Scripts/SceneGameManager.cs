@@ -168,21 +168,21 @@ public class SceneGameManager : NetworkBehaviour
     {
         NetworkPlayer player = NetworkClient.localPlayer.GetComponent<NetworkPlayer>();
 
-        ResultsStatsJobs.StatsToDisplay["Place"] = (player.Place.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Score"] = (player.Score.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Activity"] = (player.Activity.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Kills"] = (player.Kills.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Hits"] = (player.Hits.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Deaths"] = (player.Deaths.ToString(), Color.white);
-        ResultsStatsJobs.StatsToDisplay["Traumas"] = (player.Traumas.ToString(), Color.white);
+        ResultsStatsJobs.StatsToDisplay["Place"].Value = player.Place;
+        ResultsStatsJobs.StatsToDisplay["Score"].Value = player.Score;
+        ResultsStatsJobs.StatsToDisplay["Activity"].Value = player.Activity;
+        ResultsStatsJobs.StatsToDisplay["Kills"].Value = player.Kills;
+        ResultsStatsJobs.StatsToDisplay["Hits"].Value = player.Hits;
+        ResultsStatsJobs.StatsToDisplay["Deaths"].Value = player.Deaths;
+        ResultsStatsJobs.StatsToDisplay["Traumas"].Value = player.Traumas;
 
         int total = Mathf.Clamp((player.Score * 3) + (player.Activity) + (player.Kills * 6) + (player.Hits * 3) - (player.Deaths * 2) - (player.Traumas) - (player.Place * 5), 0, 1000);
 
-        for (int i = ResultsStatsJobs.Rankings.Count - 1; i >= 0; i--)
+        for (int i = RankStat.Rankings.Count - 1; i >= 0; i--)
         {
-            if (total >= ResultsStatsJobs.Rankings[i].value)
+            if (total >= RankStat.Rankings[i].value)
             {
-                ResultsStatsJobs.StatsToDisplay["Rank"] = (ResultsStatsJobs.Rankings[i].key, ResultsStatsJobs.Rankings[i].color);
+                ResultsStatsJobs.StatsToDisplay["Rank"].Value = RankStat.Rankings[i].key;
                 break;
             }
         }

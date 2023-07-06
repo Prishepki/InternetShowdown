@@ -67,9 +67,9 @@ public class ProjectileBase : NetworkBehaviour
 
     private Vector3 _targetDirection;
 
-    protected virtual void OnCollide(int layer) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
-    protected virtual void OnHitPlayer() { } // вызывается когда снаряд касается игрока
-    protected virtual void OnHitMap() { } // вызывается когда снаряд касается карты
+    protected virtual void OnCollide(int layer, Vector3 velocity, ContactPoint contactPoint) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
+    protected virtual void OnHitPlayer(Vector3 velocity) { } // вызывается когда снаряд касается игрока
+    protected virtual void OnHitMap(Vector3 velocity, ContactPoint contactPoint) { } // вызывается когда снаряд касается карты
 
     protected virtual void OnInit() { } // вызывается когда снаряд инициализируется
     protected virtual void OnTime() { } // вызывается так же как и FixedUpdate
@@ -141,7 +141,7 @@ public class ProjectileBase : NetworkBehaviour
     {
         if (!isOwned) return;
 
-        OnCollide(other.gameObject.layer); // вызов калбека для кастомного повидения
+        OnCollide(other.gameObject.layer, _rb.velocity, other.contacts[0]); // вызов калбека для кастомного повидения
 
         //Проверки и уничтожение
         CheckForEffects(EffectModes.OnCollide, _collideSound, _collideEffect, _collideShake);
@@ -149,14 +149,14 @@ public class ProjectileBase : NetworkBehaviour
 
         if (other.gameObject.layer == 11)
         {
-            OnHitPlayer(); // вызов калбека для кастомного повидения
+            OnHitPlayer(_rb.velocity); // вызов калбека для кастомного повидения
 
             HitPlayer(other.gameObject);
         }
 
         if (other.gameObject.layer == 6)
         {
-            OnHitMap(); // вызов калбека для кастомного повидения
+            OnHitMap(_rb.velocity, other.contacts[0]); // вызов калбека для кастомного повидения
 
             CheckForDestroy(HitDestroy.OnMap);
         }

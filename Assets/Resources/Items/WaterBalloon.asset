@@ -10,16 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
-  m_Name: BlackTea
+  m_Name: WaterBalloon
   m_EditorClassIdentifier: 
-  ItemVisual: {fileID: 4813797436881519920, guid: adf21b6a801375d4eaf94dc7018471a6, type: 3}
-  ItemRarity: 2
-  HoldToUse: 1
+  ItemVisual: {fileID: 6984867395393728517, guid: 030a4159c567b0340b04482b47ede8d6, type: 3}
+  ItemRarity: 1
+  HoldToUse: 0
   UseTime: 1
-  Mutations:
-  - Type: 1
-    ChangeAs: 0
-    Amount: -5
-    Time: 5
-  Projectiles: []
-  HealAmount: 50
+  Mutations: []
+  Projectiles:
+  - {fileID: -880383891874586957, guid: 5e014f35de4345046861430a83209264, type: 3}

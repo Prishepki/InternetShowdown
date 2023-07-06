@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: -880383891874586957}
   - component: {fileID: 9114654583700203588}
   m_Layer: 10
-  m_Name: MochevoiPuzir
+  m_Name: WaterBalloon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

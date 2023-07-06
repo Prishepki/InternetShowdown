@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0c46f7a348d797b47b42adbd52753e8c
+guid: b143616c606117d4a9151d26df71d77e
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
@@ -7,13 +7,13 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Material
-    second: {fileID: 2100000, guid: 971b8130c63fccb47917f4d5030d1a0e, type: 2}
+      name: Black
+    second: {fileID: 2100000, guid: 5ba9a7d306b6f074eb643892b9b7a242, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: Ruchka
-    second: {fileID: 2100000, guid: fafd01684f1a5cc449a77f56e3ba0bd6, type: 2}
+      name: Main
+    second: {fileID: 2100000, guid: 43eea79d72f8aeb4ebab79d3416596d8, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -45,7 +45,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 0.2
+    globalScale: 0.5
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -98,7 +98,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 0.002
+    globalScale: 0.005
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0

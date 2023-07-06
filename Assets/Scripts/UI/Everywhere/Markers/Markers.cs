@@ -25,17 +25,17 @@ public class Markers : MonoBehaviour, IEverywhereCanvas
 
     public void DoHitMarker()
     {
-        _hitMarker.alpha = 0.3f;
+        _hitMarkerFadeTween.Complete();
 
-        _hitMarkerFadeTween?.Kill(true);
+        _hitMarker.alpha = 0.3f;
         _hitMarkerFadeTween = _hitMarker.DOFade(0f, 0.65f);
     }
 
     public void DoDamageMarker()
     {
-        _damageMarker.alpha = 1f;
+        _damageMarkerFadeTween.Complete();
 
-        _damageMarkerFadeTween?.Kill(true);
+        _damageMarker.alpha = 1f;
         _damageMarkerFadeTween = _damageMarker.DOFade(0f, 1.5f);
     }
 

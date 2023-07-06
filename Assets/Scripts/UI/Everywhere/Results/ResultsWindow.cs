@@ -83,12 +83,7 @@ public class ResultsWindow : MonoBehaviour, IEverywhereCanvas
             {
                 ResultsStat newStat = Instantiate(_statPrefab, _statsContainer).GetComponent<ResultsStat>();
 
-                newStat.Group.alpha = 0;
-
-                newStat.Key.text = stat.Key + ":";
-
-                newStat.Value.text = stat.Value.value.ToString();
-                newStat.Value.color = stat.Value.color;
+                newStat.Set($"{stat.Key}:", stat.Value.Value, stat.Value.AskForColor());
 
                 if (index % 2 == 0)
                 {

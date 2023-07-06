@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 3772264576653037506}
   - component: {fileID: 1267957501214696849}
   - component: {fileID: 2750252195625334930}
-  - component: {fileID: -880383891874586957}
   - component: {fileID: 4418764127947995487}
+  - component: {fileID: 4823730256535868948}
   m_Layer: 10
   m_Name: Metalpipe
   m_TagString: Untagged
@@ -29,7 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153284606968098130}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
@@ -37,7 +37,7 @@ Transform:
   - {fileID: 2925803728431548641}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!54 &4673078493703754133
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -108,7 +108,21 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 2534964839176971238, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
---- !u!114 &-880383891874586957
+--- !u!136 &4418764127947995487
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153284606968098130}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.5
+  m_Height: 10
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4823730256535868948
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -117,7 +131,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1153284606968098130}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8edfd8ac731a48444a577771d855b944, type: 3}
+  m_Script: {fileID: 11500000, guid: d817e014280c021478ac8b9657b12125, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncDirection: 0
@@ -136,19 +150,19 @@ MonoBehaviour:
   _shakeEffects: 2
   _spawnSound:
     Sound: {fileID: 0}
-    Volume: 0
-    Pitch: {x: 0, y: 0}
     Lock: 0
+    Volume: 1
+    Pitch: {x: 1, y: 1}
   _collideSound:
     Sound: {fileID: 8300000, guid: f39c462564f55794db3fa4d558628937, type: 3}
+    Lock: 0
     Volume: 0.65
     Pitch: {x: 1, y: 1}
-    Lock: 0
   _destroySound:
     Sound: {fileID: 0}
-    Volume: 0
-    Pitch: {x: 0, y: 0}
     Lock: 0
+    Volume: 1
+    Pitch: {x: 1, y: 1}
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
   _destroyEffect: {fileID: 0}
@@ -161,20 +175,6 @@ MonoBehaviour:
   _destroyShake:
     Duration: 0
     Strength: 0
---- !u!136 &4418764127947995487
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153284606968098130}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 10
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &3391267145149083402
 PrefabInstance:
   m_ObjectHideFlags: 0
