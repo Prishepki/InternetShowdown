@@ -175,6 +175,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         SoundSystem.Singleton.PlaySFX(new SoundTransporter(_damageSound), new SoundPositioner(transform.position), 0.95f, 1.05f, 1f);
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_localDamageSound));
+        Markers.Singleton.DoDamageMarker();
 
         SetHealth(_health - amount);
 
@@ -743,13 +744,14 @@ public class NetworkPlayer : NetworkBehaviour
     {
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_hitLogSound));
         PlayerMoveCamera.Shake(strength: 0.1f);
+        Markers.Singleton.DoHitMarker();
 
         CmdChangeScore(1);
 
         Hits++;
     }
 
-    public void LogKill() // TODO доделать это говно
+    public void LogKill()
     {
         SoundSystem.PlayInterfaceSound(new SoundTransporter(_killLogSound), volume: 3);
         PlayerMoveCamera.Shake(strength: 0.25f);
