@@ -65,6 +65,13 @@ public class CustomNetworkManager : NetworkManager
     {
         base.OnClientConnect();
 
+        StartCoroutine(nameof(WaitForClientLoad));
+    }
+
+    private IEnumerator WaitForClientLoad()
+    {
+        yield return new WaitUntil(() => NetworkClient.localPlayer != null);
+
         Cursor.lockState = CursorLockMode.Locked;
         _transition.AwakeTransition(TransitionMode.Out);
 
@@ -74,7 +81,10 @@ public class CustomNetworkManager : NetworkManager
             canvas.Active = true;
         }
 
-        StartCoroutine(WaitForSceneGameManagerSingleton());
+        SceneGameManager sceneGameManager = SceneGameManager.Singleton;
+
+        sceneGameManager.RecieveUIGameState();
+        sceneGameManager.CmdAskForMapVoting(NetworkClient.localPlayer);
     }
 
     public override void OnServerDisconnect(NetworkConnectionToClient conn)
@@ -123,16 +133,6 @@ public class CustomNetworkManager : NetworkManager
     private static IEverywhereCanvas[] GetEverywhereCanvases()
     {
         return FindObjectsOfType<MonoBehaviour>(true).OfType<IEverywhereCanvas>().ToArray();
-    }
-
-    private IEnumerator WaitForSceneGameManagerSingleton()
-    {
-        yield return new WaitUntil(() => SceneGameManager.Singleton != null);
-
-        SceneGameManager sceneGameManager = SceneGameManager.Singleton;
-
-        sceneGameManager.RecieveUIGameState();
-        sceneGameManager.CmdAskForMapVoting(NetworkClient.localPlayer);
     }
 
     public override void OnStartServer()

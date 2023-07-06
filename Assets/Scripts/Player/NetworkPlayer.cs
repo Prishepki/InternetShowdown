@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Mirror;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody)), RequireComponent(typeof(CapsuleCollider))]
+[RequireComponent(typeof(Rigidbody))]
 public class NetworkPlayer : NetworkBehaviour
 {
     // тут константы на случай если одни и те же значения будут использоваться несколько раз в коде
@@ -13,7 +13,6 @@ public class NetworkPlayer : NetworkBehaviour
 
     [Header("Components")] // лукашенко ебаный гит я тебя взорву говно хуйни
     [SerializeField] private Rigidbody _rb;
-    [SerializeField] private CapsuleCollider _cc;
     [SerializeField] private ItemsReader _ir;
 
     [Header("Player")]
@@ -71,7 +70,7 @@ public class NetworkPlayer : NetworkBehaviour
     public KeyCode DashKey = KeyCode.LeftShift;
     public KeyCode GroundDashKey = KeyCode.LeftControl;
 
-    private (Vector3 center, float radius) _groundChecking;
+    private (Vector3 center, Vector3 extends) _groundChecking;
     private Vector3 _slopeNormal;
 
     private float _accel;
@@ -316,7 +315,6 @@ public class NetworkPlayer : NetworkBehaviour
             _rb.freezeRotation = true; // чтоб игрока не вертело как ебанутого
         }
 
-        TryGetComponent<CapsuleCollider>(out _cc);
         TryGetComponent<ItemsReader>(out _ir);
     }
 
@@ -399,7 +397,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void SetVariables() // реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
     {
-        _groundChecking = (transform.position + Vector3.down * (_cc.height / 2), _cc.radius / 3);
+        _groundChecking = (transform.position + Vector3.down, new Vector3(1.5f, 0.3f, 1.5f));
     }
 
     [Command]
@@ -640,7 +638,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private bool CheckForGrounded()
     {
-        bool grounded = Physics.CheckSphere(_groundChecking.center, _groundChecking.radius, _mapLayers.value, QueryTriggerInteraction.Ignore);
+        bool grounded = Physics.CheckBox(_groundChecking.center, _groundChecking.extends / 2, Quaternion.identity, _mapLayers.value, QueryTriggerInteraction.Ignore);
 
         return grounded;
     }
@@ -780,7 +778,7 @@ public class NetworkPlayer : NetworkBehaviour
     {
         Gizmos.color = Color.green;
 
-        Gizmos.DrawWireSphere(_groundChecking.center, _groundChecking.radius);
+        Gizmos.DrawWireCube(_groundChecking.center, _groundChecking.extends);
     }
 }
 

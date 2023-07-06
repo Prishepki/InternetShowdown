@@ -50,10 +50,10 @@ public class EverywhereUIController : MonoBehaviour
 
     public void RequestLobbySetup(float time) // тупое решение, потом буду плакать от того сколько же говна в моем коде :(
     {
-        StartCoroutine(CO_RequestLobbySetup(time));
+        StartCoroutine(nameof(RequestLobbySetupCoroutine), time);
     }
 
-    private IEnumerator CO_RequestLobbySetup(float time)
+    private IEnumerator RequestLobbySetupCoroutine(float time)
     {
         yield return new WaitUntil(() => SceneManager.GetActiveScene().buildIndex == 2);
 
