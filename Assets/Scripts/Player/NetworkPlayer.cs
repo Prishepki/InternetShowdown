@@ -62,12 +62,6 @@ public class NetworkPlayer : NetworkBehaviour
     [Header("Ground Dashing Control")]
     [SerializeField, Tooltip("Сила рывка вниз"), Min(0)] private float _groundDashForce = 5f;
 
-    // никита я хуй знает куда поместить это в списке свойств я тут запутался
-    [SerializeField] private float _maxStepHeight = 0.3f;
-    [SerializeField] private float _stepSmooth = 2f;
-    private Vector3 _stepUp;
-    private Vector3 _stepDown;
-
     [Header("Property Checking")]
     [SerializeField] private LayerMask _mapLayers;
 
@@ -358,9 +352,6 @@ public class NetworkPlayer : NetworkBehaviour
 
         PlayerCurrentStats.Singleton.ResetStats();
         PlayerMutationStats.Singleton.ResetStats();
-
-        _stepUp = _stepDown = transform.position;
-        _stepUp.y += _maxStepHeight;
     }
 
     private void SetupPlayerAndGameObject()
@@ -688,16 +679,6 @@ public class NetworkPlayer : NetworkBehaviour
             Vector3.Angle(Vector3.up, _slopeNormal) * 1.75f
         );
 
-        bool stepTestDown = Physics.Raycast(_stepDown, _orientation.transform.forward, 2f);
-        bool stepTestUp = Physics.Raycast(_stepUp, _orientation.transform.forward, 2f);
-
-        if (stepTestDown && !stepTestUp)
-        {
-            Vector3 pos = _rb.transform.position;
-            pos.y += _stepSmooth * Time.fixedDeltaTime;
-            _rb.MovePosition(pos);
-        }
-
         Vector3 targetDirection = IsSloped() ? Vector3.ProjectOnPlane(_playerDirection, _slopeNormal) : _playerDirection;
 
         PlayerCurrentStats.Singleton.Speed = (_startSpeed + _accel + _bhop + angleBoost);
@@ -800,7 +781,6 @@ public class NetworkPlayer : NetworkBehaviour
         Gizmos.color = Color.green;
 
         Gizmos.DrawWireCube(_groundChecking.center, _groundChecking.extends);
-        Gizmos.DrawLine(_stepUp, _orientation.forward * 2f);
     }
 }
 
