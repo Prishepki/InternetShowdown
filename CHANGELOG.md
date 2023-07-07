@@ -1,5 +1,3 @@
-# v0.37.0
-
 ### Fixed
 - fixed bug
 - fixed another bug
