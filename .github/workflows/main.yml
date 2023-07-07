@@ -33,6 +33,7 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          buildName: "Internet Showdown"
           targetPlatform: ${{ matrix.targetPlatform }}
       - name: Zip artifacts for release
         run: zip ${{ matrix.targetPlatform }}.zip build/* -r
