@@ -35,7 +35,7 @@ jobs:
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
       - name: Zip artifacts for release
-        run: zip build.zip build/* -r
+        run: zip ${{ matrix.targetPlatform }}.zip build/* -r
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
@@ -57,10 +57,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           path: artifacts
+      - name: Debug lol
+        run: find . | sed -e "s/[^-][^\/]*\// |/g" -e "s/|\([^ ]\)/|-\1/"
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: artifacts/*/*.zip
+          artifacts: artifacts/**/*.zip
           makeLatest: true
           bodyFile: CHANGELOG.md
       - name: Delete artifacts
