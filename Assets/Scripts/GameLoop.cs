@@ -135,7 +135,7 @@ public class GameLoop : NetworkBehaviour
         OnVotingEnd();
     }
 
-    private class ColorFrom
+    private record ColorFrom
     {
         public Color Color;
         public int From;

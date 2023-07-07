@@ -31,10 +31,10 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-      # - uses: actions/upload-artifact@v2
-        # with:
-          #name: Build-${{ matrix.targetPlatform }}
-          # path: build/${{ matrix.targetPlatform }}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
       - uses: ncipollo/release-action@v1
         with:
           artifacts: build/${{ matrix.targetPlatform }}
