@@ -6,11 +6,9 @@ on:
       - "v*"
 
 jobs:
-  buildForAllSupportedPlatforms:
+  build:
     name: Build for ${{ matrix.targetPlatform }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -33,7 +31,28 @@ jobs:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: ncipollo/release-action@v1
+      - uses: actions/upload-artifact@v2
         with:
-          artifacts: build/${{ matrix.targetPlatform }}
+          name: Build-${{ matrix.targetPlatform }}
+          path: build/${{ matrix.targetPlatform }}
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: downloaded_artifacts
+      - uses: ncipollo/release-action@v1
+        name: Release artifacts
+        with:
+          artifacts: downloaded_artifacts/*
           makeLatest: true
+          bodyFile: CHANGELOG.md
+      - uses: geekyeggo/delete-artifact@v2
+        name: Delete artifacts
+        with:
+          name: Build-*
+    
