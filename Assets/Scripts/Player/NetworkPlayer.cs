@@ -738,7 +738,7 @@ public class NetworkPlayer : NetworkBehaviour
         PlayerMoveCamera.Shake(strength: 0.25f);
         EverywhereCanvas.Singleton.LogKill();
 
-        CmdChangeScore(3);
+        CmdChangeScore(2);
 
         Kills++;
     }
