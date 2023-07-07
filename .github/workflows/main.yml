@@ -60,7 +60,7 @@ jobs:
       - name: Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: artifacts/*
+          artifacts: artifacts/*/*.zip
           makeLatest: true
           bodyFile: CHANGELOG.md
       - name: Delete artifacts
