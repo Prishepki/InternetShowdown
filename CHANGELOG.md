@@ -1,15 +1,6 @@
-### Fixed
-- fixed bug
-- fixed another bug
-
 ### Added
-- added thing
-- added another thing
+Added possibility to destroy projectile after some amount of collisions
 
 ### Changed
-- changed thing
-- changed another thing
-
-### Other
-- thing
-- another thing
+Changed model of jump potion
+Pillow now destroys after 3 collisions
