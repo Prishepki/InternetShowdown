@@ -50,10 +50,7 @@ public class GameLoop : NetworkBehaviour
 
     public Dictionary<string, (int score, int activity)> LeftedPlayers = new Dictionary<string, (int score, int activity)>();
 
-    public void SetSceneLoaded(bool loaded)
-    {
-        _isSceneLoaded = loaded;
-    }
+    public void SetSceneLoaded(bool loaded) => _isSceneLoaded = loaded;
 
     [Server]
     public void AddMapVote(string mapName)
