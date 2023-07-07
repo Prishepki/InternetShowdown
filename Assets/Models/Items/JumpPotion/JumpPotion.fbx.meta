@@ -1,9 +1,14 @@
 fileFormatVersion: 2
-guid: 6f32ec4980c4296489cf0ce54be22f1f
+guid: 0ed737b596d96f246883b5b11c577117
 ModelImporter:
   serializedVersion: 21300
   internalIDToNameTable: []
   externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Cork
+    second: {fileID: 2100000, guid: 23d62cbb52daa8a439ea01e7ade1797d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -12,13 +17,8 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
-      name: NewGlass
-    second: {fileID: 2100000, guid: d640930cc4aeef54cae98d096d80e4ae, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: ProbkaAnal
-    second: {fileID: 2100000, guid: 86513f1a4a957e24ab9e82581dbbfda7, type: 2}
+      name: Material
+    second: {fileID: 2100000, guid: 51db6871cb39a864082daf6c85a6f28c, type: 2}
   materials:
     materialImportMode: 2
     materialName: 0
@@ -50,7 +50,7 @@ ModelImporter:
     isReadable: 0
   meshes:
     lODScreenPercentages: []
-    globalScale: 1
+    globalScale: 0.4
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
@@ -103,7 +103,7 @@ ModelImporter:
     armStretch: 0.05
     legStretch: 0.05
     feetSpacing: 0
-    globalScale: 1
+    globalScale: 0.004
     rootMotionBoneName: 
     hasTranslationDoF: 0
     hasExtraRoot: 0

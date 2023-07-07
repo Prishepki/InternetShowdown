@@ -35,6 +35,7 @@ public class ProjectileBase : NetworkBehaviour
     [Header("Behaviour Settings")]
     [SerializeField, Tooltip("Из-за чего должен удалиться снаряд?"), EnumFlags] protected HitDestroy _destroyMode;
     [SerializeField, Tooltip("После скольких секунд снаряд удалится?"), ShowIf(nameof(_destroyMode), HitDestroy.OnTime), AllowNesting] protected float _destroyTime = 3f;
+    [SerializeField, Tooltip("После скольких столкновений снаряд удалится?"), ShowIf(nameof(_destroyMode), HitDestroy.OnCollide), AllowNesting, Min(1)] protected int _destroyHits = 1;
 
     [Header("Force Settings")]
     [SerializeField, Tooltip("Скорость снаряда")] protected float _projectileSpeed = 10;
@@ -66,6 +67,7 @@ public class ProjectileBase : NetworkBehaviour
     [SerializeField, Tooltip("Тряска экрана при деспавне"), ShowIf(nameof(_shakeEffects), EffectModes.OnDestroy), AllowNesting] protected ShakeEffect _destroyShake;
 
     private Vector3 _targetDirection;
+    private int _collisionCount;
 
     protected virtual void OnCollide(int layer, Vector3 velocity, ContactPoint contactPoint) { } // вызывается когда снаряд касается чего либо (в параметр возвращает слой объекта)
     protected virtual void OnHitPlayer(Vector3 velocity) { } // вызывается когда снаряд касается игрока
@@ -141,11 +143,13 @@ public class ProjectileBase : NetworkBehaviour
     {
         if (!isOwned) return;
 
+        _collisionCount++;
+
         OnCollide(other.gameObject.layer, _rb.velocity, other.contacts[0]); // вызов калбека для кастомного повидения
 
         //Проверки и уничтожение
         CheckForEffects(EffectModes.OnCollide, _collideSound, _collideEffect, _collideShake);
-        CheckForDestroy(HitDestroy.OnCollide);
+        if (_collisionCount == _destroyHits) CheckForDestroy(HitDestroy.OnCollide);
 
         if (other.gameObject.layer == 11)
         {
