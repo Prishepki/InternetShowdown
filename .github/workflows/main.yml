@@ -17,24 +17,30 @@ jobs:
           - StandaloneWindows64 # Build a Windows 64-bit standalone.
           - StandaloneLinux64 # Build a Linux 64-bit standalone.
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/cache@v2
+      - name: Download cache
+        uses: actions/cache@v2
         with:
           path: Library
           key: Library-${{ matrix.targetPlatform }}
           restore-keys: Library-
-      - uses: game-ci/unity-builder@v2
+      - name: Build
+        uses: game-ci/unity-builder@v2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           targetPlatform: ${{ matrix.targetPlatform }}
-      - uses: actions/upload-artifact@v2
+      - name: Zip artifacts for release
+        run: zip build.zip build/* -r
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
         with:
           name: Build-${{ matrix.targetPlatform }}
-          path: build/${{ matrix.targetPlatform }}
+          path: build.zip
   release:
     name: Release
     runs-on: ubuntu-latest
@@ -42,20 +48,22 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
           lfs: true
-      - uses: actions/download-artifact@v3
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          path: downloaded_artifacts
-      - uses: ncipollo/release-action@v1
-        name: Release artifacts
+          path: artifacts
+      - name: Release
+        uses: ncipollo/release-action@v1
         with:
-          artifacts: downloaded_artifacts/*
+          artifacts: artifacts/*
           makeLatest: true
           bodyFile: CHANGELOG.md
-      - uses: geekyeggo/delete-artifact@v2
-        name: Delete artifacts
+      - name: Delete artifacts
+        uses: geekyeggo/delete-artifact@v2
         with:
           name: Build-*
