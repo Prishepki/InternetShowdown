@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: Build-${{ matrix.targetPlatform }}
-          path: build.zip
+          path: ${{ matrix.targetPlatform }}.zip
   release:
     name: Release
     runs-on: ubuntu-latest
