@@ -1,2 +1,3 @@
 аллах порно
-![alt text]([http://url/to/img.png](https://cdn.discordapp.com/attachments/1064390089444180052/1126881881066061956/kafif.png)https://cdn.discordapp.com/attachments/1064390089444180052/1126881881066061956/kafif.png)
+
+![kafif](https://github.com/Prishepki/InternetShowdown/assets/93951756/0540e370-b159-41f1-aad5-7608833ceb94)
