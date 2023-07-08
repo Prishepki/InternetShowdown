@@ -398,7 +398,7 @@ public class NetworkPlayer : NetworkBehaviour
 
     private void SetVariables() // реализация тупая да и хуй с ней хд (короче забей тебе не надо знать зачем это)
     {
-        _groundChecking = (transform.position + Vector3.down, new Vector3(1.5f, 0.3f, 1.5f));
+        _groundChecking = (transform.position + Vector3.down, new Vector3(1.25f, 0.4f, 1.25f));
     }
 
     [Command]
