@@ -113,10 +113,10 @@ MonoBehaviour:
   JumpKey: 32
   DashKey: 304
   GroundDashKey: 306
-  IsMoving: 0
-  IsGrounded: 0
   _particles:
   - {fileID: 177008185980875869, guid: 6c2c03e08575d834195c1923eaeaea13, type: 3}
+  - {fileID: 177008185980875869, guid: f29ef8cdbe5145246b3d742bf6a090d6, type: 3}
+  - {fileID: 275408662450266087, guid: 6586a4f2637b65f4898bb7c01e5b5571, type: 3}
   _jumpSound: {fileID: 8300000, guid: f785b3f95b3712c479e5b4cf5cac59c9, type: 3}
   _dashSound: {fileID: 8300000, guid: 410ff9ab2e57b2247bbd31425f0608a4, type: 3}
   _groundSlamSounds:
@@ -249,7 +249,8 @@ MonoBehaviour:
   syncInterval: 0
   _pickupParticle: {fileID: 1689321560167764970, guid: d46d0a62c6c416a46acfba53d877f16d, type: 3}
   _pickupSound:
-    Sound: {fileID: 8300000, guid: 1b2b0cf763e33044c8fa84cffe13cbed, type: 3}
+    Sounds:
+    - {fileID: 8300000, guid: 1b2b0cf763e33044c8fa84cffe13cbed, type: 3}
     Lock: 0
     Volume: 0.5
     Pitch: {x: 0.85, y: 1.15}
@@ -291,7 +292,7 @@ MonoBehaviour:
     m_Bits: 64
   _minStepHeight: -0.85
   _maxStepHeight: 0.25
-  _stepSpeed: 6
+  _stepSpeed: 10
 --- !u!1 &4215120267258587616
 GameObject:
   m_ObjectHideFlags: 0

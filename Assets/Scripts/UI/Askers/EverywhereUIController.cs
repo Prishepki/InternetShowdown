@@ -48,19 +48,6 @@ public class EverywhereUIController : MonoBehaviour
         _groupsManager.SetGroup(PauseMenu.Singleton.PauseMenuGroup, false, false, false);
     }
 
-    public void RequestLobbySetup(float time) // тупое решение, потом буду плакать от того сколько же говна в моем коде :(
-    {
-        StartCoroutine(nameof(RequestLobbySetupCoroutine), time);
-    }
-
-    private IEnumerator RequestLobbySetupCoroutine(float time)
-    {
-        yield return new WaitUntil(() => SceneManager.GetActiveScene().buildIndex == 2);
-
-        ExposeResults();
-        EverywhereCanvas.Singleton.SwitchUIGameState(CanvasGameStates.Lobby);
-    }
-
     public void ExposeResults()
     {
         ResultsWindow.Singleton.SetWindow(true, !PauseMenu.Singleton.PauseMenuOpened && !EverywhereCanvas.Singleton.IsVotingActive);

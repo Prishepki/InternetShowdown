@@ -79,8 +79,8 @@ public class NetworkPlayer : NetworkBehaviour
     private Vector2 _inputs;
     private Vector3 _playerDirection;
 
-    [HideInInspector] public bool IsMoving;
-    [HideInInspector] public bool IsGrounded;
+    [HideInInspector] public bool IsMoving { get; private set; }
+    [HideInInspector] public bool IsGrounded { get; private set; }
 
     private bool _wantToJump;
 
@@ -598,7 +598,7 @@ public class NetworkPlayer : NetworkBehaviour
     [Command]
     private void CmdSpawnParticle(int idx) // охуевший метод спавна партиклов спасибо миррор
     {
-        GameObject particle = Instantiate(_particles[idx], transform.position, _particles[idx].transform.rotation);
+        GameObject particle = Instantiate(_particles[idx], transform.position, _particles[idx].transform.rotation * _body.transform.rotation);
 
         NetworkServer.Spawn(particle, gameObject);
     }
@@ -695,11 +695,13 @@ public class NetworkPlayer : NetworkBehaviour
         if (!AllowMovement || PauseMenu.Singleton.PauseMenuOpened) return;
 
         float targetForce = IsGrounded ? _dashGroundedForce : _dashAirForce;
+        Vector3 targetDirection = IsMoving ? _playerDirection : new Vector3(_orientation.forward.x, 0, _orientation.forward.z);
 
-        _rb.AddForce(_playerDirection * targetForce, ForceMode.Impulse);
+        _rb.AddForce(targetDirection * targetForce, ForceMode.Impulse);
         TimeoutDash(_dashTimeout);
 
         SoundSystem.Singleton.PlaySFX(new SoundTransporter(_dashSound), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
+        CmdSpawnParticle(1);
     }
 
     private void GroundDash()
@@ -719,6 +721,7 @@ public class NetworkPlayer : NetworkBehaviour
 
         SoundSystem.Singleton.PlaySFX(new SoundTransporter(_groundSlamSounds), new SoundPositioner(transform.position), 0.85f, 1f, 0.6f);
         PlayerMoveCamera.Shake(0.15f, 0.15f);
+        CmdSpawnParticle(2);
     }
 
     public void LogHit()

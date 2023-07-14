@@ -222,7 +222,7 @@ public class ProjectileBase : NetworkBehaviour
     private void PlayProjectileSound(SoundEffect sound)
     {
         SoundPositioner positioner = new SoundPositioner(sound.Lock, transform);
-        SoundSystem.Singleton.PlaySFX(new SoundTransporter(sound.Sound), positioner, sound.Pitch.x, sound.Pitch.y, sound.Volume);
+        SoundSystem.Singleton.PlaySFX(new SoundTransporter(sound.Sounds), positioner, sound.Pitch.x, sound.Pitch.y, sound.Volume);
     }
 
     private void SpawnProjectileEffect(GameObject effect)

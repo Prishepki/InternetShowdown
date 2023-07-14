@@ -29,7 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153284606968098130}
-  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
@@ -37,7 +37,7 @@ Transform:
   - {fileID: 2925803728431548641}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &4673078493703754133
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -120,7 +120,7 @@ CapsuleCollider:
   m_Enabled: 1
   m_Radius: 0.5
   m_Height: 10
-  m_Direction: 2
+  m_Direction: 0
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4823730256535868948
 MonoBehaviour:
@@ -141,6 +141,7 @@ MonoBehaviour:
   _nrb: {fileID: 1267957501214696849}
   _destroyMode: 8
   _destroyTime: 7
+  _destroyHits: 1
   _projectileSpeed: 125
   _projectileDamage: 15
   _forceApplyMode: 0
@@ -149,17 +150,18 @@ MonoBehaviour:
   _particleEffects: 0
   _shakeEffects: 2
   _spawnSound:
-    Sound: {fileID: 0}
+    Sounds: []
     Lock: 0
     Volume: 1
     Pitch: {x: 1, y: 1}
   _collideSound:
-    Sound: {fileID: 8300000, guid: f39c462564f55794db3fa4d558628937, type: 3}
+    Sounds:
+    - {fileID: 8300000, guid: f39c462564f55794db3fa4d558628937, type: 3}
     Lock: 0
-    Volume: 0.65
+    Volume: 0.4
     Pitch: {x: 1, y: 1}
   _destroySound:
-    Sound: {fileID: 0}
+    Sounds: []
     Lock: 0
     Volume: 1
     Pitch: {x: 1, y: 1}
@@ -200,19 +202,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0.000000037748954
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
-      propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -220,7 +222,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: fdebd5d457a3b3644932f02ef97d4915, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z

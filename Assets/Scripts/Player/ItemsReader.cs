@@ -50,7 +50,7 @@ public class ItemsReader : NetworkBehaviour
 
                 SoundSystem.Singleton.PlaySFX
                 (
-                    new SoundTransporter(_pickupSound.Sound),
+                    new SoundTransporter(_pickupSound.Sounds),
                     new SoundPositioner(transform.position),
                     _pickupSound.Pitch.x, _pickupSound.Pitch.y,
                     _pickupSound.Volume
@@ -81,7 +81,7 @@ public class ItemsReader : NetworkBehaviour
     {
         if (!HasItem) return; // если у игрока нету предмета в руках, то выходим из метода
 
-        if (!_player.AllowMovement) return;
+        if (!_player.AllowMovement || PauseMenu.Singleton.PauseMenuOpened) return;
 
         bool holdToUse = _currentItem.HoldToUse;
 

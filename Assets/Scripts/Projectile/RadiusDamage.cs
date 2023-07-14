@@ -1,5 +1,5 @@
-using System.Collections;
 using Mirror;
+using NaughtyAttributes;
 using UnityEngine;
 
 public class RadiusDamage : NetworkBehaviour
@@ -7,8 +7,21 @@ public class RadiusDamage : NetworkBehaviour
     [SerializeField] private float _radius;
     [SerializeField] private float _damage;
 
+    [Space(9)]
+    [SerializeField] private bool _castDamageOvertime;
+    [SerializeField, ShowIf(nameof(_castDamageOvertime)), AllowNesting] private float _lifetime = 5f;
+    [SerializeField, ShowIf(nameof(_castDamageOvertime)), AllowNesting] private float _interval = 0.5f;
+
     public override void OnStartAuthority()
     {
+        if (_castDamageOvertime)
+        {
+            InvokeRepeating(nameof(CastRadiusDamage), 0, _interval);
+            Invoke(nameof(CancelDamageOvertime), _lifetime);
+
+            return;
+        };
+
         CastRadiusDamage();
     }
 
@@ -26,6 +39,11 @@ public class RadiusDamage : NetworkBehaviour
                 outPlayer.CmdHitPlayer(NetworkClient.localPlayer, _damage + PlayerMutationStats.Singleton.Damage);
             }
         }
+    }
+
+    private void CancelDamageOvertime()
+    {
+        CancelInvoke(nameof(CastRadiusDamage));
     }
 
     private void OnDrawGizmos()

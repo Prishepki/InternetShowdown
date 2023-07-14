@@ -864,6 +864,7 @@ MonoBehaviour:
   syncDirection: 0
   syncMode: 0
   syncInterval: 0
+  _gameInfo: {fileID: 697146441001113946, guid: 632057bbb96451b458c0ee1ec349287f, type: 3}
   _breakLength: 40
   _roundsToLagreBreak: 5
   _largeBreakLength: 180

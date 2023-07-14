@@ -13,26 +13,36 @@ public class MusicSystem : MonoBehaviour
         return FindObjectOfType<MusicSystem>(true);
     }
 
-    public static ActiveMusic StartMusic(MusicGameStates state, float offset = 0f)
+    public static int? GetIndex(MusicGameState state)
+    {
+        MusicSystem current = Singleton();
+
+        if (state == MusicGameState.Lobby)
+        {
+            if (current._lobbySoundtracks.Count != 0) return Random.Range(0, current._lobbySoundtracks.Count);
+        }
+        else if (state == MusicGameState.Match)
+        {
+            if (current._matchSoundtracks.Count != 0) return Random.Range(0, current._matchSoundtracks.Count);
+        }
+
+        return null;
+    }
+
+    public static ActiveMusic StartMusic(MusicGameState state, float offset = 0f, int? idx = null)
     {
         MusicSystem current = Singleton();
 
         AudioClip target = null;
         AudioSource source = null;
 
-        if (state == MusicGameStates.Lobby)
+        if (state == MusicGameState.Lobby)
         {
-            if (current._lobbySoundtracks.Count > 0)
-            {
-                target = current._lobbySoundtracks[Random.Range(0, current._lobbySoundtracks.Count)];
-            }
+            if (current._lobbySoundtracks.Count > 0) target = current._lobbySoundtracks[idx ?? Random.Range(0, current._lobbySoundtracks.Count)];
         }
-        else if (state == MusicGameStates.Match)
+        else if (state == MusicGameState.Match)
         {
-            if (current._matchSoundtracks.Count > 0)
-            {
-                target = current._matchSoundtracks[Random.Range(0, current._matchSoundtracks.Count)];
-            }
+            if (current._matchSoundtracks.Count > 0) target = current._matchSoundtracks[idx ?? Random.Range(0, current._matchSoundtracks.Count)];
         }
 
         if (target == null)
@@ -62,7 +72,7 @@ public class ActiveMusic
     public AudioSource Source;
 }
 
-public enum MusicGameStates
+public enum MusicGameState
 {
     Lobby,
     Match

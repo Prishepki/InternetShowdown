@@ -83,6 +83,16 @@ MonoBehaviour:
   - {fileID: 8300000, guid: c72a4e0cb87ffce4bad94d41ce3d39f4, type: 3}
   - {fileID: 8300000, guid: 1b87ce49fc630a848bc69acb5959314f, type: 3}
   - {fileID: 8300000, guid: 1b2b0cf763e33044c8fa84cffe13cbed, type: 3}
+  - {fileID: 8300000, guid: a2b299495a2387e40a605432a88c5936, type: 3}
+  - {fileID: 8300000, guid: 52d0bf5401d259b449d05f0417fed843, type: 3}
+  - {fileID: 8300000, guid: f8457dbe1b94a52478a16b1ed3d008c2, type: 3}
+  - {fileID: 8300000, guid: e52a2052a54a2144587a837446b2d419, type: 3}
+  - {fileID: 8300000, guid: e7d199074446bd842bdc2ccf16f2728f, type: 3}
+  - {fileID: 8300000, guid: 47ffba2cb23087b469963e9256f31021, type: 3}
+  - {fileID: 8300000, guid: 8f05068de8a38e24989007922ca3ea41, type: 3}
+  - {fileID: 8300000, guid: e66cda90c0efcc14b9dab0ae0ace76ce, type: 3}
+  - {fileID: 8300000, guid: 26924ca056488594284570260db39272, type: 3}
+  - {fileID: 8300000, guid: ddfe5fe49aa590042aab506f22471ba8, type: 3}
 --- !u!114 &4859153588020420742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -97,8 +107,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lobbySoundtracks: []
   _matchSoundtracks:
-  - {fileID: 8300000, guid: 7f9d9caaba12fe446a48bf1fb8c100a6, type: 3}
-  - {fileID: 8300000, guid: b29c030dd9e617146b895bf673d71b47, type: 3}
-  - {fileID: 8300000, guid: 0ecc5489309dee541859c518eaff9d41, type: 3}
-  - {fileID: 8300000, guid: 9807e34f98008d541b9da9fb3ce4afd2, type: 3}
-  - {fileID: 8300000, guid: 9e03959b6e169e44fb8657195cd3200f, type: 3}
+  - {fileID: 8300000, guid: 9db5a76890339844a9f5990120d02ae5, type: 3}
+  - {fileID: 8300000, guid: 468eab5836c505248b37e0f4944094f0, type: 3}
+  - {fileID: 8300000, guid: b73a516f07ac2144f84b4bcd66466200, type: 3}
+  - {fileID: 8300000, guid: 89cf3c5a04bb7824abcbfbdc872a91af, type: 3}
+  - {fileID: 8300000, guid: caefc3c713c663647a5a0141156d12f7, type: 3}

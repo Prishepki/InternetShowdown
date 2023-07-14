@@ -15,7 +15,7 @@ public class CameraMovement : MonoBehaviour
 
     [Header("Tilting")]
     [SerializeField] private float _tiltSmoothing = 0.15f;
-    [SerializeField] private float _tiltAmount = 5.0f;
+    [SerializeField] private float _tiltAmount = 2.5f;
 
     [Header("Bobbing")]
     [SerializeField] private float _bobbingAmount = 2.5f;

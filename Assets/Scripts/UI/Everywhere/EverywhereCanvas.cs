@@ -364,9 +364,9 @@ public class EverywhereCanvas : MonoBehaviour, IEverywhereCanvas // юи кот�
         OthersNickname.gameObject.SetActive(show);
     }
 
-    public void FadeUIGameState(CanvasGameStates state)
+    public void FadeUIGameState(CanvasGameState state)
     {
-        (float lobbyEnd, float gameEnd) endValues = state == CanvasGameStates.Lobby ? (1, 0) : (0, 1);
+        (float lobbyEnd, float gameEnd) endValues = state == CanvasGameState.Lobby ? (1, 0) : (0, 1);
 
         KillGameStateTweens();
 
@@ -380,14 +380,14 @@ public class EverywhereCanvas : MonoBehaviour, IEverywhereCanvas // юи кот�
         _gameGroupTween.Kill(true);
     }
 
-    public void SwitchUIGameState(CanvasGameStates state)
+    public void SwitchUIGameState(CanvasGameState state)
     {
-        if (state == CanvasGameStates.Lobby)
+        if (state == CanvasGameState.Lobby)
         {
             _inLobby.alpha = 1;
             _inGame.alpha = 0;
         }
-        else if (state == CanvasGameStates.Game)
+        else if (state == CanvasGameState.Game)
         {
             _inLobby.alpha = 0;
             _inGame.alpha = 1;
@@ -561,7 +561,7 @@ public class EverywhereCanvas : MonoBehaviour, IEverywhereCanvas // юи кот�
     }
 }
 
-public enum CanvasGameStates
+public enum CanvasGameState
 {
     Lobby,
     Game

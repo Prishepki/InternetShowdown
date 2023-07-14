@@ -10,29 +10,6 @@ using UnityEngine.UI;
 [RequireComponent(typeof(MaskableGraphic))]
 public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, ISelectHandler, IDeselectHandler
 {
-    private bool _interactable = true;
-
-    public bool Interactable
-    {
-        get
-        {
-            return _interactable;
-        }
-
-        set
-        {
-            _interactable = value;
-
-            CompleteTweens();
-            StopCoroutine(nameof(TweenCoroutine));
-
-            if (_exitTween != null)
-            {
-                DoTween(_exitTween);
-            }
-        }
-    }
-
     [Header("Components")]
     public MaskableGraphic ColorTarget;
     public Transform SizeTarget;
@@ -81,8 +58,6 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (!_interactable) return;
-
         SetStats(_clickTween);
 
         GraphicTween targetTween = IsHighlighted ? _enterTween : _exitTween;
@@ -91,16 +66,12 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (!_interactable) return;
-
         IsHighlighted = true;
         DoTween(_enterTween);
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!_interactable) return;
-
         IsHighlighted = false;
         DoTween(_exitTween);
     }
@@ -108,14 +79,6 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
     private void DoTween(GraphicTween tween)
     {
         if (IsSelected || !gameObject.activeInHierarchy) return;
-
-        StopCoroutine(nameof(TweenCoroutine));
-        StartCoroutine(nameof(TweenCoroutine), tween);
-    }
-
-    private IEnumerator TweenCoroutine(GraphicTween tween)
-    {
-        yield return new WaitUntil(() => !_isTweenActive);
 
         MakeTween(tween);
     }
@@ -130,7 +93,7 @@ public class TweeningGraphic : MonoBehaviour, IPointerClickHandler, IPointerEnte
 
     private void CompleteTweens()
     {
-        if (_sizeTween != null && _colorTween != null)
+        if (!_isTweenActive)
         {
             _sizeTween.Complete();
             _colorTween.Complete();

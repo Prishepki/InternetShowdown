@@ -112,6 +112,7 @@ MonoBehaviour:
   _nrb: {fileID: 1267957501214696849}
   _destroyMode: 3
   _destroyTime: 3
+  _destroyHits: 1
   _projectileSpeed: 125
   _projectileDamage: 40
   _forceApplyMode: 0
@@ -120,20 +121,21 @@ MonoBehaviour:
   _particleEffects: 4
   _shakeEffects: 4
   _spawnSound:
-    Sound: {fileID: 0}
+    Sounds: []
+    Lock: 0
     Volume: 0
     Pitch: {x: 0, y: 0}
-    Lock: 0
   _collideSound:
-    Sound: {fileID: 8300000, guid: e0d77011221b09848a88546cc21fb435, type: 3}
+    Sounds: []
+    Lock: 0
     Volume: 0.65
     Pitch: {x: 0.8, y: 1}
-    Lock: 0
   _destroySound:
-    Sound: {fileID: 8300000, guid: 6871c019eab9c814e8718b211abb77b5, type: 3}
+    Sounds:
+    - {fileID: 8300000, guid: 6871c019eab9c814e8718b211abb77b5, type: 3}
+    Lock: 0
     Volume: 1
     Pitch: {x: 0.85, y: 1.15}
-    Lock: 0
   _spawnEffect: {fileID: 0}
   _collideEffect: {fileID: 0}
   _destroyEffect: {fileID: 4237961520091606312, guid: 0aa3aaa7e404a0f4483c4849bac31680, type: 3}

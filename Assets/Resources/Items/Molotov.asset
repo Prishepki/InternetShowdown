@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce8670c9662d9c44685d489fb36bead4, type: 3}
+  m_Name: Molotov
+  m_EditorClassIdentifier: 
+  ItemVisual: {fileID: 1889120004865829391, guid: 97ca8a03ea0eddc45abbe5b32a6e51ce, type: 3}
+  ItemRarity: 1
+  HoldToUse: 0
+  UseTime: 1
+  Mutations: []
+  Projectiles:
+  - {fileID: 2617470094083219768, guid: 700bf7755288f3e46a2820f103f6d408, type: 3}
+  HealAmount: 0

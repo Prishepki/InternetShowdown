@@ -122,17 +122,18 @@ MonoBehaviour:
   _particleEffects: 4
   _shakeEffects: 0
   _spawnSound:
-    Sound: {fileID: 0}
+    Sounds: []
     Lock: 0
     Volume: 1
     Pitch: {x: 1, y: 1}
   _collideSound:
-    Sound: {fileID: 0}
+    Sounds: []
     Lock: 0
     Volume: 1
     Pitch: {x: 1, y: 1}
   _destroySound:
-    Sound: {fileID: 8300000, guid: 6464078d0ad100649b2a53b37fb35246, type: 3}
+    Sounds:
+    - {fileID: 8300000, guid: 6464078d0ad100649b2a53b37fb35246, type: 3}
     Lock: 0
     Volume: 1
     Pitch: {x: 1, y: 1}
